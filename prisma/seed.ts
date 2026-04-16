@@ -8,6 +8,7 @@ async function main() {
   await prisma.track.deleteMany();
   await prisma.material.deleteMany();
   await prisma.topic.deleteMany();
+  await prisma.deadline.deleteMany();
   await prisma.unit.deleteMany();
   await prisma.announcement.deleteMany();
   await prisma.hiveMember.deleteMany();
@@ -82,6 +83,24 @@ async function main() {
       unitId: unit2.id,
       position: 1,
       status: TopicStatus.COMPLETED,
+    }
+  });
+
+  // @ts-ignore
+  await prisma.deadline.create({
+    data: {
+      title: "Stereochemistry Assignment",
+      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tomorrow
+      hiveId: hive.id
+    }
+  });
+
+  // @ts-ignore
+  await prisma.deadline.create({
+    data: {
+      title: "Quiz: Reaction Mechanisms",
+      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // Next week
+      hiveId: hive.id
     }
   });
 

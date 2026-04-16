@@ -5,7 +5,7 @@ import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncement
 import { AnnouncementCard } from "@/components/hive/AnnouncementCard";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ActivityFeedItem } from "@/components/hive/ActivityFeedItem";
-import { announcementsData, deadlinesData, activitiesData } from "@/lib/data";
+import { announcementsData, activitiesData } from "@/lib/data";
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -20,10 +20,49 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
         include: { author: true },
       },
       members: true,
+      deadlines: {
+        orderBy: { dueDate: "asc" },
+      }
     },
   });
 
   if (!hive) return notFound();
+
+  const mappedDeadlines = hive.deadlines.map((d: any) => {
+    const diff = new Date(d.dueDate).getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    let dueDateText = "";
+    let dueColor = "on-surface/40";
+    let indicatorColor = "bg-outline-variant";
+
+    if (days === 0) {
+      dueDateText = "Due Today";
+      dueColor = "error";
+      indicatorColor = "bg-error";
+    } else if (days === 1) {
+      dueDateText = "Due Tomorrow";
+      dueColor = "error";
+      indicatorColor = "bg-error";
+    } else if (days < 0) {
+      dueDateText = "Overdue";
+      dueColor = "error";
+      indicatorColor = "bg-error";
+    } else if (days < 7) {
+      dueDateText = "This Week";
+    } else {
+      dueDateText = "Next Week";
+    }
+
+    return {
+      id: d.id,
+      title: d.title,
+      dueDate: dueDateText,
+      dueColor,
+      dateBadge: new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short' }).format(new Date(d.dueDate)),
+      indicatorColor
+    };
+  });
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -48,9 +87,14 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
           </div>
 
           <div className="space-y-3">
-            {deadlinesData.map(deadline => (
+            {mappedDeadlines.map(deadline => (
               <DeadlineItem key={deadline.id} deadline={deadline} />
             ))}
+            {mappedDeadlines.length === 0 && (
+              <p className="text-on-surface-variant/40 text-[10px] font-bold text-center py-4">
+                No upcoming deadlines
+              </p>
+            )}
           </div>
         </div>
       </div>

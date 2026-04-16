@@ -44,6 +44,23 @@ model Hive {
   tracks        Track[]
   materials     Material[]
   announcements Announcement[]
+  deadlines     Deadline[]
+}
+
+// ─────────────────────────────────────────
+// Deadline
+// ─────────────────────────────────────────
+model Deadline {
+  id        String   @id @default(cuid())
+  title     String
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+
+  @@index([hiveId, dueDate])
 }
 
 // Many-to-many join table: User <-> Hive
