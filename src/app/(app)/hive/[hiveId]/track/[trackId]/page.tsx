@@ -1,5 +1,5 @@
 import React from "react";
-import { MaterialTile } from "@/components/MaterialTile";
+import { MaterialTile } from "@/components/track/MaterialTile";
 
 export default function TrackDetailsPage() {
   return (
