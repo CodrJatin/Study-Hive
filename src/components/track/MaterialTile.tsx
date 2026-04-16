@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useOptimistic, useTransition } from "react";
-import { toggleMaterialComplete } from "@/actions/track";
+import { toggleTopicStatus } from "@/actions/syllabus";
+import { TopicStatus } from "@prisma/client";
 
-export function MaterialTile({ material }: { material: any }) {
+export function MaterialTile({ material, hiveId }: { material: any, hiveId: string }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, addOptimisticStatus] = useOptimistic(
     material.completed,
@@ -13,7 +14,11 @@ export function MaterialTile({ material }: { material: any }) {
   const handleToggle = () => {
     startTransition(async () => {
       addOptimisticStatus(!optimisticStatus);
-      await toggleMaterialComplete(material.id, !optimisticStatus);
+      await toggleTopicStatus(
+        material.id, 
+        optimisticStatus ? TopicStatus.COMPLETED : TopicStatus.NOT_STARTED, 
+        hiveId
+      );
     });
   };
 

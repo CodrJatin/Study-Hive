@@ -1,15 +1,10 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { dashboardHivesData } from "@/lib/data";
 
-export function SidebarBranding() {
+export function SidebarBranding({ hiveTitle }: { hiveTitle: string }) {
   const params = useParams();
   const hiveId = params?.hiveId;
-
-  // Find the hive title from our mock data
-  const hive = dashboardHivesData.find((h) => h.id === hiveId);
-  const hiveTitle = hive ? hive.title : "StudyHive";
 
   return (
     <div className="px-4 py-2 mb-2">

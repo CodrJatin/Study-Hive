@@ -1,20 +1,43 @@
 import React from "react";
 import { MaterialTile } from "@/components/track/MaterialTile";
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
-export default function TrackDetailsPage() {
+export default async function TrackDetailsPage({ params }: { params: Promise<{ hiveId: string, trackId: string }> }) {
+  const { hiveId, trackId } = await params;
+  const track = await prisma.track.findUnique({
+    where: { id: trackId },
+    include: {
+      trackTopics: {
+        include: {
+          topic: true
+        },
+        orderBy: { position: 'asc' }
+      }
+    }
+  });
+
+  if (!track || track.hiveId !== hiveId) {
+    notFound();
+  }
+
+  // Calculate progress
+  const completedTopics = track.trackTopics.filter(tt => tt.topic.status === 'COMPLETED').length;
+  const totalTopics = track.trackTopics.length;
+  const progressPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Header Section */}
       <div className="mb-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-2 gap-4">
-          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">Mid-sem Prep</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">{track.name}</h1>
           <span className="bg-tertiary-fixed text-on-tertiary-fixed-variant px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest self-start md:self-auto">
-            In Progress
+            {progressPercent === 100 ? "Completed" : "In Progress"}
           </span>
         </div>
         <p className="text-stone-500 mb-8 max-w-2xl leading-relaxed">
-          A curated study track designed to cover core reaction mechanisms and orbital theory ahead of the mid-semester
-          examination.
+          {track.description || "A curated study track designed to cover core materials."}
         </p>
 
         {/* Overall Progress */}
@@ -22,12 +45,12 @@ export default function TrackDetailsPage() {
           <div className="flex justify-between items-end mb-3">
             <div>
               <p className="text-xs font-bold text-primary uppercase tracking-tighter">Your Journey</p>
-              <p className="text-lg font-bold text-on-surface">33% Completed</p>
+              <p className="text-lg font-bold text-on-surface">{progressPercent}% Completed</p>
             </div>
-            <p className="text-sm font-medium text-stone-500">1 of 3 tasks done</p>
+            <p className="text-sm font-medium text-stone-500">{completedTopics} of {totalTopics} tasks done</p>
           </div>
           <div className="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-tertiary w-1/3 rounded-full transition-all duration-500"></div>
+            <div className="h-full bg-gradient-to-r from-primary to-tertiary rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
           </div>
         </div>
       </div>
@@ -35,32 +58,19 @@ export default function TrackDetailsPage() {
       <div className="space-y-6">
         <h2 className="text-lg font-bold text-on-surface-variant px-1">Active Curriculum</h2>
 
-        <MaterialTile material={{
-          id: '1',
-          title: 'Unit 1: Foundations of Molecular Orbitals',
-          type: 'PDF',
-          details: '12MB',
-          instructions: '"Read pages 1 - 12 then 35 to 45. Focus on the hybridization diagrams."',
-          completed: true
-        }} />
-
-        <MaterialTile material={{
-          id: '2',
-          title: 'Reaction Mechanisms Overview',
-          type: 'Video',
-          details: '15:00 mins',
-          instructions: '"Watch the first 15 minutes. Pay close attention to nucleophilic attack sequences."',
-          completed: false
-        }} />
-
-        <MaterialTile material={{
-          id: '3',
-          title: 'Practice Set: Alkanes & Alkenes',
-          type: 'Doc',
-          details: 'Assignment',
-          instructions: '"Complete problems 1-10 on page 4. Show all electron pushing arrows."',
-          completed: false
-        }} />
+        {track.trackTopics.map((tt: any) => {
+          const t = tt.topic;
+          return (
+            <MaterialTile key={t.id} material={{
+              id: t.id,
+              title: t.title,
+              completed: t.status === 'COMPLETED',
+              type: "TOPIC",
+              details: t.duration ? t.duration : "Unknown duration",
+              instructions: "Study this topic thoroughly."
+            }} hiveId={hiveId} />
+          );
+        })}
       </div>
 
       {/* Bento Style Secondary Stats */}

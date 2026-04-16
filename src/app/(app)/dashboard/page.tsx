@@ -3,8 +3,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { HiveCard } from "@/components/dashboard/HiveCard";
 import { AddHiveCard } from "@/components/dashboard/AddHiveCard";
-import { dashboardHivesData } from "@/lib/data";
-export default function DashboardPage() {
+import { prisma } from "@/lib/prisma";
+
+const MOCK_USER_ID = "cm0x_mock_user_1";
+
+export default async function DashboardPage() {
+  const hiveMemberships = await prisma.hiveMember.findMany({
+    where: { userId: MOCK_USER_ID },
+    include: { hive: true },
+  });
+
+  const hives = hiveMemberships.map((membership) => membership.hive);
+
   return (
     <main className="px-6 md:px-12 py-8 max-w-7xl mx-auto">
       {/* Welcome Hero (Editorial Pattern) */}
@@ -24,8 +34,12 @@ export default function DashboardPage() {
 
       {/* Bento Grid for Hive Cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {dashboardHivesData.map(hive => (
-          <HiveCard key={hive.id} hive={hive} />
+        {hives.map(hive => (
+          <HiveCard key={hive.id} hive={{
+            id: hive.id,
+            title: hive.title,
+            nextDeadline: hive.targetDate ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(hive.targetDate) : "No deadlines",
+          }} />
         ))}
         
         {/* Add New Hive Card (Asymmetric Layout Element) */}

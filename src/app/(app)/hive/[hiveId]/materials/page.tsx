@@ -1,16 +1,32 @@
 import React from "react";
-import { materialsData } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 import { MaterialCard } from "@/components/materials/MaterialCard";
 
-export default function MaterialsPage() {
-  // Group materials by category for better display
-  const groupedMaterials = materialsData.reduce((acc, material) => {
-    if (!acc[material.category]) {
-      acc[material.category] = [];
+function getMaterialStyling(type: string) {
+  switch (type) {
+    case 'PDF': return { icon: 'picture_as_pdf', iconBg: 'bg-error/10', iconColor: 'text-error' };
+    case 'VIDEO': return { icon: 'play_circle', iconBg: 'bg-primary-container', iconColor: 'text-primary' };
+    case 'DOC': return { icon: 'description', iconBg: 'bg-tertiary-container', iconColor: 'text-tertiary' };
+    case 'LINK': return { icon: 'link', iconBg: 'bg-secondary-container', iconColor: 'text-secondary' };
+    default: return { icon: 'article', iconBg: 'bg-surface-container-high', iconColor: 'text-on-surface' };
+  }
+}
+
+export default async function MaterialsPage({ params }: { params: Promise<{ hiveId: string }> }) {
+  const { hiveId } = await params;
+  const materials = await prisma.material.findMany({
+    where: { hiveId: hiveId },
+    orderBy: { createdAt: "desc" }
+  });
+
+  // Group materials by type since category does not exist in schema
+  const groupedMaterials = materials.reduce((acc, material: any) => {
+    if (!acc[material.type]) {
+      acc[material.type] = [];
     }
-    acc[material.category].push(material);
+    acc[material.type].push(material);
     return acc;
-  }, {} as Record<string, typeof materialsData>);
+  }, {} as Record<string, any[]>);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -61,32 +77,38 @@ export default function MaterialsPage() {
 
       {/* Grid Layout */}
       <div className="space-y-12">
-        {Object.entries(groupedMaterials).map(([category, items]) => (
-          <section key={category}>
+        {Object.entries(groupedMaterials).map(([type, items]) => (
+          <section key={type}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-4 flex-grow">
                 <h2 className="text-xl font-headline font-bold text-on-surface tracking-tight w-full md:w-auto">
-                  {category}
+                  {type} Resources
                 </h2>
                 <div className="h-[1px] flex-grow bg-surface-container-highest hidden md:block"></div>
               </div>
-              {category.includes('Unit') && (
-                <button className="bg-primary text-on-primary px-5 py-2.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 shrink-0">
-                  <span className="material-symbols-outlined text-[18px]" data-icon="download">
-                    download
-                  </span>
-                  Download Unit
-                </button>
-              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map(material => (
-                <MaterialCard key={material.id} material={material} />
-              ))}
+              {items.map((m: any) => {
+                const styling = getMaterialStyling(m.type);
+                return (
+                  <MaterialCard key={m.id} material={{
+                    id: m.id,
+                    title: m.title,
+                    type: m.type,
+                    description: "Uploaded resource",
+                    size: m.sizeBytes ? `${(m.sizeBytes / 1024 / 1024).toFixed(1)} MB` : "Link",
+                    linkTitle: "Open",
+                    ...styling
+                  }} />
+                );
+              })}
             </div>
           </section>
         ))}
+        {materials.length === 0 && (
+          <p className="text-on-surface-variant">No materials found for this hive.</p>
+        )}
       </div>
     </div>
   );

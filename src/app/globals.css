@@ -101,3 +101,43 @@
     backdrop-filter: blur(20px);
   }
 }
+
+html {
+  scrollbar-gutter: stable;
+}
+@layer base {
+  /* Targeted for Webkit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 10px;               /* Width of the vertical scrollbar */
+    height: 10px;              /* Height of the horizontal scrollbar */
+  }
+
+  /* The background of the scrollbar (The Track) */
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface-container-low); 
+    border-radius: 20px;
+    margin-block: 8px;         /* Creates a gap at top and bottom */
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05), 
+                inset -2px -2px 5px rgba(255, 255, 255, 0.5); /* Clay-inset look */
+  }
+
+  /* The draggable part (The Thumb) */
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-outline-variant); 
+    border-radius: 20px;
+    border: 2px solid var(--color-surface-container-low); /* Creates "padding" around the thumb */
+    transition: all 0.3s ease;
+  }
+
+  /* Hover state for the thumb */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary); /* Changes to theme color on hover */
+    box-shadow: 0 0 8px var(--color-primary-container);
+  }
+
+  /* Firefox Support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-variant) var(--color-surface-container-low);
+  }
+}

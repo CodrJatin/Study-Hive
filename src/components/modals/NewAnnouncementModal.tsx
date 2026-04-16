@@ -2,8 +2,15 @@
 
 import React from "react";
 
-export function NewAnnouncementModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+import { createAnnouncement } from "@/actions/announcement";
+
+export function NewAnnouncementModal({ isOpen, onClose, hiveId }: { isOpen: boolean; onClose: () => void, hiveId: string }) {
   if (!isOpen) return null;
+
+  const action = async (formData: FormData) => {
+    await createAnnouncement(hiveId, formData);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -14,12 +21,13 @@ export function NewAnnouncementModal({ isOpen, onClose }: { isOpen: boolean; onC
       ></div>
 
       {/* Modal Container */}
-      <div className="w-full max-w-xl bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_12px_32px_rgba(27,28,28,0.06)] ring-1 ring-on-surface/5 flex flex-col relative z-10 clay-card animate-in fade-in zoom-in duration-300">
+      <form action={action} className="w-full max-w-xl bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_12px_32px_rgba(27,28,28,0.06)] ring-1 ring-on-surface/5 flex flex-col relative z-10 clay-card animate-in fade-in zoom-in duration-300">
         
         {/* Modal Header */}
         <div className="flex justify-between items-center px-10 py-8">
           <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight">Create Announcement</h2>
           <button 
+            type="button"
             onClick={onClose}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface/60"
           >
@@ -34,9 +42,11 @@ export function NewAnnouncementModal({ isOpen, onClose }: { isOpen: boolean; onC
               Announcement Title
             </label>
             <input 
+              name="title"
               className="w-full bg-surface-container-high border-none rounded-xl px-6 py-4 text-on-surface placeholder:text-on-surface/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-body outline-none" 
               placeholder="e.g., Upcoming Lab Session Details" 
               type="text" 
+              required
             />
           </div>
           
@@ -45,9 +55,11 @@ export function NewAnnouncementModal({ isOpen, onClose }: { isOpen: boolean; onC
               Content
             </label>
             <textarea 
+              name="content"
               className="w-full bg-surface-container-high border-none rounded-xl px-6 py-4 text-on-surface placeholder:text-on-surface/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-body resize-none outline-none" 
               placeholder="Write your announcement here..." 
               rows={6}
+              required
             ></textarea>
           </div>
           
@@ -67,16 +79,17 @@ export function NewAnnouncementModal({ isOpen, onClose }: { isOpen: boolean; onC
         {/* Action Bar */}
         <div className="px-10 py-8 bg-surface-container-low/50 flex justify-end items-center gap-4">
           <button 
+            type="button"
             onClick={onClose}
             className="px-8 py-3 text-on-surface/70 font-headline font-bold hover:text-on-surface transition-colors"
           >
             Cancel
           </button>
-          <button className="px-10 py-3 cta-gradient text-white rounded-full font-headline font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+          <button type="submit" className="px-10 py-3 cta-gradient text-white rounded-full font-headline font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
             Post Announcement
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

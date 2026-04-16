@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-export function TrackCard({ track }: { track: any }) {
+export function TrackCard({ track, hiveId }: { track: any, hiveId: string }) {
   return (
     <div className="group bg-surface-container-low rounded-xl p-6 hover:bg-surface-container-lowest transition-all duration-300 relative overflow-hidden clay-card">
       <div className={`absolute top-0 right-0 w-24 h-24 bg-${track.colorScheme}/5 rounded-bl-full transition-all group-hover:w-32 group-hover:h-32`}></div>
@@ -35,7 +35,7 @@ export function TrackCard({ track }: { track: any }) {
           <span className="material-symbols-outlined text-sm">schedule</span> {track.daysLeft} Days left
         </span>
       </div>
-      <Link href={`/hive/1/track/${track.id}`} className="absolute inset-0 z-10" aria-label={`Open ${track.title}`}></Link>
+      <Link href={`/hive/${hiveId}/track/${track.id}`} className="absolute inset-0 z-10" aria-label={`Open ${track.title}`}></Link>
     </div>
   );
 }

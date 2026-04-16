@@ -1,47 +1,34 @@
 import React from "react";
 import Link from "next/link";
+import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
-import { ProgressBar } from "@/components/hive/ProgressBar";
 import { AnnouncementCard } from "@/components/hive/AnnouncementCard";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ActivityFeedItem } from "@/components/hive/ActivityFeedItem";
 import { announcementsData, deadlinesData, activitiesData } from "@/lib/data";
 
-export default function HiveGeneralPage() {
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+
+export default async function HiveGeneralPage({ params }: { params: Promise<{ hiveId: string }> }) {
+  const { hiveId } = await params;
+  const hive = await prisma.hive.findUnique({
+    where: { id: hiveId },
+    include: {
+      announcements: {
+        orderBy: { createdAt: "desc" },
+        include: { author: true },
+      },
+      members: true,
+    },
+  });
+
+  if (!hive) return notFound();
+
   return (
     <div className="max-w-6xl mx-auto">
-      {/* New Consolidated Hero Card */}
       <div className="mb-12 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col md:flex-row clay-card">
-        {/* Left Side: Title & Mastery */}
-        <div className="flex-1 p-8 md:p-10 border-b md:border-b-0 md:border-r border-outline-variant/10 flex flex-col">
-          <div className="flex items-start justify-between mb-10">
-            <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
-                Organic Chemistry
-              </h1>
-              <p className="text-on-surface/50 font-medium mt-3 uppercase tracking-widest text-xs flex items-center gap-2">
-                <span className="material-symbols-outlined text-base" data-icon="school">
-                  school
-                </span>
-                Winter Semester 2024
-              </p>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button className="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
-                <span className="material-symbols-outlined text-xl" data-icon="share">
-                  share
-                </span>
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
-                <span className="material-symbols-outlined text-xl" data-icon="more_vert">
-                  more_vert
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <ProgressBar progress={45} label="Hive Mastery" labelSecondary="Course completion" />
-        </div>
+        <HiveOverviewCard hive={hive} />
 
         {/* Right Side: Deadlines */}
         <div className="w-full md:w-[380px] bg-surface-container-low/50 p-8 md:p-10 flex flex-col clay-inset border-none rounded-none md:rounded-r-[2rem]">
@@ -79,11 +66,17 @@ export default function HiveGeneralPage() {
               </span>
               Announcements
             </h3>
-            <CreateAnnouncementAction />
+            <CreateAnnouncementAction hiveId={hive.id} />
           </div>
           <div className="space-y-4">
-            {announcementsData.map(announcement => (
-              <AnnouncementCard key={announcement.id} announcement={announcement} />
+            {hive.announcements.map((announcement: any) => (
+              <AnnouncementCard key={announcement.id} announcement={{
+                title: announcement.title,
+                content: announcement.content,
+                timeAgo: new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(announcement.createdAt),
+                authorInitials: announcement.author.name.charAt(0).toUpperCase(),
+                authorName: announcement.author.name
+              }} />
             ))}
           </div>
         </section>

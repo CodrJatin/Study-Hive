@@ -211,3 +211,30 @@ export const dashboardHivesData = [
     nextDeadline: "Oct 28",
   }
 ];
+
+export const trackMaterialsData = [
+  {
+    id: '1',
+    title: 'Unit 1: Foundations of Molecular Orbitals',
+    type: 'PDF',
+    details: '12MB',
+    instructions: '"Read pages 1 - 12 then 35 to 45. Focus on the hybridization diagrams."',
+    completed: true
+  },
+  {
+    id: '2',
+    title: 'Reaction Mechanisms Overview',
+    type: 'Video',
+    details: '15:00 mins',
+    instructions: '"Watch the first 15 minutes. Pay close attention to nucleophilic attack sequences."',
+    completed: false
+  },
+  {
+    id: '3',
+    title: 'Practice Set: Alkanes & Alkenes',
+    type: 'Doc',
+    details: 'Assignment',
+    instructions: '"Complete problems 1-10 on page 4. Show all electron pushing arrows."',
+    completed: false
+  }
+];
