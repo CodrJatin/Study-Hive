@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────
+// User — the person studying in the hive
+// ─────────────────────────────────────────
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  avatarColor String   @default("#fdc003") // hex, used in UI
+  role        HiveRole @default(MEMBER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  hiveMembers HiveMember[]
+  announcements Announcement[]
+}
+
+// ─────────────────────────────────────────
+// Hive — the top-level course container
+// ─────────────────────────────────────────
+model Hive {
+  id          String    @id @default(cuid())
+  title       String
+  subject     String
+  description String?
+  targetDate  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  members       HiveMember[]
+  units         Unit[]
+  tracks        Track[]
+  materials     Material[]
+  announcements Announcement[]
+}
+
+// Many-to-many join table: User <-> Hive
+model HiveMember {
+  id       String   @id @default(cuid())
+  role     HiveRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+
+  @@unique([userId, hiveId])
+}
+
+enum HiveRole {
+  ADMIN
+  MEMBER
+}
+
+// ─────────────────────────────────────────
+// Announcement
+// ─────────────────────────────────────────
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  @@index([hiveId, createdAt(sort: Desc)])
+}
+
+// ─────────────────────────────────────────
+// Unit — a chapter / section of the Hive
+// ─────────────────────────────────────────
+model Unit {
+  id        String   @id @default(cuid())
+  title     String
+  position  Int      @default(0) // display order (drag-and-drop)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+
+  topics Topic[]
+
+  @@index([hiveId, position])
+}
+
+// ─────────────────────────────────────────
+// Topic — a single study topic inside a Unit
+// ─────────────────────────────────────────
+model Topic {
+  id            String      @id @default(cuid())
+  title         String
+  position      Int         @default(0)
+  status        TopicStatus @default(NOT_STARTED)
+  duration      String?
+  resourceCount Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String
+
+  trackTopics TrackTopic[]
+
+  @@index([unitId, position])
+}
+
+enum TopicStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ─────────────────────────────────────────
+// Material — generic resources
+// ─────────────────────────────────────────
+model Material {
+  id        String       @id @default(cuid())
+  title     String
+  type      MaterialType @default(PDF)
+  url       String?
+  sizeBytes Int?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+}
+
+enum MaterialType {
+  PDF
+  VIDEO
+  DOC
+  LINK
+}
+
+// ─────────────────────────────────────────
+// Track — a curated subset of topics
+// ─────────────────────────────────────────
+model Track {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  type        TrackType @default(CUSTOM)
+  targetDate  DateTime?
+  progress    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String
+
+  trackTopics TrackTopic[]
+
+  @@index([hiveId])
+}
+
+enum TrackType {
+  CUSTOM
+  AI_SUGGEST
+  QUICK_ADD
+}
+
+model TrackTopic {
+  id       String   @id @default(cuid())
+  position Int      @default(0)
+  addedAt  DateTime @default(now())
+
+  track   Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  trackId String
+
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topicId String
+
+  @@unique([trackId, topicId])
+  @@index([trackId, position])
+}

@@ -1,0 +1,57 @@
+"use client";
+
+import React, { useOptimistic, useTransition } from "react";
+import { toggleMaterialComplete } from "@/actions/track";
+
+export function MaterialTile({ material }: { material: any }) {
+  const [isPending, startTransition] = useTransition();
+  const [optimisticStatus, addOptimisticStatus] = useOptimistic(
+    material.completed,
+    (state: boolean, newState: boolean) => newState
+  );
+
+  const handleToggle = () => {
+    startTransition(async () => {
+      addOptimisticStatus(!optimisticStatus);
+      await toggleMaterialComplete(material.id, !optimisticStatus);
+    });
+  };
+
+  return (
+    <div className={`group bg-surface-container-lowest p-6 rounded-[1.5rem] transition-all duration-300 hover:bg-white hover:scale-[1.01] flex flex-col md:flex-row gap-6 md:items-start clay-card ${optimisticStatus ? 'opacity-80' : ''}`}>
+      <div className="flex-shrink-0 pt-1">
+        <button 
+          onClick={handleToggle}
+          disabled={isPending}
+        >
+          {optimisticStatus ? (
+            <div className="relative flex items-center justify-center w-6 h-6 rounded border-2 border-primary bg-primary text-on-primary hover:bg-primary/80 transition-colors">
+              <span className="material-symbols-outlined text-lg leading-none">check</span>
+            </div>
+          ) : (
+            <div className="w-6 h-6 rounded border-2 border-outline-variant hover:border-primary transition-colors cursor-pointer"></div>
+          )}
+        </button>
+      </div>
+      <div className="flex-1">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h3 className={`text-xl font-bold ${optimisticStatus ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>{material.title}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="bg-surface-container-high px-2 py-0.5 rounded text-[10px] font-bold text-stone-600 uppercase">
+                {material.type}
+              </span>
+              <span className="text-stone-400 text-xs">• {material.details}</span>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-stone-300 group-hover:text-primary transition-colors cursor-pointer">
+            description
+          </span>
+        </div>
+        <p className="text-on-surface-variant text-sm leading-relaxed bg-surface-container-low p-4 rounded-xl italic border border-outline-variant/10">
+          {material.instructions}
+        </p>
+      </div>
+    </div>
+  );
+}

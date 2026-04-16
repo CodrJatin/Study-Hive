@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Hive | StudyHive</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#fcf9f8",
+                      "secondary": "#745b1f",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#eae7e7",
+                      "on-tertiary-fixed-variant": "#004e5a",
+                      "on-secondary-fixed": "#261a00",
+                      "secondary-container": "#ffdb92",
+                      "surface-container-highest": "#e5e2e1",
+                      "primary-fixed": "#ffdf9e",
+                      "inverse-primary": "#fabd00",
+                      "on-tertiary": "#ffffff",
+                      "inverse-surface": "#303030",
+                      "on-primary-fixed-variant": "#5b4300",
+                      "error-container": "#ffdad6",
+                      "on-background": "#1b1c1c",
+                      "on-secondary": "#ffffff",
+                      "background": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed": "#ffdf9e",
+                      "outline-variant": "#d4c5ab",
+                      "primary-fixed-dim": "#fabd00",
+                      "on-secondary-container": "#795f23",
+                      "outline": "#827660",
+                      "primary-container": "#ffc107",
+                      "tertiary": "#006877",
+                      "tertiary-fixed": "#a5eeff",
+                      "on-primary-fixed": "#261a00",
+                      "on-tertiary-container": "#005e6c",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#dcd9d9",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary-fixed-dim": "#00daf8",
+                      "surface-container": "#f0eded",
+                      "secondary-fixed-dim": "#e4c27c",
+                      "surface-tint": "#785900",
+                      "on-primary-container": "#6d5100",
+                      "primary": "#785900",
+                      "on-surface": "#1b1c1c",
+                      "on-secondary-fixed-variant": "#5a4307",
+                      "on-surface-variant": "#4f4632",
+                      "on-primary": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "on-tertiary-fixed": "#001f25",
+                      "surface": "#fcf9f8",
+                      "tertiary-container": "#00defd",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "1.5rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Plus Jakarta Sans"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-bright font-body text-on-surface">
+<!-- Global Header -->
+<header class="fixed top-0 left-0 right-0 h-16 bg-surface-bright/80 backdrop-blur-md border-b border-outline-variant/20 z-[60] flex items-center justify-between px-8">
+<div class="flex items-center gap-6">
+<nav class="flex items-center gap-3 text-sm font-medium border-outline-variant/30 h-6">
+<span class="text-on-surface text-2xl font-extrabold text-primary">StudyHive</span>
+<span class="material-symbols-outlined text-xs text-on-surface/30" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface/40">Organic Chemistry</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 hover:ring-2 ring-primary/20 transition-all">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX3N8gA2i0wUHpfWdLi2sEKqETwr6HaLc_0ZYWqr4JzytVvSFXZ7ZCCqHS7feOotdxZHSx_tRWXIdga8vaPKVnIYTF46yw6N5_Zzvf4p6XHYoZbMHjAPg7ry7F5ux7CGOBfPgSy5ZHrMsxekzlIsSPEZaVAU4i7q_fW5XPOAeMpgU5j0OHZE1gtPFVM-KuUbvCAKq8LSZuC_PX5bY1K0lVykfVrEypc0vlTVX1mykk1b20_6TcS8dVIGPFGM_cy_wHdKZPx14aOw"/>
+</button>
+</div>
+</header>
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-16 bottom-0 w-64 overflow-y-auto bg-surface-container-low z-50 border-r border-outline-variant/10">
+<div class="flex flex-col py-8 gap-1 ml-4">
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-3 mx-2 transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label">General</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface/70 px-4 py-3 mx-2 hover:bg-primary-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-label">Syllabus</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface/70 px-4 py-3 mx-2 hover:bg-primary-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-label">Materials</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface/70 px-4 py-3 mx-2 hover:bg-primary-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label">Tracks</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface/70 px-4 py-3 mx-2 hover:bg-primary-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label">Settings</span>
+</a>
+</nav>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 p-8 pt-20 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- New Consolidated Hero Card -->
+<div class="mb-12 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col md:flex-row">
+<!-- Left Side: Title & Mastery -->
+<div class="flex-1 p-8 md:p-10 border-b md:border-b-0 md:border-r border-outline-variant/10">
+<div class="flex items-start justify-between mb-10">
+<div>
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">Organic Chemistry</h1>
+<p class="text-on-surface/50 font-medium mt-3 uppercase tracking-widest text-xs flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="school">school</span>
+                            Winter Semester 2024
+                        </p>
+</div>
+<div class="flex gap-2 shrink-0">
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-xl" data-icon="share">share</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<div class="mt-auto">
+<div class="flex items-end justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="auto_graph">auto_graph</span>
+</div>
+<div>
+<h3 class="text-xs font-headline font-bold text-on-background uppercase tracking-widest">Hive Mastery</h3>
+<p class="text-[10px] text-on-surface/40 font-medium uppercase tracking-tight">Course completion</p>
+</div>
+</div>
+<span class="text-4xl font-headline font-extrabold text-primary">45%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%] rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(120,89,0,0.3)]"></div>
+</div>
+</div>
+</div>
+<!-- Right Side: Deadlines -->
+<div class="w-full md:w-[380px] bg-surface-container-low/50 p-8 md:p-10 flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xs font-headline font-bold text-on-background uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-xl" data-icon="event_busy">event_busy</span>
+                        Deadlines
+                    </h3>
+<button class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-wider">
+                        View All <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-3">
+<!-- Deadline Item 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/5 group hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex items-center justify-between">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-1.5 h-8 bg-error rounded-full shrink-0"></div>
+<div class="min-w-0">
+<h5 class="text-sm font-bold text-on-surface truncate pr-2">Stereochemistry Assignment</h5>
+<p class="text-[10px] text-error font-bold mt-0.5">Due Tomorrow</p>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2">
+<span class="text-[10px] font-extrabold text-on-surface/60 bg-surface-container-highest px-2 py-1 rounded">24 Oct</span>
+<span class="material-symbols-outlined text-lg text-on-surface/20 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Deadline Item 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/5 group hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex items-center justify-between">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-1.5 h-8 bg-outline-variant rounded-full shrink-0"></div>
+<div class="min-w-0">
+<h5 class="text-sm font-bold text-on-surface truncate pr-2">Quiz: Reaction Mechanisms</h5>
+<p class="text-[10px] text-on-surface/40 font-bold mt-0.5">Next Week</p>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2">
+<span class="text-[10px] font-extrabold text-on-surface/60 bg-surface-container-highest px-2 py-1 rounded">27 Oct</span>
+<span class="material-symbols-outlined text-lg text-on-surface/20 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Column Content -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Announcements Section -->
+<section>
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-headline font-bold text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="campaign">campaign</span>
+                        Announcements
+                    </h3>
+<button class="px-5 py-2.5 bg-surface-container-lowest text-primary border border-primary/10 rounded-full text-sm font-bold hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                        Create
+                    </button>
+</div>
+<div class="space-y-4">
+<!-- Announcement Card -->
+<article class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 transition-all hover:bg-surface-container group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<h4 class="text-lg font-headline font-bold text-on-background">Lab Session Schedule Change</h4>
+<span class="text-xs font-medium text-on-surface/40 bg-surface-container-high px-2 py-1 rounded">2h ago</span>
+</div>
+<p class="text-on-surface/70 leading-relaxed mb-6">The Tuesday lab session for Unit 4: Spectroscopic Analysis has been moved to Thursday at 3:00 PM due to equipment maintenance.</p>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">J</div>
+<span class="text-sm font-semibold text-on-surface/80">By Jatin</span>
+</div>
+</article>
+<!-- Announcement Card -->
+<article class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 transition-all hover:bg-surface-container group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<h4 class="text-lg font-headline font-bold text-on-background">Mid-sem Track Now Live</h4>
+<span class="text-xs font-medium text-on-surface/40 bg-surface-container-high px-2 py-1 rounded">5h ago</span>
+</div>
+<p class="text-on-surface/70 leading-relaxed mb-6">I've created a focused track for the upcoming mid-semester examinations. It covers the first three chapters.</p>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">J</div>
+<span class="text-sm font-semibold text-on-surface/80">By Jatin</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Recent Activity Feed -->
+<section>
+<h3 class="text-xl font-headline font-bold text-on-background mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="history">history</span>
+                    Recent Activity
+                </h3>
+<div class="bg-surface-container-low rounded-xl p-6 relative">
+<div class="absolute left-[2.25rem] top-8 bottom-8 w-px bg-outline-variant/30"></div>
+<div class="space-y-8">
+<div class="relative flex items-start gap-6">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-primary-container text-sm" data-icon="upload_file">upload_file</span>
+</div>
+<div>
+<p class="text-sm leading-relaxed"><span class="font-bold text-on-surface">Jatin</span> uploaded material in <span class="text-primary font-semibold">Unit 3: Functional Groups</span></p>
+<p class="text-xs text-on-surface/40 mt-1">Just now</p>
+</div>
+</div>
+<div class="relative flex items-start gap-6">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-secondary-container text-sm" data-icon="play_circle">play_circle</span>
+</div>
+<div>
+<p class="text-sm leading-relaxed"><span class="font-bold text-on-surface">Jatin</span> started track <span class="text-secondary font-semibold">Mid-sem Revision</span></p>
+<p class="text-xs text-on-surface/40 mt-1">45 mins ago</p>
+</div>
+</div>
+<div class="relative flex items-start gap-6">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-tertiary-container text-sm" data-icon="person_add">person_add</span>
+</div>
+<div>
+<p class="text-sm leading-relaxed"><span class="font-bold text-on-surface">Sarah</span> joined the Hive</p>
+<p class="text-xs text-on-surface/40 mt-1">1 hour ago</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

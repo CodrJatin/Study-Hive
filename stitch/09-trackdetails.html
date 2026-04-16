@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StudyHive | Mid-sem Prep</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#785900",
+                        "surface": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#a5eeff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#261a00",
+                        "inverse-surface": "#303030",
+                        "background": "#fcf9f8",
+                        "on-surface-variant": "#4f4632",
+                        "tertiary-fixed-dim": "#00daf8",
+                        "surface-container-high": "#eae7e7",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#e4c27c",
+                        "primary-container": "#ffc107",
+                        "secondary": "#745b1f",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdf9e",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#00defd",
+                        "outline": "#827660",
+                        "secondary-container": "#ffdb92",
+                        "on-secondary-container": "#795f23",
+                        "on-surface": "#1b1c1c",
+                        "surface-container-low": "#f6f3f2",
+                        "outline-variant": "#d4c5ab",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#fabd00",
+                        "primary-fixed": "#ffdf9e",
+                        "on-background": "#1b1c1c",
+                        "primary": "#785900",
+                        "on-tertiary-fixed-variant": "#004e5a",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container": "#f0eded",
+                        "on-primary-fixed": "#261a00",
+                        "tertiary": "#006877",
+                        "on-tertiary-fixed": "#001f25",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-fixed-variant": "#5a4307",
+                        "primary-fixed-dim": "#fabd00",
+                        "on-primary-container": "#6d5100",
+                        "on-tertiary-container": "#005e6c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+        }
+        h1, h2, h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#fcf9f8] flex justify-between items-center w-full px-6 py-3 font-headline text-sm font-semibold tracking-tight">
+<div class="flex items-center gap-3">
+<span class="text-xl font-bold text-[#1b1c1c]">StudyHive</span>
+<span class="text-stone-400 font-medium">/</span>
+<span class="text-stone-400 font-medium">Organic Chemistry</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-stone-500 hover:text-stone-800 transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-stone-500 hover:text-stone-800 transition-colors duration-200" href="#">Resources</a>
+<a class="text-stone-500 hover:text-stone-800 transition-colors duration-200" href="#">Community</a>
+</nav>
+<div class="flex items-center gap-4 border-l pl-8 border-outline-variant/20">
+<button class="material-symbols-outlined text-stone-600 hover:bg-[#f6f3f2] p-2 rounded-full transition-colors">notifications</button>
+<button class="material-symbols-outlined text-stone-600 hover:bg-[#f6f3f2] p-2 rounded-full transition-colors">settings</button>
+<img alt="User profile" class="w-8 h-8 rounded-full bg-surface-container-high" data-alt="minimalist user avatar icon on a soft grey background in a circular frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAALA_7EPAsaV_blzE2iCHNgfUCwJSpMaU87NvjD0JrbYRQtfo9Qy3ZNtzN18Xvq57ExP9mfPZW4_egM6lqKi7wSBOko84TERU1txqClVncI0YBY7w7QEsT1Kji5awbmN2OqPJq2p5dQj6h9DNPAcnG2c1Ludu51V_kXlFYV7kSr-EigYiKxVZiBqiNgFWvDMzzfBs_dd5F8_SLuFNfmOc760cRzJv-073CH84NJaXDX_F1tuL9f_xGEDP1LFfpKuANz424AsprVQ"/>
+</div>
+</div>
+</header>
+<div class="flex pt-14 h-screen">
+<!-- SideNavBar -->
+<aside class="w-64 bg-[#f6f3f2] flex flex-col h-full p-4 gap-2 fixed left-0 top-14 font-body text-sm font-medium">
+<div class="mb-6 px-2 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container fill-icon">science</span>
+</div>
+<div>
+<p class="font-headline font-bold text-[#1b1c1c]">Organic Chemistry</p>
+<p class="text-xs text-stone-500">Curating Knowledge</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-200 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    General
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-200 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                    Syllabus
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-200 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+                    Materials
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ffc107] text-[#1b1c1c] rounded-lg font-bold transition-all" href="#">
+<span class="material-symbols-outlined fill-icon">moving</span>
+                    Tracks
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-200 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 text-stone-600 hover:bg-stone-200 rounded-lg" href="#">
+<span class="material-symbols-outlined text-sm">help_outline</span>
+                    Help
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-stone-600 hover:bg-stone-200 rounded-lg" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+                    Logout
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 overflow-y-auto bg-surface p-8 lg:p-12">
+<div class="max-w-4xl mx-auto">
+<!-- Header Section -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-2">
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">Mid-sem Prep</h1>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">In Progress</span>
+</div>
+<p class="text-stone-500 mb-8 max-w-2xl leading-relaxed">
+                        A curated study track designed to cover core reaction mechanisms and orbital theory ahead of the mid-semester examination.
+                    </p>
+<!-- Overall Progress -->
+<div class="bg-surface-container-low p-6 rounded-2xl">
+<div class="flex justify-between items-end mb-3">
+<div>
+<p class="text-xs font-bold text-primary uppercase tracking-tighter">Your Journey</p>
+<p class="text-lg font-bold text-on-surface">33% Completed</p>
+</div>
+<p class="text-sm font-medium text-stone-500">1 of 3 tasks done</p>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-tertiary w-1/3 rounded-full transition-all duration-500"></div>
+</div>
+</div>
+</div>
+<!-- Study Materials List -->
+<div class="space-y-6">
+<h2 class="text-lg font-bold text-on-surface-variant px-1">Active Curriculum</h2>
+<!-- Material Tile 1 -->
+<div class="group bg-surface-container-lowest p-6 rounded-2xl transition-all duration-300 hover:bg-white hover:scale-[1.01] flex gap-6 items-start shadow-[0px_12px_32px_rgba(27,28,28,0.02)] border border-transparent hover:border-primary/10">
+<div class="flex-shrink-0 pt-1">
+<div class="relative flex items-center justify-center w-6 h-6 rounded border-2 border-primary bg-primary text-on-primary">
+<span class="material-symbols-outlined text-lg leading-none">check</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-xl font-bold text-on-surface">Unit 1: Foundations of Molecular Orbitals</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[10px] font-bold text-stone-600 uppercase">PDF</span>
+<span class="text-stone-400 text-xs">• 12MB</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-primary transition-colors">description</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed bg-surface-container-low p-4 rounded-xl italic">
+                                "Read pages 1 - 12 then 35 to 45. Focus on the hybridization diagrams."
+                            </p>
+</div>
+</div>
+<!-- Material Tile 2 -->
+<div class="group bg-surface-container-lowest p-6 rounded-2xl transition-all duration-300 hover:bg-white hover:scale-[1.01] flex gap-6 items-start shadow-[0px_12px_32px_rgba(27,28,28,0.02)]">
+<div class="flex-shrink-0 pt-1">
+<div class="w-6 h-6 rounded border-2 border-outline-variant hover:border-primary transition-colors"></div>
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-xl font-bold text-on-surface">Reaction Mechanisms Overview</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[10px] font-bold text-stone-600 uppercase">Video</span>
+<span class="text-stone-400 text-xs">• 15:00 mins</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-tertiary transition-colors">play_circle</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed bg-surface-container-low p-4 rounded-xl italic">
+                                "Watch the first 15 minutes. Pay close attention to nucleophilic attack sequences."
+                            </p>
+</div>
+</div>
+<!-- Material Tile 3 -->
+<div class="group bg-surface-container-lowest p-6 rounded-2xl transition-all duration-300 hover:bg-white hover:scale-[1.01] flex gap-6 items-start shadow-[0px_12px_32px_rgba(27,28,28,0.02)]">
+<div class="flex-shrink-0 pt-1">
+<div class="w-6 h-6 rounded border-2 border-outline-variant hover:border-primary transition-colors"></div>
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-xl font-bold text-on-surface">Practice Set: Alkanes &amp; Alkenes</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[10px] font-bold text-stone-600 uppercase">Doc</span>
+<span class="text-stone-400 text-xs">• Assignment</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-secondary transition-colors">article</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed bg-surface-container-low p-4 rounded-xl italic">
+                                "Complete problems 1-10 on page 4. Show all electron pushing arrows."
+                            </p>
+</div>
+</div>
+</div>
+<!-- Bento Style Secondary Stats (Academic Atelier Aesthetic) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+<div class="col-span-1 bg-tertiary-container/10 p-6 rounded-2xl border border-tertiary/10">
+<span class="material-symbols-outlined text-tertiary mb-4">timer</span>
+<p class="text-xs font-bold text-tertiary uppercase tracking-widest">Est. Time Remaining</p>
+<p class="text-2xl font-extrabold text-on-surface mt-1">4.5 Hours</p>
+</div>
+<div class="col-span-1 bg-primary-container/10 p-6 rounded-2xl border border-primary/10">
+<span class="material-symbols-outlined text-primary mb-4">groups</span>
+<p class="text-xs font-bold text-primary uppercase tracking-widest">Peers Active</p>
+<p class="text-2xl font-extrabold text-on-surface mt-1">12 Students</p>
+</div>
+<div class="col-span-1 bg-surface-container-low p-6 rounded-2xl">
+<div class="flex -space-x-2 mb-4">
+<img alt="Peer 1" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="close up of a student avatar with a soft bokeh library background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9xsX-XRlbszSkqk4Qjzr9xGLQhUnrmb3juPZTSnM-X2ApMgPOt2_agUmnCe8fIFqNkfDud93JRqHzuMDLskBKWnIyoWaq7Kws-p7cVRW-Fk3dy3SFTFU_4wJYOgQZcGcSTvV7pQqbODqjYhIAu73y9EzzKT005c3YhMeSTT27S4vumAmchJx1xcArAFyJgtsklnNddk5b_NwmdAiTo11iwNhNzFXZiCrYNE61UG1x136MgtYwrBH55lKKS9Rppkn8HtYOYMf2AQ"/>
+<img alt="Peer 2" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="minimalist illustrated avatar of a student on a bright pastel background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUDtMwNahU4dlByk07iZ-kSUTVN2a9nk2Yh5qwa_phKiXijDsgpbKhzR1ET6a3W6LjoAu69GCO4nl-mhCIQfWQTJgvQZrAWLRmGdhca3IfEv_LxTYIT7wLptRJKtHj5umXFidrHe2RiEyLzPJbgVvGatmjReLqESnipJST6QnhJefKS9Yw3A5xuQrokqaIoyNjBbUjmjCizUZUHu_rbEXuKKSNPm9jv2YZHiF8hmMuxiCzNtsCxPyUThfOVBHRdl3M6d6LjZyZMA"/>
+<img alt="Peer 3" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="young person looking thoughtfully at a tablet in a sunlit classroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQW0ZDzd8c6_kYZBCYBGRJtlXikKkxBksbX_z-oaDab7i7SS6ctq9OWjoae_DAdjwl97VaHx05ypWZFfk0P6kic_EPEwqK2TQDjx_mtfaeFV3Z7wTLd94YYdr9I2NcA5IL-bzndGe82fqZHyS7CtYwoK9-Nu5JLqfF9_CyHG2-JVIVThmxR4J2_bcdrApfIRky8HSwcRFSjF4afHacd8qHJJWNkFNZ1oiNsjxsCrE3cnhaIL085HXPUsnueai4f75AcYM9nGTd7Q"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface flex items-center justify-center text-[10px] font-bold text-stone-500">+9</div>
+</div>
+<p class="text-xs font-bold text-stone-500 uppercase tracking-widest">Join Study Session</p>
+<button class="mt-2 text-sm font-bold text-primary hover:underline transition-all">Enter Room →</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button - Start Focus -->
+</body></html>

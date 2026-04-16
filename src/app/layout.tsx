@@ -2,38 +2,31 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
+const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-plus-jakarta",
-  display: "swap",
+  variable: "--font-headline",
 });
 
 export const metadata: Metadata = {
-  title: "StudyHive – The Living Cell Study Platform",
-  description:
-    "A syllabus-centric study space where academic groups collaborate, track progress, and conquer their curriculum together.",
-  keywords: ["study", "education", "syllabus", "hive", "collaboration"],
-  openGraph: {
-    title: "StudyHive – The Living Cell Study Platform",
-    description: "Syllabus-centric collaborative studying for academic groups.",
-    type: "website",
-  },
+  title: "StudyHive | The Academic Atelier",
+  description: "Organize by topic, conquer by Track.",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={`${inter.variable} ${plusJakartaSans.variable}`}>
-      <body className="min-h-screen bg-[var(--color-background)] text-[var(--color-on-surface)] antialiased">
+    <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased selection:bg-secondary-container selection:text-on-secondary-container`}>
         {children}
       </body>
     </html>
