@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { UnitAccordion } from "@/components/syllabus/UnitAccordion";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ActionCard } from "@/components/shared/ActionCard";
 
 export default async function SyllabusPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
@@ -61,23 +62,13 @@ export default async function SyllabusPage({ params }: { params: Promise<{ hiveI
             <UnitAccordion key={unit.id} unit={unit} index={index} />
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-surface-container-low rounded-[2rem] clay-inset border-2 border-dashed border-outline-variant/20">
-            <div className="w-20 h-20 rounded-3xl bg-surface-container-highest flex items-center justify-center mb-6 shadow-sm">
-              <span className="material-symbols-outlined text-primary text-4xl">
-                account_tree
-              </span>
-            </div>
-            <h3 className="text-2xl font-headline font-bold text-on-surface mb-2">
-              No Syllabus Yet
-            </h3>
-            <p className="text-on-surface-variant max-w-sm mb-8 leading-relaxed">
-              This hive hasn&apos;t been organized into units and topics yet. Start by creating your first study unit.
-            </p>
-            <button className="px-8 py-3 bg-primary text-on-primary rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
-              <span className="material-symbols-outlined text-xl">add</span>
-              Add First Unit
-            </button>
-          </div>
+          <ActionCard
+            icon="account_tree"
+            title="No Syllabus Yet"
+            description="This hive hasn't been organized into units and topics yet. Start by creating your first study unit."
+            actionText="Add First Unit"
+            type="large"
+          />
         )}
       </div>
     </div>

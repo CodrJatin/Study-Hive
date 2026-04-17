@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { NewAnnouncementModal } from "./NewAnnouncementModal";
 
-export function CreateAnnouncementAction({ hiveId }: { hiveId: string }) {
+export function CreateAnnouncementAction({ hiveId, userName }: { hiveId: string, userName: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -17,7 +17,12 @@ export function CreateAnnouncementAction({ hiveId }: { hiveId: string }) {
         </span>
         Create
       </button>
-      <NewAnnouncementModal isOpen={isOpen} onClose={() => setIsOpen(false)} hiveId={hiveId} />
+      <NewAnnouncementModal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+        hiveId={hiveId} 
+        userName={userName}
+      />
     </>
   );
 }

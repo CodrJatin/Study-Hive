@@ -1,34 +1,43 @@
 import React from "react";
-import Link from "next/link";
 import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
 import { AnnouncementCard } from "@/components/hive/AnnouncementCard";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ActivityFeedItem } from "@/components/hive/ActivityFeedItem";
 import { announcementsData, activitiesData } from "@/lib/data";
-
+import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function HiveGeneralPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
-  const hive = await prisma.hive.findUnique({
-    where: { id: hiveId },
-    include: {
-      announcements: {
-        orderBy: { createdAt: "desc" },
-        include: { author: true },
+  
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  
+  const [hive, dbUser] = await Promise.all([
+    prisma.hive.findUnique({
+      where: { id: hiveId },
+      include: {
+        announcements: {
+          orderBy: { createdAt: "desc" },
+          include: { author: true },
+        },
+        members: true,
+        deadlines: {
+          orderBy: { dueDate: "asc" },
+        }
       },
-      members: true,
-      deadlines: {
-        orderBy: { dueDate: "asc" },
-      }
-    },
-  });
+    }),
+    authUser ? prisma.user.findUnique({ where: { id: authUser.id } }) : null
+  ]);
 
   if (!hive) return notFound();
 
-  const mappedDeadlines = hive.deadlines.map((d: any) => {
+  const rawDeadlines = hive.deadlines;
+
+  const mappedDeadlines = rawDeadlines.map((d: any) => {
     const diff = new Date(d.dueDate).getTime() - Date.now();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
     
@@ -48,10 +57,8 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
       dueDateText = "Overdue";
       dueColor = "error";
       indicatorColor = "bg-error";
-    } else if (days < 7) {
-      dueDateText = "This Week";
     } else {
-      dueDateText = "Next Week";
+      dueDateText = `${days} days left`;
     }
 
     return {
@@ -66,27 +73,22 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-12 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col md:flex-row clay-card">
+      <div className="mb-12 bg-surface-container-lowest rounded-4xl border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col md:flex-row clay-card md:h-[300px]">
         <HiveOverviewCard hive={hive} />
 
         {/* Right Side: Deadlines */}
-        <div className="w-full md:w-[380px] bg-surface-container-low/50 p-8 md:p-10 flex flex-col clay-inset border-none rounded-none md:rounded-r-[2rem]">
-          <div className="flex justify-between items-center mb-6">
+        <div className="w-full md:w-[420px] bg-surface-container-low/50 p-8 md:px-7 md:py-10 flex flex-col clay-inset border-none rounded-none md:rounded-r-4xl">
+          <div className="flex justify-between items-center mb-6 shrink-0">
             <h3 className="text-xs font-headline font-bold text-on-background uppercase tracking-widest flex items-center gap-2">
               <span className="material-symbols-outlined text-error text-xl" data-icon="event_busy">
                 event_busy
               </span>
               Deadlines
             </h3>
-            <button className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-wider">
-              View All{" "}
-              <span className="material-symbols-outlined text-xs" data-icon="arrow_forward">
-                arrow_forward
-              </span>
-            </button>
+            <ManageDeadlinesAction hiveId={hive.id} deadlines={rawDeadlines} />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-y-auto pr-1 custom-scrollbar grow">
             {mappedDeadlines.map(deadline => (
               <DeadlineItem key={deadline.id} deadline={deadline} />
             ))}
@@ -110,7 +112,7 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
               </span>
               Announcements
             </h3>
-            <CreateAnnouncementAction hiveId={hive.id} />
+            <CreateAnnouncementAction hiveId={hive.id} userName={dbUser?.name || "Member"} />
           </div>
           <div className="space-y-4">
             {hive.announcements.map((announcement: any) => (
@@ -134,7 +136,7 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
             Recent Activity
           </h3>
           <div className="bg-surface-container-low rounded-xl p-6 relative clay-inset">
-            <div className="absolute left-[2.25rem] top-8 bottom-8 w-px bg-outline-variant/30"></div>
+            <div className="absolute left-9 top-8 bottom-8 w-px bg-outline-variant/30"></div>
             <div className="space-y-8">
               {activitiesData.map(activity => (
                 <ActivityFeedItem key={activity.id} activity={activity} />

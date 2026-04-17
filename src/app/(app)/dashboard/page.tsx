@@ -5,15 +5,59 @@ import { HiveCard } from "@/components/dashboard/HiveCard";
 import { AddHiveCard } from "@/components/dashboard/AddHiveCard";
 import { prisma } from "@/lib/prisma";
 
-const MOCK_USER_ID = "cm0x_mock_user_1";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardPage() {
-  const hiveMemberships = await prisma.hiveMember.findMany({
-    where: { userId: MOCK_USER_ID },
-    include: { hive: true },
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    // Middleware should handle redirect, but as fallback or for safety:
+    return null; // Or redirect
+  }
+
+  const profile = await prisma.user.findUnique({
+    where: { id: user.id },
   });
 
-  const hives = hiveMemberships.map((membership) => membership.hive);
+  const hiveMemberships = await prisma.hiveMember.findMany({
+    where: { userId: user.id },
+    include: { 
+      hive: {
+        include: {
+          deadlines: {
+            where: {
+              dueDate: { gte: new Date() } // Only future deadlines
+            },
+            orderBy: { dueDate: "asc" },
+            take: 1
+          }
+        }
+      } 
+    },
+  });
+
+  const hives = hiveMemberships.map((membership) => {
+    const hive = membership.hive;
+    const nearestDeadline = hive.deadlines[0];
+    
+    return {
+      ...hive,
+      nextDeadlineText: nearestDeadline
+        ? new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+          }).format(nearestDeadline.dueDate)
+        : hive.targetDate
+        ? new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+          }).format(hive.targetDate)
+        : "No deadlines",
+    };
+  });
 
   return (
     <main className="px-6 md:px-12 py-8 max-w-7xl mx-auto">
@@ -21,25 +65,22 @@ export default async function DashboardPage() {
       <section className="mb-12 py-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tight text-on-background mb-4">
-            Good morning, <span className="text-primary">Alex</span>.
+            Good morning, <span className="text-primary">{profile?.name || "Scholar"}</span>.
           </h1>
-        </div>
-        <div className="flex gap-3">
-          <div className="bg-surface-container-low px-4 py-2 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-tertiary">local_fire_department</span>
-            <span className="text-sm font-semibold">12 Day Streak</span>
-          </div>
         </div>
       </section>
 
       {/* Bento Grid for Hive Cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {hives.map(hive => (
-          <HiveCard key={hive.id} hive={{
-            id: hive.id,
-            title: hive.title,
-            nextDeadline: hive.targetDate ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(hive.targetDate) : "No deadlines",
-          }} />
+        {hives.map((hive) => (
+          <HiveCard
+            key={hive.id}
+            hive={{
+              id: hive.id,
+              title: hive.title,
+              nextDeadline: hive.nextDeadlineText,
+            }}
+          />
         ))}
         
         {/* Add New Hive Card (Asymmetric Layout Element) */}
@@ -60,7 +101,7 @@ export default async function DashboardPage() {
             <div className="w-12 h-12 rounded-lg bg-tertiary-container/30 flex items-center justify-center">
               <span className="material-symbols-outlined text-tertiary">description</span>
             </div>
-            <div className="flex-grow">
+            <div className="grow">
               <p className="text-sm font-bold text-on-surface">Photosynthesis_Flowchart.pdf</p>
               <p className="text-xs text-on-surface-variant">Shared in Biology 101 • 2h ago</p>
             </div>
@@ -72,7 +113,7 @@ export default async function DashboardPage() {
             <div className="w-12 h-12 rounded-lg bg-secondary-container/30 flex items-center justify-center">
               <span className="material-symbols-outlined text-secondary">forum</span>
             </div>
-            <div className="flex-grow">
+            <div className="grow">
               <p className="text-sm font-bold text-on-surface">Marcus joined the Algorithms Hive</p>
               <p className="text-xs text-on-surface-variant">Invite accepted via link • 4h ago</p>
             </div>

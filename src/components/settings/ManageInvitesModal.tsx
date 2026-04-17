@@ -1,0 +1,265 @@
+"use client";
+
+import React, { useState, useTransition } from "react";
+import { createInvite, deleteInvite } from "@/actions/invite";
+
+interface HiveInvite {
+  id: string;
+  code: string;
+  expiresAt: Date | null;
+  createdAt: Date;
+}
+
+interface ManageInvitesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  hiveId: string;
+  initialInvites: HiveInvite[];
+}
+
+function formatExpiry(expiresAt: Date | null): string {
+  if (!expiresAt) return "Never expires";
+  const diff = new Date(expiresAt).getTime() - Date.now();
+  if (diff <= 0) return "Expired";
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  if (days >= 1) return `Expires in ${days} day${days > 1 ? "s" : ""}`;
+  if (hours >= 1) return `Expires in ${hours} hour${hours > 1 ? "s" : ""}`;
+  const minutes = Math.floor(diff / (1000 * 60));
+  return `Expires in ${minutes} minute${minutes > 1 ? "s" : ""}`;
+}
+
+const BASE_URL =
+  typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+
+export function ManageInvitesModal({
+  isOpen,
+  onClose,
+  hiveId,
+  initialInvites,
+}: ManageInvitesModalProps) {
+  const [invites, setInvites] = useState<HiveInvite[]>(initialInvites);
+  const [expiry, setExpiry] = useState<string>("24");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isCreating, startCreateTransition] = useTransition();
+  const [isDeleting, startDeleteTransition] = useTransition();
+
+  if (!isOpen) return null;
+
+  function handleCreate() {
+    setError(null);
+    const expiresInHours = expiry === "never" ? null : Number(expiry);
+    startCreateTransition(async () => {
+      const result = await createInvite(hiveId, expiresInHours);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      // Optimistically reload invites by refetching via page revalidation
+      // The actual list update comes from props refreshing (server revalidation)
+      // For immediate feedback, we can fetch it or just add a placeholder
+      // Since we revalidate, the page will re-render and pass new props on next open
+      // For now, use a quick window reload is avoided; instead show a prompt
+      window.location.reload();
+    });
+  }
+
+  function handleDelete(invite: HiveInvite) {
+    setDeletingId(invite.id);
+    setError(null);
+    startDeleteTransition(async () => {
+      const result = await deleteInvite(hiveId, invite.id);
+      if (result?.error) {
+        setError(result.error);
+        setDeletingId(null);
+        return;
+      }
+      // Optimistic update
+      setInvites((prev) => prev.filter((i) => i.id !== invite.id));
+      setDeletingId(null);
+    });
+  }
+
+  function handleCopy(code: string, id: string) {
+    navigator.clipboard.writeText(`${BASE_URL}/join/${code}`);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-xs"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="w-full max-w-2xl bg-surface-container-lowest rounded-4xl shadow-[0px_12px_32px_rgba(27,28,28,0.10)] ring-1 ring-on-surface/5 flex flex-col relative z-10 clay-card animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-hidden">
+        
+        {/* Header */}
+        <div className="flex justify-between items-start px-8 pt-8 pb-6 shrink-0">
+          <div>
+            <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight">
+              Manage Invites
+            </h2>
+            <p className="text-sm text-on-surface-variant mt-1">
+              Generate shareable links to invite members to this Hive.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface/60 shrink-0 ml-4"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        {/* Generate Section */}
+        <div className="px-8 pb-6 shrink-0">
+          <div className="bg-surface-container-low rounded-2xl p-5 clay-inset border border-outline-variant/10">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">
+              Generate New Link
+            </p>
+            {error && (
+              <div className="mb-4 bg-error/10 text-error text-sm font-medium px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-on-surface/60 mb-1.5 px-1">
+                  Expiration
+                </label>
+                <select
+                  value={expiry}
+                  onChange={(e) => setExpiry(e.target.value)}
+                  className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
+                >
+                  <option value="1">1 Hour</option>
+                  <option value="24">24 Hours</option>
+                  <option value="168">7 Days</option>
+                  <option value="never">Never</option>
+                </select>
+              </div>
+              <div className="pt-6">
+                <button
+                  onClick={handleCreate}
+                  disabled={isCreating}
+                  className={`px-6 py-3 cta-gradient text-white rounded-xl font-headline font-bold shadow-lg shadow-primary/20 flex items-center gap-2 transition-all ${
+                    isCreating
+                      ? "opacity-70 cursor-not-allowed scale-95"
+                      : "hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
+                >
+                  <span
+                    className={`material-symbols-outlined text-lg ${
+                      isCreating ? "animate-spin" : ""
+                    }`}
+                  >
+                    {isCreating ? "progress_activity" : "add_link"}
+                  </span>
+                  {isCreating ? "Creating..." : "Generate Link"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="mx-8 h-px bg-outline-variant/10 shrink-0" />
+
+        {/* Invite List */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-3 custom-scrollbar">
+          {invites.length === 0 ? (
+            <div className="py-16 text-center">
+              <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-3 block">
+                link_off
+              </span>
+              <p className="text-sm font-medium text-on-surface-variant/50">
+                No active invite links
+              </p>
+            </div>
+          ) : (
+            invites.map((invite) => {
+              const url = `${BASE_URL}/join/${invite.code}`;
+              const isExpired =
+                invite.expiresAt && new Date(invite.expiresAt) < new Date();
+              const isThisDeleting = deletingId === invite.id && isDeleting;
+
+              return (
+                <div
+                  key={invite.id}
+                  className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                    isExpired
+                      ? "bg-error/5 border-error/10 opacity-60"
+                      : "bg-surface-container-low border-outline-variant/10 hover:border-primary/20"
+                  } ${isThisDeleting ? "opacity-40 grayscale pointer-events-none" : ""}`}
+                >
+                  {/* Icon */}
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      isExpired ? "bg-error/10" : "bg-primary/10"
+                    }`}
+                  >
+                    <span
+                      className={`material-symbols-outlined text-xl ${
+                        isExpired ? "text-error" : "text-primary"
+                      }`}
+                    >
+                      {isExpired ? "link_off" : "link"}
+                    </span>
+                  </div>
+
+                  {/* URL + Expiry */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-mono font-medium text-on-surface truncate">
+                      {url}
+                    </p>
+                    <p
+                      className={`text-xs font-semibold mt-0.5 ${
+                        isExpired ? "text-error" : "text-on-surface-variant"
+                      }`}
+                    >
+                      {formatExpiry(invite.expiresAt ? new Date(invite.expiresAt) : null)}
+                    </p>
+                  </div>
+
+                  {/* Copy Button */}
+                  <button
+                    onClick={() => handleCopy(invite.code, invite.id)}
+                    disabled={!!isExpired}
+                    title="Copy link"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {copiedId === invite.id ? "check_circle" : "content_copy"}
+                    </span>
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(invite)}
+                    disabled={isDeleting}
+                    title="Revoke link"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-error/10 hover:text-error transition-all disabled:opacity-50 shrink-0"
+                  >
+                    <span
+                      className={`material-symbols-outlined text-xl ${
+                        isThisDeleting ? "animate-spin" : ""
+                      }`}
+                    >
+                      {isThisDeleting ? "progress_activity" : "delete"}
+                    </span>
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -25,6 +25,7 @@ model User {
 
   hiveMembers HiveMember[]
   announcements Announcement[]
+  invites     HiveInvite[]
 }
 
 // ─────────────────────────────────────────
@@ -45,6 +46,7 @@ model Hive {
   materials     Material[]
   announcements Announcement[]
   deadlines     Deadline[]
+  invites       HiveInvite[]
 }
 
 // ─────────────────────────────────────────
@@ -211,4 +213,22 @@ model TrackTopic {
 
   @@unique([trackId, topicId])
   @@index([trackId, position])
+}
+
+// ─────────────────────────────────────────
+// HiveInvite — shareable invite links
+// ─────────────────────────────────────────
+model HiveInvite {
+  id        String    @id @default(cuid())
+  code      String    @unique @default(cuid())
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  hive      Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId    String
+
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId String
+
+  @@index([hiveId])
 }
