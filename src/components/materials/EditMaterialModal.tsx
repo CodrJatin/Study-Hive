@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition, useRef } from "react";
 import { updateMaterial, deleteMaterial } from "@/actions/materials";
+import { ConfirmModal } from "@/components/modals/ConfirmModal";
 
 interface Material {
   id: string;
@@ -22,6 +23,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
   const [url, setUrl] = useState(material.url ?? "");
   const [videoRange, setVideoRange] = useState(material.videoRange ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const wasSuccessful = useRef(false);
 
@@ -52,12 +54,15 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
   }
 
   function handleDelete() {
-    if (!confirm("Are you sure you want to delete this material?")) return;
+    setShowConfirmDelete(true);
+  }
 
+  function confirmDelete() {
     startTransition(async () => {
       const result = await deleteMaterial(material.hiveId, material.id);
       if (result?.error) {
         setError(result.error);
+        setShowConfirmDelete(false);
       } else {
         wasSuccessful.current = true;
       }
@@ -193,6 +198,16 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
           </div>
         </form>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        title="Delete Material"
+        message="Are you sure you want to delete this material? This action cannot be undone."
+        confirmText="Delete"
+        isPending={isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </div>
   );
 }
