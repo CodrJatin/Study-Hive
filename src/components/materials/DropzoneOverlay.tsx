@@ -54,7 +54,7 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
           .getPublicUrl(path);
 
         // Detect material type from MIME
-        let type = MaterialType.LINK;
+        let type: MaterialType = MaterialType.LINK;
         if (file.type.includes("pdf")) type = MaterialType.PDF;
         else if (file.type.includes("video")) type = MaterialType.VIDEO;
         else if (file.type.includes("word") || file.type.includes("document"))
@@ -82,7 +82,7 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] pointer-events-none"
+      className="fixed inset-0 z-100 pointer-events-none"
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);
@@ -91,7 +91,7 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
       {/* Full-page drag interception */}
       {isDragging && (
         <div
-          className="fixed inset-0 pointer-events-auto z-[100] flex items-center justify-center"
+          className="fixed inset-0 pointer-events-auto z-100 flex items-center justify-center"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
