@@ -23,9 +23,10 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  hiveMembers HiveMember[]
+  hiveMembers   HiveMember[]
   announcements Announcement[]
-  invites     HiveInvite[]
+  invites       HiveInvite[]
+  materialProgress UserMaterialProgress[]
 }
 
 // ─────────────────────────────────────────
@@ -47,6 +48,8 @@ model Hive {
   announcements Announcement[]
   deadlines     Deadline[]
   invites       HiveInvite[]
+
+  @@index([title])
 }
 
 // ─────────────────────────────────────────
@@ -121,6 +124,7 @@ model Unit {
   topics Topic[]
 
   @@index([hiveId, position])
+  @@index([title])
 }
 
 // ─────────────────────────────────────────
@@ -142,6 +146,7 @@ model Topic {
   trackTopics TrackTopic[]
 
   @@index([unitId, position])
+  @@index([title])
 }
 
 enum TopicStatus {
@@ -169,6 +174,11 @@ model Material {
 
   hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
   hiveId String
+
+  materialProgress UserMaterialProgress[]
+
+  @@index([title])
+  @@index([hiveId])
 }
 
 enum MaterialType {
@@ -237,4 +247,21 @@ model HiveInvite {
   creatorId String
 
   @@index([hiveId])
+}
+
+// ─────────────────────────────────────────
+// UserMaterialProgress — per-user video progress for playlists
+// ─────────────────────────────────────────
+model UserMaterialProgress {
+  id                 String   @id @default(cuid())
+  userId             String
+  materialId         String
+  completedPositions Int[]    // Stores the 1-based 'position' of completed videos
+  updatedAt          DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, materialId])
+  @@index([userId, materialId])
 }

@@ -18,8 +18,10 @@ export function TopicRow({ topic, index, unitIndex }: { topic: Topic, index: num
   const handleToggle = () => {
     const nextStatus = completed ? TopicStatus.NOT_STARTED : TopicStatus.COMPLETED;
     startTransition(async () => {
+      // Optimistic update fires synchronously before the network request
       addOptimisticStatus(nextStatus);
-      await toggleTopicStatus(topic.id, topic.status, hiveId);
+      // Pass optimisticStatus (current UI state) not topic.status (stale server value)
+      await toggleTopicStatus(topic.id, optimisticStatus, hiveId);
     });
   };
 

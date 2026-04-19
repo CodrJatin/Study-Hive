@@ -8,6 +8,11 @@ import { createClient } from "@/utils/supabase/server";
 type ActionError = { error: string };
 
 export async function toggleTopicStatus(topicId: string, currentStatus: TopicStatus, hiveId: string) {
+  // Auth guard — every mutation must verify session
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
   const nextStatus = currentStatus === TopicStatus.COMPLETED
     ? TopicStatus.NOT_STARTED
     : TopicStatus.COMPLETED;
@@ -18,6 +23,7 @@ export async function toggleTopicStatus(topicId: string, currentStatus: TopicSta
   });
 
   revalidatePath(`/hive/${hiveId}/syllabus`);
+  revalidatePath(`/hive/${hiveId}`); // updates HiveOverviewCard mastery progress
   return nextStatus;
 }
 

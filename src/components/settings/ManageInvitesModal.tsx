@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useOptimistic, useTransition } from "react";
 import { createInvite, deleteInvite } from "@/actions/invite";
 import { getJoinUrl } from "@/utils/get-url";
 
@@ -30,56 +30,60 @@ function formatExpiry(expiresAt: Date | null): string {
   return `Expires in ${minutes} minute${minutes > 1 ? "s" : ""}`;
 }
 
-
-
 export function ManageInvitesModal({
   isOpen,
   onClose,
   hiveId,
   initialInvites,
 }: ManageInvitesModalProps) {
-  const [invites, setInvites] = useState<HiveInvite[]>(initialInvites);
   const [expiry, setExpiry] = useState<string>("24");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
-  const [isDeleting, startDeleteTransition] = useTransition();
+  const [, startDeleteTransition] = useTransition();
+
+  // Optimistic invite list — add/remove instantly before server confirms
+  const [optimisticInvites, dispatchOptimistic] = useOptimistic(
+    initialInvites,
+    (current: HiveInvite[], action: { type: "add"; invite: HiveInvite } | { type: "remove"; id: string }) => {
+      if (action.type === "add") return [...current, action.invite];
+      if (action.type === "remove") return current.filter((i) => i.id !== action.id);
+      return current;
+    }
+  );
 
   if (!isOpen) return null;
 
   function handleCreate() {
     setError(null);
     const expiresInHours = expiry === "never" ? null : Number(expiry);
+    // Optimistic placeholder — shows immediately while server creates
+    const placeholder: HiveInvite = {
+      id: `optimistic-${Date.now()}`,
+      code: "...",
+      expiresAt: expiresInHours ? new Date(Date.now() + expiresInHours * 3600_000) : null,
+      createdAt: new Date(),
+    };
     startCreateTransition(async () => {
+      dispatchOptimistic({ type: "add", invite: placeholder });
       const result = await createInvite(hiveId, expiresInHours);
       if (result?.error) {
         setError(result.error);
-        return;
       }
-      // Optimistically reload invites by refetching via page revalidation
-      // The actual list update comes from props refreshing (server revalidation)
-      // For immediate feedback, we can fetch it or just add a placeholder
-      // Since we revalidate, the page will re-render and pass new props on next open
-      // For now, use a quick window reload is avoided; instead show a prompt
-      window.location.reload();
+      // After revalidatePath the page will refresh with the real invite
     });
   }
 
   function handleDelete(invite: HiveInvite) {
-    setDeletingId(invite.id);
     setError(null);
     startDeleteTransition(async () => {
+      // Optimistic remove fires before the network round-trip
+      dispatchOptimistic({ type: "remove", id: invite.id });
       const result = await deleteInvite(hiveId, invite.id);
       if (result?.error) {
         setError(result.error);
-        setDeletingId(null);
-        return;
       }
-      // Optimistic update
-      setInvites((prev) => prev.filter((i) => i.id !== invite.id));
-      setDeletingId(null);
     });
   }
 
@@ -224,7 +228,7 @@ export function ManageInvitesModal({
 
         {/* Invite List */}
         <div className="flex-1 overflow-y-auto px-8 py-6 space-y-3 custom-scrollbar">
-          {invites.length === 0 ? (
+          {optimisticInvites.length === 0 ? (
             <div className="py-16 text-center">
               <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-3 block">
                 link_off
@@ -234,11 +238,11 @@ export function ManageInvitesModal({
               </p>
             </div>
           ) : (
-            invites.map((invite) => {
+            optimisticInvites.map((invite) => {
               const url = getJoinUrl(invite.code);
               const isExpired =
                 invite.expiresAt && new Date(invite.expiresAt) < new Date();
-              const isThisDeleting = deletingId === invite.id && isDeleting;
+              const isPlaceholder = invite.id.startsWith("optimistic-");
 
               return (
                 <div
@@ -247,7 +251,7 @@ export function ManageInvitesModal({
                     isExpired
                       ? "bg-error/5 border-error/10 opacity-60"
                       : "bg-surface-container-low border-outline-variant/10 hover:border-primary/20"
-                  } ${isThisDeleting ? "opacity-40 grayscale pointer-events-none" : ""}`}
+                  } ${isPlaceholder ? "opacity-50 animate-pulse pointer-events-none" : ""}`}
                 >
                   {/* Icon */}
                   <div
@@ -267,7 +271,7 @@ export function ManageInvitesModal({
                   {/* URL + Expiry */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-mono font-medium text-on-surface truncate">
-                      {url}
+                      {isPlaceholder ? "Generating link..." : url}
                     </p>
                     <p
                       className={`text-xs font-semibold mt-0.5 ${
@@ -281,7 +285,7 @@ export function ManageInvitesModal({
                   {/* Copy Button */}
                   <button
                     onClick={() => handleCopy(invite.code, invite.id)}
-                    disabled={!!isExpired}
+                    disabled={!!isExpired || isPlaceholder}
                     title="Copy link"
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 shrink-0"
                   >
@@ -293,17 +297,11 @@ export function ManageInvitesModal({
                   {/* Delete Button */}
                   <button
                     onClick={() => handleDelete(invite)}
-                    disabled={isDeleting}
+                    disabled={isPlaceholder}
                     title="Revoke link"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-error/10 hover:text-error transition-all disabled:opacity-50 shrink-0"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-error/10 hover:text-error transition-all disabled:opacity-30 shrink-0"
                   >
-                    <span
-                      className={`material-symbols-outlined text-xl ${
-                        isThisDeleting ? "animate-spin" : ""
-                      }`}
-                    >
-                      {isThisDeleting ? "progress_activity" : "delete"}
-                    </span>
+                    <span className="material-symbols-outlined text-xl">delete</span>
                   </button>
                 </div>
               );

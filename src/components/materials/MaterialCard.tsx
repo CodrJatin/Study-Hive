@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { EditMaterialModal } from "./EditMaterialModal";
 
 interface Material {
@@ -22,8 +23,9 @@ interface MaterialCardProps {
 
 function getMaterialStyling(type: string) {
   switch (type) {
-    case "PDF":   return { icon: "picture_as_pdf", iconBg: "bg-error/10",           iconColor: "text-error" };
-    case "VIDEO": return { icon: "play_circle",    iconBg: "bg-primary-container",   iconColor: "text-primary" };
+    case "PDF":      return { icon: "picture_as_pdf", iconBg: "bg-error/10",           iconColor: "text-error" };
+    case "VIDEO":    return { icon: "play_circle",    iconBg: "bg-primary-container",  iconColor: "text-primary" };
+    case "PLAYLIST": return { icon: "playlist_play",  iconBg: "bg-tertiary-container", iconColor: "text-tertiary" };
     case "DOC":   return { icon: "description",    iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
     case "LINK":  return { icon: "link",           iconBg: "bg-secondary-container", iconColor: "text-secondary" };
     default:      return { icon: "article",        iconBg: "bg-surface-container-high", iconColor: "text-on-surface" };
@@ -46,8 +48,7 @@ function formatSize(bytes?: number | null): string | null {
   return mb < 1 ? `${(bytes / 1024).toFixed(0)} KB` : `${mb.toFixed(1)} MB`;
 }
 
-const isPlaylist = (m: Material) =>
-  m.type === "VIDEO" && m.playlistData != null;
+const isPlaylist = (m: Material) => m.type === "PLAYLIST";
 
 export function MaterialCard({ material }: MaterialCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -119,23 +120,25 @@ export function MaterialCard({ material }: MaterialCardProps) {
 
         {/* Open link + Edit button */}
         <div className="flex items-center justify-between mt-auto">
-          {material.url && (
+          {(material.type === "VIDEO" || material.type === "PLAYLIST") ? (
+            <Link
+              href={`/hive/${material.hiveId}/materials/${material.id}`}
+              className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all w-fit"
+            >
+              {playlist ? "View Playlist" : "Watch"}
+              <span className="material-symbols-outlined text-sm">play_arrow</span>
+            </Link>
+          ) : material.url ? (
             <a
               href={material.url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all w-fit"
             >
-              {material.type === "VIDEO"
-                ? playlist
-                  ? "View Playlist"
-                  : "Watch"
-                : "Open"}
-              <span className="material-symbols-outlined text-sm">
-                open_in_new
-              </span>
+              Open
+              <span className="material-symbols-outlined text-sm">open_in_new</span>
             </a>
-          )}
+          ) : null}
 
           {/* Edit button — visible on hover */}
           <button

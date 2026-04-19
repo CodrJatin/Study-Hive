@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useActionState, useRef, useEffect, useTransition, useState } from "react";
+import React, { useActionState, useRef, useEffect, useOptimistic, useTransition } from "react";
 import { addDeadline, deleteDeadline } from "@/actions/hive";
+
+interface DeadlineItem {
+  id: string;
+  title: string;
+  dueDate: Date | string;
+}
 
 interface ManageDeadlinesModalProps {
   isOpen: boolean;
   onClose: () => void;
   hiveId: string;
-  deadlines: any[];
+  deadlines: DeadlineItem[];
 }
 
 export function ManageDeadlinesModal({ 
@@ -18,10 +24,16 @@ export function ManageDeadlinesModal({
 }: ManageDeadlinesModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [addState, addAction, isAdding] = useActionState(addDeadline.bind(null, hiveId), null);
-  const [isDeleting, startDeleteTransition] = useTransition();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [, startDeleteTransition] = useTransition();
 
-  // Clear form if add was successful
+  // Optimistic list — removes items instantly on delete click
+  const [optimisticDeadlines, removeOptimisticDeadline] = useOptimistic(
+    deadlines,
+    (current: DeadlineItem[], removedId: string) =>
+      current.filter((d) => d.id !== removedId)
+  );
+
+  // Clear form on successful add
   useEffect(() => {
     if (isOpen && addState === null && formRef.current) {
       formRef.current.reset();
@@ -30,11 +42,11 @@ export function ManageDeadlinesModal({
 
   if (!isOpen) return null;
 
-  async function handleDelete(deadlineId: string) {
-    setDeletingId(deadlineId);
+  function handleDelete(deadlineId: string) {
     startDeleteTransition(async () => {
+      // Optimistically remove from list before network round-trip
+      removeOptimisticDeadline(deadlineId);
       await deleteDeadline(hiveId, deadlineId);
-      setDeletingId(null);
     });
   }
 
@@ -100,18 +112,16 @@ export function ManageDeadlinesModal({
 
         {/* List of Existing Deadlines */}
         <div className="grow overflow-y-auto p-6 space-y-3 custom-scrollbar">
-          {deadlines.length === 0 ? (
+          {optimisticDeadlines.length === 0 ? (
             <div className="py-20 text-center">
               <span className="material-symbols-outlined text-4xl text-on-surface-variant/20 mb-2">event_available</span>
               <p className="text-sm text-on-surface-variant/40 font-medium">No deadlines active</p>
             </div>
           ) : (
-            deadlines.map((deadline) => (
+            optimisticDeadlines.map((deadline) => (
               <div 
                 key={deadline.id}
-                className={`flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl group border border-transparent hover:border-outline-variant/20 transition-all ${
-                  isDeleting && deletingId === deadline.id ? "opacity-50 grayscale pointer-events-none" : ""
-                }`}
+                className="flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl group border border-transparent hover:border-outline-variant/20 transition-all"
               >
                 <div className="w-12 h-12 bg-surface-container-high rounded-xl flex flex-col items-center justify-center shadow-sm shrink-0">
                   <span className="text-[10px] uppercase font-bold text-primary">
@@ -132,12 +142,9 @@ export function ManageDeadlinesModal({
 
                 <button 
                   onClick={() => handleDelete(deadline.id)}
-                  disabled={isDeleting}
-                  className="w-8 h-8 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                  className="w-8 h-8 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                 >
-                  <span className={`material-symbols-outlined text-[20px] ${isDeleting && deletingId === deadline.id ? "animate-spin" : ""}`}>
-                    {isDeleting && deletingId === deadline.id ? "progress_activity" : "delete"}
-                  </span>
+                  <span className="material-symbols-outlined text-[20px]">delete</span>
                 </button>
               </div>
             ))

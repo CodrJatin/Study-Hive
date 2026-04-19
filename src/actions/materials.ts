@@ -14,7 +14,6 @@ type ActionError = { error: string };
 
 function detectType(url?: string): MaterialType {
   if (!url) return MaterialType.LINK;
-  if (/youtube\.com|youtu\.be/i.test(url)) return MaterialType.VIDEO;
   if (/\.pdf$/i.test(url)) return MaterialType.PDF;
   if (/\.docx?$|docs\.google/i.test(url)) return MaterialType.DOC;
   return MaterialType.LINK;
@@ -209,5 +208,41 @@ export async function deleteMaterial(
 
   await prisma.material.delete({ where: { id: materialId } });
   revalidatePath(`/hive/${hiveId}/materials`);
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Toggle a single video's completion state (per-user, per-material)
+// ─────────────────────────────────────────────────────────────────
+
+export async function toggleVideoProgress(
+  materialId: string,
+  hiveId: string,
+  position: number,
+  isCompleted: boolean // true = mark as done, false = mark as not done
+): Promise<ActionError | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Authorization required" };
+
+  // Find existing record (if any) so we can merge positions
+  const existing = await prisma.userMaterialProgress.findUnique({
+    where: { userId_materialId: { userId: user.id, materialId } },
+    select: { completedPositions: true },
+  });
+
+  const current: number[] = existing?.completedPositions ?? [];
+
+  const next = isCompleted
+    ? Array.from(new Set([...current, position])).sort((a, b) => a - b)
+    : current.filter((p) => p !== position);
+
+  await prisma.userMaterialProgress.upsert({
+    where: { userId_materialId: { userId: user.id, materialId } },
+    create: { userId: user.id, materialId, completedPositions: next },
+    update: { completedPositions: next },
+  });
+
+  revalidatePath(`/hive/${hiveId}/materials/${materialId}`);
   return null;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useTransition, useState } from "react";
-import { createMaterial } from "@/actions/materials";
+import { createSmartMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
 
 interface SmartPasteBarProps {
@@ -38,7 +38,7 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
         }
       } catch {}
 
-      await createMaterial(hiveId, title, MaterialType.LINK, url);
+      await createSmartMaterial(hiveId, url);
       formRef.current?.reset();
       setPreview(null);
     });

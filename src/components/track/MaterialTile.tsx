@@ -13,18 +13,20 @@ export function MaterialTile({ material, hiveId }: { material: any, hiveId: stri
 
   const handleToggle = () => {
     startTransition(async () => {
+      // Optimistic toggle fires synchronously
       addOptimisticStatus(!optimisticStatus);
+      // Pass the current UI status so the action derives the correct target status
       await toggleTopicStatus(
-        material.id, 
-        optimisticStatus ? TopicStatus.COMPLETED : TopicStatus.NOT_STARTED, 
+        material.id,
+        optimisticStatus ? TopicStatus.COMPLETED : TopicStatus.NOT_STARTED,
         hiveId
       );
     });
   };
 
   return (
-    <div className={`group bg-surface-container-lowest p-6 rounded-[1.5rem] transition-all duration-300 hover:bg-white hover:scale-[1.01] flex flex-col md:flex-row gap-6 md:items-start clay-card ${optimisticStatus ? 'opacity-80' : ''}`}>
-      <div className="flex-shrink-0 pt-1">
+    <div className={`group bg-surface-container-lowest p-6 rounded-3xl transition-all duration-300 hover:bg-white hover:scale-[1.01] flex flex-col md:flex-row gap-6 md:items-start clay-card ${optimisticStatus ? 'opacity-80' : ''}`}>
+      <div className="shrink-0 pt-1">
         <button 
           onClick={handleToggle}
           disabled={isPending}

@@ -27,6 +27,9 @@ export default async function DashboardPage() {
     include: { 
       hive: {
         include: {
+          units: {
+            include: { topics: true }
+          },
           deadlines: {
             where: {
               dueDate: { gte: new Date() } // Only future deadlines
@@ -43,8 +46,26 @@ export default async function DashboardPage() {
     const hive = membership.hive;
     const nearestDeadline = hive.deadlines[0];
     
+    // Calculate progress
+    const allTopics = hive.units.flatMap(u => u.topics);
+    const totalTopics = allTopics.length;
+    const completedTopics = allTopics.filter(t => t.status === "COMPLETED").length;
+    const progress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+
+    // Calculate days left
+    let daysLeft: number | null = null;
+    if (nearestDeadline) {
+      const diff = nearestDeadline.dueDate.getTime() - new Date().getTime();
+      daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    } else if (hive.targetDate) {
+      const diff = hive.targetDate.getTime() - new Date().getTime();
+      daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }
+
     return {
       ...hive,
+      progress,
+      daysLeft,
       nextDeadlineText: nearestDeadline
         ? new Intl.DateTimeFormat("en-US", {
             month: "short",
@@ -78,7 +99,10 @@ export default async function DashboardPage() {
             hive={{
               id: hive.id,
               title: hive.title,
+              description: hive.description || "No description provided.",
               nextDeadline: hive.nextDeadlineText,
+              progress: hive.progress,
+              daysLeft: hive.daysLeft,
             }}
           />
         ))}
@@ -87,42 +111,6 @@ export default async function DashboardPage() {
         <AddHiveCard />
       </section>
 
-      {/* Activity Feed (Glassmorphism Sidebar for Desktop) */}
-      <section className="mt-16 bg-surface-container-low rounded-xl p-8 relative overflow-hidden clay-inset">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-headline font-extrabold text-on-surface">Recent Curations</h2>
-          <button className="text-sm font-semibold text-primary flex items-center gap-1">
-            View Archive
-            <span className="material-symbols-outlined text-sm">open_in_new</span>
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl clay-card">
-            <div className="w-12 h-12 rounded-lg bg-tertiary-container/30 flex items-center justify-center">
-              <span className="material-symbols-outlined text-tertiary">description</span>
-            </div>
-            <div className="grow">
-              <p className="text-sm font-bold text-on-surface">Photosynthesis_Flowchart.pdf</p>
-              <p className="text-xs text-on-surface-variant">Shared in Biology 101 • 2h ago</p>
-            </div>
-            <button className="p-2 hover:bg-surface-container-high rounded-full transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant">more_vert</span>
-            </button>
-          </div>
-          <div className="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl clay-card">
-            <div className="w-12 h-12 rounded-lg bg-secondary-container/30 flex items-center justify-center">
-              <span className="material-symbols-outlined text-secondary">forum</span>
-            </div>
-            <div className="grow">
-              <p className="text-sm font-bold text-on-surface">Marcus joined the Algorithms Hive</p>
-              <p className="text-xs text-on-surface-variant">Invite accepted via link • 4h ago</p>
-            </div>
-            <button className="p-2 hover:bg-surface-container-high rounded-full transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant">more_vert</span>
-            </button>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

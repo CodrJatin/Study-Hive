@@ -3,8 +3,7 @@ import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
 import { AnnouncementCard } from "@/components/hive/AnnouncementCard";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
-import { ActivityFeedItem } from "@/components/hive/ActivityFeedItem";
-import { announcementsData, activitiesData } from "@/lib/data";
+import { announcementsData } from "@/lib/data";
 import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -27,13 +26,26 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
         members: true,
         deadlines: {
           orderBy: { dueDate: "asc" },
-        }
+        },
+        units: {
+          include: {
+            topics: true,
+          },
+        },
       },
     }),
     authUser ? prisma.user.findUnique({ where: { id: authUser.id } }) : null
   ]);
 
   if (!hive) return notFound();
+
+  // Calculate progress
+  const totalTopics = hive.units.reduce((sum, u) => sum + u.topics.length, 0);
+  const completedTopics = hive.units.reduce(
+    (sum, u) => sum + u.topics.filter((t: any) => t.status === "COMPLETED").length,
+    0
+  );
+  const progress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
 
   const rawDeadlines = hive.deadlines;
 
@@ -72,42 +84,47 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
   });
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-12 bg-surface-container-lowest rounded-4xl border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col md:flex-row clay-card md:h-[300px]">
-        <HiveOverviewCard hive={hive} />
+    <div className="max-w-6xl mx-auto space-y-12">
+      {/* Standalone Title Card */}
+      <div className="bg-surface-container-lowest rounded-[3rem] border border-outline-variant/10 shadow-sm overflow-hidden clay-card">
+        <HiveOverviewCard hive={hive} progress={progress} />
+      </div>
 
-        {/* Right Side: Deadlines */}
-        <div className="w-full md:w-[420px] bg-surface-container-low/50 p-8 md:px-7 md:py-10 flex flex-col clay-inset border-none rounded-none md:rounded-r-4xl">
-          <div className="flex justify-between items-center mb-6 shrink-0">
-            <h3 className="text-xs font-headline font-bold text-on-background uppercase tracking-widest flex items-center gap-2">
-              <span className="material-symbols-outlined text-error text-xl" data-icon="event_busy">
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        
+        {/* Sidebar: Deadlines (Mobile: First, Desktop: Right) */}
+        <section className="lg:order-2">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
+              <span className="material-symbols-outlined text-error text-3xl" data-icon="event_busy">
                 event_busy
               </span>
               Deadlines
             </h3>
             <ManageDeadlinesAction hiveId={hive.id} deadlines={rawDeadlines} />
           </div>
-
-          <div className="space-y-3 overflow-y-auto pr-1 custom-scrollbar grow">
+          
+          <div className="bg-surface-container-low/30 rounded-[2.5rem] p-6 clay-inset space-y-4">
             {mappedDeadlines.map(deadline => (
               <DeadlineItem key={deadline.id} deadline={deadline} />
             ))}
             {mappedDeadlines.length === 0 && (
-              <p className="text-on-surface-variant/40 text-[10px] font-bold text-center py-4">
-                No upcoming deadlines
-              </p>
+              <div className="py-12 text-center">
+                <span className="material-symbols-outlined text-on-surface-variant/10 text-5xl mb-2">event_available</span>
+                <p className="text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">
+                  All clear for now
+                </p>
+              </div>
             )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Main Column Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Announcements Section */}
-        <section>
+        {/* Main Column: Announcements (Mobile: Second, Desktop: Left) */}
+        <section className="lg:col-span-2 lg:order-1">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-headline font-bold text-on-background flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary" data-icon="campaign">
+            <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-3xl" data-icon="campaign">
                 campaign
               </span>
               Announcements
@@ -125,31 +142,14 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
               }} />
             ))}
             {hive.announcements.length === 0 && (
-              <div className="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10 flex flex-col sm:flex-row items-center justify-center gap-3 clay-inset">
-                <span className="material-symbols-outlined text-on-surface-variant/20 text-4xl">campaign</span>
-                <p className="text-on-surface-variant text-sm font-semibold">No announcements yet</p>
+              <div className="bg-surface-container-low rounded-3xl p-10 border border-outline-variant/10 flex flex-col items-center justify-center gap-4 clay-inset">
+                <span className="material-symbols-outlined text-on-surface-variant/10 text-6xl">campaign</span>
+                <p className="text-on-surface-variant/40 font-bold uppercase tracking-widest text-xs">No announcements yet</p>
               </div>
             )}
           </div>
         </section>
 
-        {/* Recent Activity Feed */}
-        <section>
-          <h3 className="text-xl font-headline font-bold text-on-background mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary" data-icon="history">
-              history
-            </span>
-            Recent Activity
-          </h3>
-          <div className="bg-surface-container-low rounded-xl p-6 relative clay-inset">
-            <div className="absolute left-9 top-8 bottom-8 w-px bg-outline-variant/30"></div>
-            <div className="space-y-8">
-              {activitiesData.map(activity => (
-                <ActivityFeedItem key={activity.id} activity={activity} />
-              ))}
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );

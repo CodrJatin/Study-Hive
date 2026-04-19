@@ -1,11 +1,17 @@
 import React from "react";
 import { ProgressBar } from "@/components/hive/ProgressBar";
 
-export function HiveOverviewCard({ hive }: { hive: { title: string; description: string | null } }) {
+export function HiveOverviewCard({ 
+  hive, 
+  progress 
+}: { 
+  hive: { title: string; description: string | null },
+  progress: number
+}) {
   return (
     <>
-        {/* Left Side: Title & Mastery */}
-        <div className="flex-1 p-8 md:p-10 border-b md:border-b-0 md:border-r border-outline-variant/10 flex flex-col">
+        {/* Full-width Title & Mastery */}
+        <div className="flex-1 p-8 md:p-12 lg:p-16 flex flex-col">
           <div className="flex items-start justify-between mb-10">
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
@@ -32,7 +38,7 @@ export function HiveOverviewCard({ hive }: { hive: { title: string; description:
             </div>
           </div>
 
-          <ProgressBar progress={45} label="Hive Mastery" labelSecondary="Course completion" />
+          <ProgressBar progress={progress} label="Hive Mastery" labelSecondary="Course completion" />
         </div>
     </>
   );

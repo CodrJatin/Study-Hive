@@ -7,11 +7,12 @@ import { MaterialCard } from "@/components/materials/MaterialCard";
 
 function getMaterialStyling(type: string) {
   switch (type) {
-    case "PDF":    return { icon: "picture_as_pdf", iconBg: "bg-error/10",                iconColor: "text-error" };
-    case "VIDEO":  return { icon: "play_circle",    iconBg: "bg-primary-container",        iconColor: "text-primary" };
-    case "DOC":    return { icon: "description",    iconBg: "bg-tertiary-container",       iconColor: "text-tertiary" };
-    case "LINK":   return { icon: "link",           iconBg: "bg-secondary-container",      iconColor: "text-secondary" };
-    default:       return { icon: "article",        iconBg: "bg-surface-container-high",   iconColor: "text-on-surface" };
+    case "PDF":      return { icon: "picture_as_pdf", iconBg: "bg-error/10",           iconColor: "text-error" };
+    case "VIDEO":    return { icon: "play_circle",    iconBg: "bg-primary-container",  iconColor: "text-primary" };
+    case "PLAYLIST": return { icon: "playlist_play",  iconBg: "bg-tertiary-container", iconColor: "text-tertiary" };
+    case "DOC":      return { icon: "description",    iconBg: "bg-tertiary-container", iconColor: "text-tertiary" };
+    case "LINK":     return { icon: "link",           iconBg: "bg-secondary-container", iconColor: "text-secondary" };
+    default:         return { icon: "article",        iconBg: "bg-surface-container-high", iconColor: "text-on-surface" };
   }
 }
 
@@ -42,13 +43,14 @@ export default async function MaterialsPage({ params }: { params: Promise<{ hive
     return acc;
   }, {} as Record<string, typeof materials>);
 
-  const typeOrder = ["VIDEO", "PDF", "DOC", "LINK"];
+  const typeOrder = ["VIDEO", "PLAYLIST", "PDF", "DOC", "LINK"];
   const sortedGroups = Object.entries(grouped).sort(
     ([a], [b]) => typeOrder.indexOf(a) - typeOrder.indexOf(b)
   );
 
   const typeLabels: Record<string, string> = {
     VIDEO: "Videos",
+    PLAYLIST: "Playlists",
     PDF: "PDFs",
     DOC: "Documents",
     LINK: "Links",
