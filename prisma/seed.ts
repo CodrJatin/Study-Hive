@@ -13,6 +13,7 @@ async function main() {
   await prisma.announcement.deleteMany();
   await prisma.hiveMember.deleteMany();
   await prisma.hive.deleteMany();
+  await prisma.userTopicProgress.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('Seeding new data...');
@@ -59,29 +60,50 @@ async function main() {
     }
   });
 
-  await prisma.topic.create({
+  const topic1 = await prisma.topic.create({
     data: {
       title: "Historical Contexts",
       unitId: unit1.id,
       position: 1,
+    }
+  });
+
+  await prisma.userTopicProgress.create({
+    data: {
+      userId: user.id,
+      topicId: topic1.id,
       status: TopicStatus.IN_PROGRESS,
     }
   });
 
-  await prisma.topic.create({
+  const topic2 = await prisma.topic.create({
     data: {
       title: "Institutional Standards",
       unitId: unit1.id,
       position: 2,
+    }
+  });
+
+  await prisma.userTopicProgress.create({
+    data: {
+      userId: user.id,
+      topicId: topic2.id,
       status: TopicStatus.NOT_STARTED,
     }
   });
 
-  await prisma.topic.create({
+  const topic3 = await prisma.topic.create({
     data: {
       title: "Symmetry Operations",
       unitId: unit2.id,
       position: 1,
+    }
+  });
+
+  await prisma.userTopicProgress.create({
+    data: {
+      userId: user.id,
+      topicId: topic3.id,
       status: TopicStatus.COMPLETED,
     }
   });
