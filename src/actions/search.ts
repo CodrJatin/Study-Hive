@@ -7,7 +7,7 @@ export interface SearchResult {
   id: string;
   title: string;
   type: "hive" | "material" | "topic" | "unit";
-  hiveId: string;
+  hiveId: string | null;
   /** For materials — used to build the player deep-link */
   materialId?: string;
   /** Specific material type (VIDEO, PLAYLIST, etc.) */
@@ -46,14 +46,18 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       take: 5,
     }),
 
-    // Materials within those hives
+    // Materials within those hives OR personal materials
     prisma.material.findMany({
       where: {
-        hiveId: { in: hiveIds },
+        userId: user.id,
+        OR: [
+          { hiveId: { in: hiveIds } },
+          { hiveId: null }
+        ],
         title: { contains: q, mode: "insensitive" },
       },
       select: { id: true, title: true, hiveId: true, type: true },
-      take: 5,
+      take: 10,
     }),
 
     // Topics within units of those hives
