@@ -5,11 +5,11 @@ import { Topic, TopicStatus } from "@prisma/client";
 import { toggleTopicStatus } from "@/actions/syllabus";
 import { useParams } from "next/navigation";
 
-export function TopicRow({ topic, index, unitIndex }: { topic: Topic, index: number, unitIndex: number }) {
+export function TopicRow({ topic, index, unitIndex, userStatus }: { topic: Topic, index: number, unitIndex: number, userStatus: TopicStatus }) {
   const { hiveId } = useParams() as { hiveId: string };
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, addOptimisticStatus] = useOptimistic(
-    topic.status,
+    userStatus,
     (state, newStatus: TopicStatus) => newStatus
   );
 

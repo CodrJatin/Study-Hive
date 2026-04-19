@@ -2,25 +2,30 @@
 
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Fetches the 3 most recently accessed hives for a user.
+ * Deliberately lean: no nested topics. Uses _count for a
+ * quick topic count signal instead of loading full arrays.
+ */
 export async function getRecentHives(userId: string) {
   const memberships = await prisma.hiveMember.findMany({
     where: { userId },
     orderBy: { lastAccessedAt: "desc" },
     take: 3,
-    include: {
+    select: {
       hive: {
-        include: {
-          units: {
-            include: { topics: true }
-          },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          targetDate: true,
           deadlines: {
-            where: {
-              dueDate: { gte: new Date() }
-            },
+            where: { dueDate: { gte: new Date() } },
             orderBy: { dueDate: "asc" },
-            take: 1
-          }
-        }
+            take: 1,
+            select: { dueDate: true },
+          },
+        },
       },
     },
   });
@@ -28,24 +33,23 @@ export async function getRecentHives(userId: string) {
   return memberships.map((m) => m.hive);
 }
 
+/**
+ * Fetches the 5 nearest future deadlines across all hives
+ * the user belongs to. Selects only essential display fields.
+ */
 export async function getUpcomingDeadlines(userId: string) {
-  const now = new Date();
-  
-  const deadlines = await prisma.deadline.findMany({
+  return prisma.deadline.findMany({
     where: {
-      hive: {
-        members: {
-          some: { userId },
-        },
-      },
-      dueDate: { gt: now },
+      hive: { members: { some: { userId } } },
+      dueDate: { gt: new Date() },
     },
     orderBy: { dueDate: "asc" },
     take: 5,
-    include: {
+    select: {
+      id: true,
+      title: true,
+      dueDate: true,
       hive: { select: { title: true } },
     },
   });
-
-  return deadlines;
 }

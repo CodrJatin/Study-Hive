@@ -6,7 +6,6 @@ interface HiveCardProps {
     title: string;
     description: string;
     nextDeadline: string;
-    progress: number;
     daysLeft: number | null;
   };
 }
@@ -42,22 +41,6 @@ export function HiveCard({ hive }: HiveCardProps) {
           <p className="text-[13px] text-[#757575] leading-relaxed mb-8 line-clamp-3 font-medium">
             {hive.description}
           </p>
-        </div>
-
-        {/* Footer: Progress */}
-        <div className="mt-auto pt-2">
-          <div className="flex items-center justify-between mb-3 text-[12px] font-bold">
-            <span className="text-[#757575]">Syllabus Progress</span>
-            <span className="text-[#4A4A4A]">{hive.progress}%</span>
-          </div>
-          <div className="h-2 w-full bg-[#E5E5E5] rounded-full overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-700 ease-out ${
-                hive.progress > 50 ? "bg-[#735A27]" : "bg-[#007A8A]"
-              }`} 
-              style={{ width: `${hive.progress}%` }} 
-            />
-          </div>
         </div>
       </div>
     </Link>

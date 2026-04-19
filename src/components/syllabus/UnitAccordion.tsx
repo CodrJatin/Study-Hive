@@ -6,7 +6,7 @@ import { AddTopicForm } from "./AddTopicForm";
 import { Topic, Unit } from "@prisma/client";
 
 interface UnitAccordionProps {
-  unit: Unit & { topics: Topic[] };
+  unit: Unit & { topics: (Topic & { topicProgress?: { status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" }[] })[] };
   index: number;
   hiveId: string;
 }
@@ -53,9 +53,18 @@ export function UnitAccordion({ unit, index, hiveId }: UnitAccordionProps) {
       {/* Topics + Add Form */}
       {isExpanded && (
         <div className="ml-4 md:ml-12 mt-3 space-y-2 border-l-2 border-surface-container-high pl-4 md:pl-6 pb-2">
-          {unit.topics.map((topic: Topic, tIndex: number) => (
-            <TopicRow key={topic.id} topic={topic} index={tIndex} unitIndex={index} />
-          ))}
+          {unit.topics.map((topic, tIndex: number) => {
+            const status = topic.topicProgress?.[0]?.status || "NOT_STARTED";
+            return (
+              <TopicRow 
+                key={topic.id} 
+                topic={topic} 
+                index={tIndex} 
+                unitIndex={index} 
+                userStatus={status} 
+              />
+            );
+          })}
           <AddTopicForm
             unitId={unit.id}
             hiveId={hiveId}

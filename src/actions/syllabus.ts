@@ -17,13 +17,27 @@ export async function toggleTopicStatus(topicId: string, currentStatus: TopicSta
     ? TopicStatus.NOT_STARTED
     : TopicStatus.COMPLETED;
 
-  await prisma.topic.update({
-    where: { id: topicId },
-    data: { status: nextStatus }
+  await prisma.userTopicProgress.upsert({
+    where: {
+      userId_topicId: {
+        userId: user.id,
+        topicId: topicId,
+      },
+    },
+    create: {
+      userId: user.id,
+      topicId: topicId,
+      status: nextStatus,
+    },
+    update: {
+      status: nextStatus,
+    },
   });
 
   revalidatePath(`/hive/${hiveId}/syllabus`);
   revalidatePath(`/hive/${hiveId}`); // updates HiveOverviewCard mastery progress
+  revalidatePath(`/dashboard`); // update dashboard overview
+  revalidatePath(`/dashboard/hives`); // update dashboard hives
   return nextStatus;
 }
 

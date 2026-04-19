@@ -17,33 +17,29 @@ export default async function HivesPage() {
 
   const hiveMemberships = await prisma.hiveMember.findMany({
     where: { userId: user.id },
-    include: { 
+    include: {
       hive: {
         include: {
-          units: {
-            include: { topics: true }
-          },
           deadlines: {
             where: {
-              dueDate: { gte: new Date() } // Only future deadlines
+              dueDate: { gte: new Date() }
             },
-            orderBy: { dueDate: "asc" },
+            orderBy: {
+              dueDate: 'asc'
+            },
             take: 1
           }
         }
-      } 
+      }
     },
+    orderBy: {
+      lastAccessedAt: 'desc'
+    }
   });
 
-  const hives = hiveMemberships.map((membership) => {
-    const hive = membership.hive;
-    const nearestDeadline = hive.deadlines[0];
-    
-    // Calculate progress
-    const allTopics = hive.units.flatMap(u => u.topics);
-    const totalTopics = allTopics.length;
-    const completedTopics = allTopics.filter(t => t.status === "COMPLETED").length;
-    const progress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+  const hives = hiveMemberships.map(hm => {
+    const hive = hm.hive;
+    const nearestDeadline = hive.deadlines?.[0];
 
     // Calculate days left
     let daysLeft: number | null = null;
@@ -56,37 +52,20 @@ export default async function HivesPage() {
     }
 
     return {
-      ...hive,
-      progress,
-      daysLeft,
-      nextDeadlineText: nearestDeadline
-        ? new Intl.DateTimeFormat("en-US", {
-            month: "short",
-            day: "numeric",
-          }).format(nearestDeadline.dueDate)
-        : hive.targetDate
-        ? new Intl.DateTimeFormat("en-US", {
-            month: "short",
-            day: "numeric",
-          }).format(hive.targetDate)
+      id: hive.id,
+      title: hive.title,
+      description: hive.description || "No description provided.",
+      nextDeadline: nearestDeadline
+        ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(nearestDeadline.dueDate)
         : "No deadlines",
+      daysLeft,
     };
   });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {hives.map((hive) => (
-        <HiveCard
-          key={hive.id}
-          hive={{
-            id: hive.id,
-            title: hive.title,
-            description: hive.description || "No description provided.",
-            nextDeadline: hive.nextDeadlineText,
-            progress: hive.progress,
-            daysLeft: hive.daysLeft,
-          }}
-        />
+        <HiveCard key={hive.id} hive={hive} />
       ))}
       <AddHiveCard />
     </div>

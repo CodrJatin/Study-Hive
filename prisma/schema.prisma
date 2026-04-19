@@ -27,6 +27,7 @@ model User {
   announcements Announcement[]
   invites       HiveInvite[]
   materialProgress UserMaterialProgress[]
+  topicProgress    UserTopicProgress[]
   tasks         Task[]
 }
 
@@ -137,7 +138,6 @@ model Topic {
   id            String      @id @default(cuid())
   title         String
   position      Int         @default(0)
-  status        TopicStatus @default(NOT_STARTED)
   duration      String?
   resourceCount Int         @default(0)
   createdAt     DateTime    @default(now())
@@ -146,7 +146,8 @@ model Topic {
   unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId String
 
-  trackTopics TrackTopic[]
+  trackTopics   TrackTopic[]
+  topicProgress UserTopicProgress[]
 
   @@index([unitId, position])
   @@index([title])
@@ -156,6 +157,23 @@ enum TopicStatus {
   NOT_STARTED
   IN_PROGRESS
   COMPLETED
+}
+
+// ─────────────────────────────────────────
+// UserTopicProgress — localized topic progress
+// ─────────────────────────────────────────
+model UserTopicProgress {
+  id        String      @id @default(cuid())
+  userId    String
+  topicId   String
+  status    TopicStatus @default(NOT_STARTED)
+  updatedAt DateTime    @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@index([userId, topicId])
 }
 
 // ─────────────────────────────────────────
