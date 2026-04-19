@@ -20,12 +20,19 @@ const TYPE_COLOR: Record<SearchResult["type"], string> = {
 };
 
 function buildHref(result: SearchResult): string {
-  const base = `/hive/${result.hiveId}`;
+  // Materials have a special case where they might not belong to a Hive
+  if (result.type === "material") {
+    if (!result.hiveId) {
+      return `/dashboard/materials/${result.id}`;
+    }
+    return `/hive/${result.hiveId}/materials/${result.id}`;
+  }
+
+  // Fallback / standard routing for Hive-based content
+  const base = result.hiveId ? `/hive/${result.hiveId}` : "/dashboard";
   switch (result.type) {
     case "hive":
-      return base;
-    case "material":
-      return `${base}/materials/${result.materialId}`;
+      return `/hive/${result.id}`;
     case "topic":
     case "unit":
       return `${base}/syllabus`;
@@ -243,6 +250,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
 function SearchResultItem({ result, onSelect }: { result: SearchResult, onSelect: (r: SearchResult) => void }) {
   let icon = TYPE_ICON[result.type];
   let colorClass = TYPE_COLOR[result.type];
+  const isPersonal = result.type === "material" && !result.hiveId;
 
   if (result.type === "material" && result.materialType) {
     switch (result.materialType) {
@@ -250,6 +258,7 @@ function SearchResultItem({ result, onSelect }: { result: SearchResult, onSelect
       case "VIDEO": icon = "play_circle"; colorClass = "text-primary bg-primary/10"; break;
       case "PDF": icon = "picture_as_pdf"; colorClass = "text-error bg-error/10"; break;
       case "LINK": icon = "link"; colorClass = "text-secondary bg-secondary/10"; break;
+      case "IMAGE": icon = "image"; colorClass = "text-secondary bg-secondary/10"; break;
     }
   }
 
@@ -263,7 +272,21 @@ function SearchResultItem({ result, onSelect }: { result: SearchResult, onSelect
           <span className="material-symbols-outlined text-[18px]">{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-on-surface truncate group-hover:text-primary transition-colors">{result.title}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-on-surface truncate group-hover:text-primary transition-colors">
+              {result.title}
+            </p>
+            {isPersonal && (
+              <span className="px-1.5 py-0.5 rounded-md bg-surface-container-high text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-tighter shrink-0 border border-outline-variant/10">
+                Personal
+              </span>
+            )}
+            {result.type === "material" && result.hiveId && (
+              <span className="px-1.5 py-0.5 rounded-md bg-primary/5 text-[9px] font-bold text-primary/60 uppercase tracking-tighter shrink-0 border border-primary/10">
+                Shared
+              </span>
+            )}
+          </div>
           {result.subtitle && <p className="text-xs text-on-surface-variant/60 truncate mt-0.5">{result.subtitle}</p>}
         </div>
         <span className="material-symbols-outlined text-base text-on-surface-variant/30 group-hover:text-primary transition-all">arrow_forward</span>
