@@ -20,25 +20,28 @@ const TYPE_COLOR: Record<SearchResult["type"], string> = {
 };
 
 function buildHref(result: SearchResult): string {
-  // Materials have a special case where they might not belong to a Hive
+  // 1. Materials: Conditional routing for Hive vs. Personal
   if (result.type === "material") {
-    if (!result.hiveId) {
-      return `/dashboard/materials/${result.id}`;
+    // If it has a hiveId, it's a shared Hive resource
+    if (result.hiveId) {
+      return `/hive/${result.hiveId}/materials/${result.id}`;
     }
-    return `/hive/${result.hiveId}/materials/${result.id}`;
+    // If hiveId is null, it's a personal material in the dashboard
+    return `/dashboard/materials/${result.id}`;
   }
 
-  // Fallback / standard routing for Hive-based content
-  const base = result.hiveId ? `/hive/${result.hiveId}` : "/dashboard";
-  switch (result.type) {
-    case "hive":
-      return `/hive/${result.id}`;
-    case "topic":
-    case "unit":
-      return `${base}/syllabus`;
-    default:
-      return base;
+  // 2. Hives: Navigate directly to the hive overview
+  if (result.type === "hive") {
+    return `/hive/${result.id}`;
   }
+
+  // 3. Topics and Units: These always belong to a Hive
+  if (result.hiveId) {
+    return `/hive/${result.hiveId}/syllabus`;
+  }
+
+  // 4. Default Fallback: Go to the main dashboard
+  return "/dashboard";
 }
 
 export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {

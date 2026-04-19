@@ -47,19 +47,30 @@ export function CreateTaskForm({ userId }: { userId: string }) {
     };
   }, [searchQuery, runSearch]);
 
+  // ── Refactored handleSelectResult in CreateTaskForm.tsx ──
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "hive") {
       setSelectedHive({ id: result.id, title: result.title });
       setSelectedMaterial(null);
     } else if (result.type === "material") {
-      setSelectedMaterial({ id: result.id, title: result.title, type: result.materialType });
-      setSelectedHive({ id: result.hiveId, title: "Hive Reference" }); // Could be better but we just need hiveId
-    }
-    // We can also let topics and units just select the hive
-    else {
+      setSelectedMaterial({
+        id: result.id,
+        title: result.title,
+        type: result.materialType
+      });
+
+      // ✅ Safety Check: Only set the hive if result.hiveId exists
+      if (result.hiveId) {
+        setSelectedHive({ id: result.hiveId, title: "Hive Reference" });
+      } else {
+        setSelectedHive(null); // It's a personal material
+      }
+    } else if (result.hiveId) {
+      // For units or topics, the hiveId should always exist
       setSelectedHive({ id: result.hiveId, title: "Hive Reference" });
       setSelectedMaterial(null);
     }
+
     setSearchQuery("");
     setSearchResults([]);
     setShowSearchDropdown(false);
