@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { createInvite, deleteInvite } from "@/actions/invite";
+import { getJoinUrl } from "@/utils/get-url";
 
 interface HiveInvite {
   id: string;
@@ -29,8 +30,7 @@ function formatExpiry(expiresAt: Date | null): string {
   return `Expires in ${minutes} minute${minutes > 1 ? "s" : ""}`;
 }
 
-const BASE_URL =
-  typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+
 
 export function ManageInvitesModal({
   isOpen,
@@ -43,6 +43,7 @@ export function ManageInvitesModal({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
@@ -83,7 +84,7 @@ export function ManageInvitesModal({
   }
 
   function handleCopy(code: string, id: string) {
-    navigator.clipboard.writeText(`${BASE_URL}/join/${code}`);
+    navigator.clipboard.writeText(getJoinUrl(code));
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   }
@@ -128,23 +129,73 @@ export function ManageInvitesModal({
                 {error}
               </div>
             )}
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
+            <div className="flex items-end gap-3">
+              <div className="flex-1 relative">
                 <label className="block text-xs font-semibold text-on-surface/60 mb-1.5 px-1">
                   Expiration
                 </label>
-                <select
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
-                >
-                  <option value="1">1 Hour</option>
-                  <option value="24">24 Hours</option>
-                  <option value="168">7 Days</option>
-                  <option value="never">Never</option>
-                </select>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full bg-surface-container-high hover:bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-4 focus:ring-primary/10 outline-none flex items-center justify-between transition-all cursor-pointer"
+                  >
+                    <span>
+                      {expiry === "1"
+                        ? "1 Hour"
+                        : expiry === "24"
+                        ? "24 Hours"
+                        : expiry === "168"
+                        ? "7 Days"
+                        : "Never"}
+                    </span>
+                    <span
+                      className={`material-symbols-outlined text-on-surface/50 transition-transform duration-300 ${
+                        isDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      keyboard_arrow_down
+                    </span>
+                  </button>
+
+                  {isDropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-60"
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
+                      <div className="absolute top-full left-0 w-full mt-2 bg-surface-container-lowest rounded-2xl shadow-2xl ring-1 ring-on-surface/5 py-2 z-70 clay-card animate-in fade-in slide-in-from-top-2 duration-200">
+                        {[
+                          { val: "1", lab: "1 Hour" },
+                          { val: "24", lab: "24 Hours" },
+                          { val: "168", lab: "7 Days" },
+                          { val: "never", lab: "Never" },
+                        ].map((opt) => (
+                          <button
+                            key={opt.val}
+                            onClick={() => {
+                              setExpiry(opt.val);
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors flex items-center justify-between ${
+                              expiry === opt.val
+                                ? "bg-primary/10 text-primary"
+                                : "text-on-surface hover:bg-surface-container-high"
+                            }`}
+                          >
+                            {opt.lab}
+                            {expiry === opt.val && (
+                              <span className="material-symbols-outlined text-lg">
+                                check
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="pt-6">
+              <div className="shrink-0">
                 <button
                   onClick={handleCreate}
                   disabled={isCreating}
@@ -184,7 +235,7 @@ export function ManageInvitesModal({
             </div>
           ) : (
             invites.map((invite) => {
-              const url = `${BASE_URL}/join/${invite.code}`;
+              const url = getJoinUrl(invite.code);
               const isExpired =
                 invite.expiresAt && new Date(invite.expiresAt) < new Date();
               const isThisDeleting = deletingId === invite.id && isDeleting;

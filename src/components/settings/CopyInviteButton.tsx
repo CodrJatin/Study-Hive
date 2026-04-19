@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { getJoinUrl } from "@/utils/get-url";
 
 export function CopyInviteButton({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const url = `${window.location.origin}/join/${code}`;
+    const url = getJoinUrl(code);
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

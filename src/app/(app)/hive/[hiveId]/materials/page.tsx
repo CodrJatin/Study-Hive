@@ -1,115 +1,142 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
+import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { MaterialCard } from "@/components/materials/MaterialCard";
 
 function getMaterialStyling(type: string) {
   switch (type) {
-    case 'PDF': return { icon: 'picture_as_pdf', iconBg: 'bg-error/10', iconColor: 'text-error' };
-    case 'VIDEO': return { icon: 'play_circle', iconBg: 'bg-primary-container', iconColor: 'text-primary' };
-    case 'DOC': return { icon: 'description', iconBg: 'bg-tertiary-container', iconColor: 'text-tertiary' };
-    case 'LINK': return { icon: 'link', iconBg: 'bg-secondary-container', iconColor: 'text-secondary' };
-    default: return { icon: 'article', iconBg: 'bg-surface-container-high', iconColor: 'text-on-surface' };
+    case "PDF":    return { icon: "picture_as_pdf", iconBg: "bg-error/10",                iconColor: "text-error" };
+    case "VIDEO":  return { icon: "play_circle",    iconBg: "bg-primary-container",        iconColor: "text-primary" };
+    case "DOC":    return { icon: "description",    iconBg: "bg-tertiary-container",       iconColor: "text-tertiary" };
+    case "LINK":   return { icon: "link",           iconBg: "bg-secondary-container",      iconColor: "text-secondary" };
+    default:       return { icon: "article",        iconBg: "bg-surface-container-high",   iconColor: "text-on-surface" };
   }
+}
+
+function formatSize(bytes?: number | null): string {
+  if (!bytes) return "Link";
+  const mb = bytes / 1024 / 1024;
+  return mb < 1 ? `${(bytes / 1024).toFixed(0)} KB` : `${mb.toFixed(1)} MB`;
 }
 
 export default async function MaterialsPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
+
+  const hive = await prisma.hive.findUnique({
+    where: { id: hiveId },
+    select: { id: true, title: true },
+  });
+  if (!hive) return notFound();
+
   const materials = await prisma.material.findMany({
-    where: { hiveId: hiveId },
-    orderBy: { createdAt: "desc" }
+    where: { hiveId },
+    orderBy: { createdAt: "desc" },
   });
 
-  // Group materials by type since category does not exist in schema
-  const groupedMaterials = materials.reduce((acc, material: any) => {
-    if (!acc[material.type]) {
-      acc[material.type] = [];
-    }
-    acc[material.type].push(material);
+  // Group by type
+  const grouped = materials.reduce((acc, m) => {
+    if (!acc[m.type]) acc[m.type] = [];
+    acc[m.type].push(m);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, typeof materials>);
+
+  const typeOrder = ["VIDEO", "PDF", "DOC", "LINK"];
+  const sortedGroups = Object.entries(grouped).sort(
+    ([a], [b]) => typeOrder.indexOf(a) - typeOrder.indexOf(b)
+  );
+
+  const typeLabels: Record<string, string> = {
+    VIDEO: "Videos",
+    PDF: "PDFs",
+    DOC: "Documents",
+    LINK: "Links",
+  };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Header Section */}
-      <header className="mb-10 flex flex-col gap-6">
-        <div>
-          <h1 className="text-4xl font-headline font-bold text-on-background tracking-tight mb-2">
-            Curated Materials
-          </h1>
-          <p className="text-on-surface-variant font-body">
-            Manage and organize your academic assets across units and topics.
-          </p>
-        </div>
+    <>
+      {/* Full-page drag area lives outside main scroll */}
+      <DropzoneOverlay hiveId={hiveId} />
 
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex items-center bg-surface-container-high px-4 py-2.5 rounded-full flex-grow">
-            <span className="material-symbols-outlined text-on-surface-variant mr-2" data-icon="search">
-              search
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <header className="mb-8">
+          <span className="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">
+            Materials
+          </span>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-4xl font-headline font-extrabold text-on-background tracking-tight mb-1">
+                {hive.title}
+              </h1>
+              <p className="text-on-surface-variant text-sm">
+                {materials.length} resource{materials.length !== 1 ? "s" : ""} · Drag files anywhere to upload
+              </p>
+            </div>
+          </div>
+
+          {/* Smart Paste Bar */}
+          <SmartPasteBar hiveId={hiveId} />
+        </header>
+
+        {/* Material Grid */}
+        {sortedGroups.length === 0 ? (
+          <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
+            <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">
+              folder_open
             </span>
-            <input
-              className="bg-transparent border-none focus:ring-0 text-sm w-full font-body outline-none"
-              placeholder="Search curated materials..."
-              type="text"
-            />
+            <h3 className="text-xl font-headline font-bold text-on-surface mb-1">No Materials Yet</h3>
+            <p className="text-on-surface-variant text-sm">
+              Paste a link above or drag and drop files anywhere on this page.
+            </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <button className="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-colors whitespace-nowrap">
-              <span className="material-symbols-outlined text-[18px]" data-icon="filter_list">
-                filter_list
-              </span>
-              Category
-            </button>
-            <button className="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-colors whitespace-nowrap">
-              <span className="material-symbols-outlined text-[18px]" data-icon="sort">
-                sort
-              </span>
-              Latest
-            </button>
-            <button className="bg-[#FFC107] text-[#785900] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm hover:brightness-105 transition-all whitespace-nowrap active:scale-95">
-              <span className="material-symbols-outlined text-[18px]" data-icon="add">
-                add
-              </span>
-              Upload
-            </button>
-          </div>
-        </div>
-      </header>
+        ) : (
+          <div className="space-y-10">
+            {sortedGroups.map(([type, items]) => {
+              const styling = getMaterialStyling(type);
+              return (
+                <section key={type}>
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className={`w-8 h-8 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
+                      <span className={`material-symbols-outlined text-base ${styling.iconColor}`}>
+                        {styling.icon}
+                      </span>
+                    </div>
+                    <h2 className="text-lg font-headline font-bold text-on-surface">
+                      {typeLabels[type] ?? type}
+                    </h2>
+                    <div className="h-px flex-1 bg-outline-variant/20" />
+                    <span className="text-xs font-bold text-on-surface-variant/50">
+                      {items.length}
+                    </span>
+                  </div>
 
-      {/* Grid Layout */}
-      <div className="space-y-12">
-        {Object.entries(groupedMaterials).map(([type, items]) => (
-          <section key={type}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-4 flex-grow">
-                <h2 className="text-xl font-headline font-bold text-on-surface tracking-tight w-full md:w-auto">
-                  {type} Resources
-                </h2>
-                <div className="h-[1px] flex-grow bg-surface-container-highest hidden md:block"></div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map((m: any) => {
-                const styling = getMaterialStyling(m.type);
-                return (
-                  <MaterialCard key={m.id} material={{
-                    id: m.id,
-                    title: m.title,
-                    type: m.type,
-                    description: "Uploaded resource",
-                    size: m.sizeBytes ? `${(m.sizeBytes / 1024 / 1024).toFixed(1)} MB` : "Link",
-                    linkTitle: "Open",
-                    ...styling
-                  }} />
-                );
-              })}
-            </div>
-          </section>
-        ))}
-        {materials.length === 0 && (
-          <p className="text-on-surface-variant">No materials found for this hive.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {items.map((m) => (
+                      <MaterialCard
+                        key={m.id}
+                        material={{
+                          id: m.id,
+                          title: m.title,
+                          type: m.type,
+                          url: m.url,
+                          sizeBytes: m.sizeBytes,
+                          channelName: m.channelName,
+                          duration: m.duration,
+                          videoRange: m.videoRange,
+                          playlistData: m.playlistData,
+                          hiveId,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

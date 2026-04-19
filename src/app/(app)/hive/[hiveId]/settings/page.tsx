@@ -6,6 +6,7 @@ import { GeneralSettingsForm } from "@/components/settings/GeneralSettingsForm";
 import { ManageInvitesAction } from "@/components/settings/ManageInvitesAction";
 import { CopyInviteButton } from "@/components/settings/CopyInviteButton";
 import { RemoveMemberButton } from "@/components/settings/RemoveMemberButton";
+import { DeleteInviteButton } from "@/components/settings/DeleteInviteButton";
 
 export default async function SettingsPage({
   params,
@@ -137,7 +138,10 @@ export default async function SettingsPage({
                         </p>
                       </div>
                     </div>
-                    <CopyInviteButton code={invite.code} />
+                    <div className="flex items-center gap-1">
+                      <CopyInviteButton code={invite.code} />
+                      <DeleteInviteButton hiveId={hiveId} inviteId={invite.id} />
+                    </div>
                   </div>
                 );
               })

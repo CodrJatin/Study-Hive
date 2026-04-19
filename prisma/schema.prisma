@@ -162,6 +162,11 @@ model Material {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
+  channelName  String?
+  duration     Int?
+  videoRange   String?
+  playlistData Json?
+
   hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
   hiveId String
 }
@@ -171,6 +176,7 @@ enum MaterialType {
   VIDEO
   DOC
   LINK
+  PLAYLIST
 }
 
 // ─────────────────────────────────────────

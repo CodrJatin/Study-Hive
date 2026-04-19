@@ -124,6 +124,12 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
                 authorName: announcement.author.name
               }} />
             ))}
+            {hive.announcements.length === 0 && (
+              <div className="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10 flex flex-col sm:flex-row items-center justify-center gap-3 clay-inset">
+                <span className="material-symbols-outlined text-on-surface-variant/20 text-4xl">campaign</span>
+                <p className="text-on-surface-variant text-sm font-semibold">No announcements yet</p>
+              </div>
+            )}
           </div>
         </section>
 

@@ -7,6 +7,8 @@ import { useParams, usePathname } from "next/navigation";
 export default function BottomNav() {
   const { hiveId } = useParams() as { hiveId?: string };
   const pathname = usePathname();
+  
+  if (pathname === "/dashboard") return null;
 
   // If we're not inside a specific hive, some tabs might lead back to dashboard or stay disabled
   const getLink = (path: string) => hiveId ? `/hive/${hiveId}/${path}` : "/dashboard";
