@@ -9,7 +9,7 @@ interface Material {
   title: string;
   url: string | null;
   videoRange?: string | null;
-  hiveId: string;
+  hiveId: string | null;
 }
 
 interface EditMaterialModalProps {
@@ -59,7 +59,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
 
   function confirmDelete() {
     startTransition(async () => {
-      const result = await deleteMaterial(material.hiveId, material.id);
+      const result = await deleteMaterial(material.hiveId ?? "", material.id);
       if (result?.error) {
         setError(result.error);
         setShowConfirmDelete(false);

@@ -12,9 +12,10 @@ export default function BottomNav() {
 
   if (isDashboard) {
     const dashboardLinks = [
-      { name: "Overview", href: "/dashboard", icon: "dashboard" },
-      { name: "Hives", href: "/dashboard/hives", icon: "grid_view" },
-      { name: "Task Studio", href: "/dashboard/tasks", icon: "task_alt" },
+      { name: "Overview", href: "/dashboard", icon: "home" },
+      { name: "Hives", href: "/dashboard/hives", icon: "hive" },
+      { name: "Tasks", href: "/dashboard/tasks", icon: "task_alt" },
+      { name: "My Material", href: "/dashboard/materials", icon: "inbox" },
     ];
 
     return (

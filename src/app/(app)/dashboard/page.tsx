@@ -10,6 +10,8 @@ import { getUserTasks } from "@/actions/tasks";
 import { HiveCard } from "@/components/dashboard/HiveCard";
 import { TaskList } from "@/components/dashboard/TaskList";
 
+import { DeadlineItem } from "@/components/hive/DeadlineItem";
+
 // ─────────────────────────────────────────
 // Skeleton Fallbacks
 // ─────────────────────────────────────────
@@ -68,19 +70,16 @@ function TasksSkeleton() {
 
 function DeadlinesSkeleton() {
   return (
-    <section className="bg-[#F7F6F3] rounded-[24px] p-8 animate-pulse">
-      <div className="h-6 w-36 bg-[#E5E0DB] rounded-lg mb-8" />
-      <div className="space-y-4">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="bg-white rounded-xl p-5 border border-[#E5E5E5]">
-            <div className="border-l-4 border-[#E5E5E5] pl-4 space-y-2">
-              <div className="h-4 bg-[#F0EDEA] rounded w-5/6" />
-              <div className="h-3 bg-[#F0EDEA] rounded w-2/3" />
-            </div>
+    <div className="animate-pulse space-y-4">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="bg-white rounded-xl p-5 border border-[#E5E5E5]">
+          <div className="border-l-4 border-surface-container-high pl-4 space-y-2">
+            <div className="h-4 bg-surface-container-high rounded w-5/6" />
+            <div className="h-3 bg-surface-container-high rounded w-1/2" />
           </div>
-        ))}
-      </div>
-    </section>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -155,41 +154,34 @@ async function DeadlineCentralWidget({ userId }: { userId: string }) {
 
   if (upcomingDeadlines.length === 0) {
     return (
-      <div className="text-center py-8 text-on-surface-variant">
-        <span className="material-symbols-outlined text-4xl mb-2 opacity-50 block">free_cancellation</span>
-        <p className="font-bold">No upcoming deadlines.</p>
-        <p className="text-sm">You&apos;re all clear!</p>
+      <div className="py-12 text-center bg-surface-container-low/30 rounded-[2.5rem] clay-inset">
+        <span className="material-symbols-outlined text-on-surface-variant/10 text-5xl mb-2">event_available</span>
+        <p className="text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">All clear for now</p>
       </div>
     );
   }
 
-  return (
-    <ul className="space-y-4">
-      {upcomingDeadlines.map((deadline) => {
-        const due = new Date(deadline.dueDate);
-        const diff = due.getTime() - Date.now();
-        const daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-        const leftBorderStyle = daysLeft <= 3 ? "border-[#A05C00]" : "border-[#007A8A]";
+  const mappedDeadlines = upcomingDeadlines.map((d) => {
+    const diff = new Date(d.dueDate).getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const isOverdue = days < 0;
 
-        return (
-          <li key={deadline.id} className="bg-white rounded-xl p-5 shadow-sm border border-[#E5E5E5]">
-            <div className={`border-l-4 ${leftBorderStyle} pl-4`}>
-              <p className="font-bold text-[15px] text-[#1A1A1A] leading-snug line-clamp-2 mb-2">
-                {deadline.title}
-              </p>
-              <div className="flex items-center gap-1.5 text-[12px] font-bold text-[#757575]">
-                <span className="material-symbols-outlined text-[14px]">format_quote</span>
-                <span className="truncate">{deadline.hive.title}</span>
-                <span className="px-1 text-[#D1D1D1]">•</span>
-                <span className={daysLeft === 0 ? "text-error" : ""}>
-                  {daysLeft === 0 ? "Today" : `${daysLeft} days left`}
-                </span>
-              </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    return {
+      id: d.id,
+      title: d.title,
+      dueDate: isOverdue ? "Overdue" : days === 0 ? "Due Today" : days === 1 ? "Due Tomorrow" : `${days} days left`,
+      dueColor: isOverdue || days <= 1 ? "error" : "on-surface/40",
+      dateBadge: new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short" }).format(new Date(d.dueDate)),
+      indicatorColor: isOverdue || days <= 1 ? "bg-error" : "bg-outline-variant",
+    };
+  });
+
+  return (
+    <div className="bg-surface-container-low/30 rounded-[2.5rem] p-6 clay-inset space-y-4">
+      {mappedDeadlines.map((deadline) => (
+        <DeadlineItem key={deadline.id} deadline={deadline} />
+      ))}
+    </div>
   );
 }
 

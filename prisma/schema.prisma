@@ -29,6 +29,7 @@ model User {
   materialProgress UserMaterialProgress[]
   topicProgress    UserTopicProgress[]
   tasks         Task[]
+  materials     Material[]
 }
 
 // ─────────────────────────────────────────
@@ -193,14 +194,18 @@ model Material {
   videoRange   String?
   playlistData Json?
 
-  hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
-  hiveId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  hive   Hive?  @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  hiveId String?
 
   materialProgress UserMaterialProgress[]
   tasks          Task[]
 
   @@index([title])
   @@index([hiveId])
+  @@index([userId])
 }
 
 enum MaterialType {
@@ -209,6 +214,7 @@ enum MaterialType {
   DOC
   LINK
   PLAYLIST
+  IMAGE
 }
 
 // ─────────────────────────────────────────

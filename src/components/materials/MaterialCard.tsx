@@ -14,7 +14,7 @@ interface Material {
   duration?: number | null;
   videoRange?: string | null;
   playlistData?: unknown;
-  hiveId: string;
+  hiveId: string | null;
 }
 
 interface MaterialCardProps {
@@ -28,6 +28,7 @@ function getMaterialStyling(type: string) {
     case "PLAYLIST": return { icon: "playlist_play",  iconBg: "bg-tertiary-container", iconColor: "text-tertiary" };
     case "DOC":   return { icon: "description",    iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
     case "LINK":  return { icon: "link",           iconBg: "bg-secondary-container", iconColor: "text-secondary" };
+    case "IMAGE": return { icon: "image",          iconBg: "bg-secondary-container", iconColor: "text-secondary" };
     default:      return { icon: "article",        iconBg: "bg-surface-container-high", iconColor: "text-on-surface" };
   }
 }
@@ -122,7 +123,10 @@ export function MaterialCard({ material }: MaterialCardProps) {
         <div className="flex items-center justify-between mt-auto">
           {(material.type === "VIDEO" || material.type === "PLAYLIST") ? (
             <Link
-              href={`/hive/${material.hiveId}/materials/${material.id}`}
+              href={material.hiveId 
+                ? `/hive/${material.hiveId}/materials/${material.id}` 
+                : `/dashboard/materials/${material.id}`
+              }
               className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all w-fit"
             >
               {playlist ? "View Playlist" : "Watch"}

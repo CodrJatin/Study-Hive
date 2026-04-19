@@ -5,7 +5,7 @@ import { createSmartMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
 
 interface SmartPasteBarProps {
-  hiveId: string;
+  hiveId?: string;
 }
 
 function detectLabel(url: string): string {
@@ -38,7 +38,7 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
         }
       } catch {}
 
-      await createSmartMaterial(hiveId, url);
+      await createSmartMaterial(url, hiveId);
       formRef.current?.reset();
       setPreview(null);
     });

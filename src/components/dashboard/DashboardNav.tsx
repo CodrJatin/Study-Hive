@@ -8,9 +8,10 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Overview", href: "/dashboard", icon: "dashboard" },
-    { name: "Hives", href: "/dashboard/hives", icon: "grid_view" },
+    { name: "Overview", href: "/dashboard", icon: "home" },
+    { name: "Hives", href: "/dashboard/hives", icon: "hive" },
     { name: "Task Studio", href: "/dashboard/tasks", icon: "task_alt" },
+    { name: "My Material", href: "/dashboard/materials", icon: "inbox" },
   ];
 
   return (

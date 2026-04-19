@@ -20,7 +20,7 @@ interface StudyPlayerProps {
   channelName?: string;
   videos: VideoItem[];
   materialId: string;
-  hiveId: string;
+  hiveId?: string;
   initialCompletedPositions: number[];
 }
 
@@ -54,7 +54,7 @@ export function StudyPlayer({
   channelName,
   videos,
   materialId,
-  hiveId,
+  hiveId = "",
   initialCompletedPositions,
 }: StudyPlayerProps) {
   const [activeIdx, setActiveIdx] = useState(0);

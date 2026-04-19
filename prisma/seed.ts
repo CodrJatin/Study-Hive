@@ -126,6 +126,35 @@ async function main() {
     }
   });
 
+  // Seeding Materials
+  await prisma.material.createMany({
+    data: [
+      {
+        userId: user.id,
+        hiveId: hive.id,
+        title: "Introduction to Organic Chemistry",
+        type: MaterialType.PDF,
+        url: "https://example.com/intro.pdf",
+      },
+      {
+        userId: user.id,
+        hiveId: null, // Personal inbox
+        title: "Cool Chemistry Video",
+        type: MaterialType.VIDEO,
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        channelName: "Rick Astley",
+        duration: 212,
+      },
+      {
+        userId: user.id,
+        hiveId: null, // Personal inbox
+        title: "Study Tips for Chemistry",
+        type: MaterialType.LINK,
+        url: "https://example.com/tips",
+      }
+    ]
+  });
+
   console.log('Seed completed.');
 }
 
