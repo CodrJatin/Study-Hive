@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
@@ -28,6 +29,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased selection:bg-secondary-container selection:text-on-secondary-container`}>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
