@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { MaterialType } from "@prisma/client";
+import { createClient } from "@/utils/supabase/server";
 import { ensurePrismaUser } from "@/utils/auth-utils";
 import { getYouTubeMetadata, parseYouTubeUrl, YouTubePlaylistItem } from "@/utils/youtube";
 
@@ -219,19 +220,52 @@ export async function deleteMaterial(
 ): Promise<ActionError | null> {
   try {
     const user = await ensurePrismaUser();
+    // ✅ Make sure you import createClient from "@/utils/supabase/server" at the top
+    const supabase = await createClient();
 
-    // Verification
+    // 1. Fetch material info BEFORE deleting from DB
     const existing = await prisma.material.findUnique({
       where: { id: materialId },
-      select: { userId: true },
+      select: { userId: true, url: true, type: true },
     });
+
     if (!existing) return { error: "Material not found" };
     if (existing.userId !== user.id) return { error: "Unauthorized" };
 
+    // 2. Identify stored files
+    // ✅ FIX: Explicitly type the array as MaterialType[] to prevent the narrowing error
+    const storageTypes: MaterialType[] = [
+      MaterialType.PDF,
+      MaterialType.IMAGE,
+      MaterialType.VIDEO,
+      MaterialType.DOC
+    ];
+
+    if (existing.url && storageTypes.includes(existing.type)) {
+      try {
+        const pathParts = existing.url.split("/hive-materials/");
+        if (pathParts.length > 1) {
+          const storagePath = pathParts[1];
+          const { error: storageError } = await supabase.storage
+            .from("hive-materials")
+            .remove([storagePath]);
+
+          if (storageError) {
+            console.error("Supabase Storage deletion failed:", storageError);
+          }
+        }
+      } catch (pathErr) {
+        console.error("Failed to parse storage path:", pathErr);
+      }
+    }
+
+    // 3. Delete the record from the database
     await prisma.material.delete({ where: { id: materialId } });
 
+    // 4. Revalidate cache
     if (hiveId && hiveId !== "") revalidatePath(`/hive/${hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
+
     return null;
   } catch (err: any) {
     console.error("deleteMaterial failed:", err);

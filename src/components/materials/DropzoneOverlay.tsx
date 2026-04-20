@@ -6,7 +6,7 @@ import { createMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
 
 interface DropzoneOverlayProps {
-  hiveId: string;
+  hiveId?: string;
 }
 
 export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {

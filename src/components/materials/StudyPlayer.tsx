@@ -63,6 +63,8 @@ export function StudyPlayer({
     initialCompletedPositions
   );
   const [isPending, startTransition] = useTransition();
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const rates = [1, 1.25, 1.5, 2];
 
   const activeVideo = videos[activeIdx];
   const isPlaylist = videos.length > 1;
@@ -78,6 +80,7 @@ export function StudyPlayer({
     0
   );
   const remainingSeconds = totalSeconds - completedSeconds;
+  const adjustedRemainingSeconds = remainingSeconds / playbackRate;
 
   // ── Toggle handler ────────────────────────────────────────────
   function handleToggle(
@@ -146,8 +149,24 @@ export function StudyPlayer({
                 </span>
                 {remainingSeconds === 0
                   ? "All done!"
-                  : `Remaining: ${formatDurationLong(remainingSeconds)}`}
+                  : `Remaining: ${formatDurationLong(adjustedRemainingSeconds)}`}
               </span>
+
+              {remainingSeconds > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentIndex = rates.indexOf(playbackRate);
+                    const nextIdx = (currentIndex + 1) % rates.length;
+                    setPlaybackRate(rates[nextIdx]);
+                  }}
+                  className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant hover:text-primary hover:bg-primary/10 text-xs font-bold px-3 py-1.5 rounded-full transition-all border border-outline-variant/10 active:scale-95"
+                  title="Change playback speed estimate"
+                >
+                  <span className="material-symbols-outlined text-[14px]">speed</span>
+                  x{playbackRate}
+                </button>
+              )}
             </div>
           )}
         </div>

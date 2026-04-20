@@ -39,9 +39,11 @@ function RecentHivesSkeleton() {
         <div className="h-8 w-36 bg-[#F0EDEA] rounded-lg animate-pulse" />
         <div className="h-5 w-16 bg-[#F0EDEA] rounded animate-pulse" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {[0, 1].map((i) => (
-          <HiveCardSkeleton key={i} />
+      <div className="flex flex-col max-h-[580px] overflow-y-auto md:overflow-y-visible md:flex-row md:space-x-6 md:overflow-x-auto md:max-h-none pb-4 snap-x custom-scrollbar">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="min-w-full md:min-w-[42%] shrink-0 snap-start mb-6 md:mb-0">
+            <HiveCardSkeleton />
+          </div>
         ))}
       </div>
     </section>
@@ -103,7 +105,7 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="flex flex-col max-h-[580px] overflow-y-auto md:overflow-y-visible md:flex-row md:space-x-6 md:overflow-x-auto md:max-h-none pb-4 snap-x snap-mandatory custom-scrollbar">
       {recentHives.map((hive) => {
         const nearestDeadline = hive.deadlines?.[0];
         let daysLeft: number | null = null;
@@ -116,18 +118,19 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
         }
 
         return (
-          <HiveCard
-            key={hive.id}
-            hive={{
-              id: hive.id,
-              title: hive.title,
-              description: hive.description || "No description provided.",
-              nextDeadline: nearestDeadline
-                ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(nearestDeadline.dueDate)
-                : "No deadlines",
-              daysLeft,
-            }}
-          />
+          <div key={hive.id} className="min-w-full md:min-w-[42%] shrink-0 snap-start mb-6 md:mb-0">
+            <HiveCard
+              hive={{
+                id: hive.id,
+                title: hive.title,
+                description: hive.description || "No description provided.",
+                nextDeadline: nearestDeadline
+                  ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(nearestDeadline.dueDate)
+                  : "No deadlines",
+                daysLeft,
+              }}
+            />
+          </div>
         );
       })}
     </div>

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getPersonalMaterials } from "@/actions/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { MaterialCard } from "@/components/materials/MaterialCard";
+import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 
 // ─────────────────────────────────────────
 // Helpers
@@ -148,6 +149,8 @@ export default async function PersonalMaterialsPage() {
       <Suspense fallback={<MaterialGridSkeleton />}>
         <PersonalMaterialsWidget userId={user.id} />
       </Suspense>
+
+      <DropzoneOverlay />
     </div>
   );
 }
