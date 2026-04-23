@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import { HeaderSearch } from "@/components/HeaderSearch";
 import { UserMenu } from "@/components/UserMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -45,6 +46,8 @@ export default async function Header() {
           <div className="md:hidden">
             <HeaderSearch isMobile />
           </div>
+
+          <ThemeToggle />
 
           <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
             <span className="material-symbols-outlined" data-icon="notifications">notifications</span>

@@ -25,7 +25,7 @@ export function MaterialTile({ material, hiveId }: { material: any, hiveId: stri
   };
 
   return (
-    <div className={`group bg-surface-container-lowest p-6 rounded-3xl transition-all duration-300 hover:bg-white hover:scale-[1.01] flex flex-col md:flex-row gap-6 md:items-start clay-card ${optimisticStatus ? 'opacity-80' : ''}`}>
+    <div className={`group bg-surface-container-lowest p-6 rounded-3xl transition-all duration-300 hover:bg-surface-container-low hover:scale-[1.01] flex flex-col md:flex-row gap-6 md:items-start clay-card ${optimisticStatus ? 'opacity-80' : ''}`}>
       <div className="shrink-0 pt-1">
         <button 
           onClick={handleToggle}

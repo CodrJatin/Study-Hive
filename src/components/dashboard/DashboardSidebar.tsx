@@ -32,7 +32,7 @@ export function DashboardSidebar() {
         {/* Action Button */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full flex items-center justify-center gap-2 bg-[#735A27] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#5C481F] transition-colors mb-8 shadow-md"
+          className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-xl font-bold hover:opacity-90 transition-colors mb-8 shadow-md"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           New Hive
@@ -48,7 +48,7 @@ export function DashboardSidebar() {
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
                   isActive
-                    ? "bg-[#F7F2ED] text-[#735A27]"
+                    ? "bg-surface-container-low text-primary"
                     : "text-on-surface-variant hover:bg-surface-container-high"
                 }`}
               >

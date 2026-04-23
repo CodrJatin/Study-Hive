@@ -60,7 +60,7 @@ export function TaskList({ initialTasks }: TaskListProps) {
         return (
           <li
             key={task.id}
-            className={`flex items-center gap-4 p-5 rounded-[16px] transition-all bg-white shadow-sm border border-[#E5E5E5] ${
+            className={`flex items-center gap-4 p-5 rounded-[16px] transition-all bg-surface-container-lowest shadow-sm border border-outline-variant/10 ${
               task.isCompleted ? "opacity-60 grayscale" : ""
             }`}
           >
@@ -68,29 +68,29 @@ export function TaskList({ initialTasks }: TaskListProps) {
               onClick={() => handleToggle(task.id, task.isCompleted)}
               className={`w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
                 task.isCompleted
-                  ? "bg-[#735A27] border-[#735A27] text-white"
-                  : "border-[#735A27] text-transparent hover:bg-[#735A27]/10"
+                  ? "bg-primary border-primary text-on-primary"
+                  : "border-primary text-transparent hover:bg-primary/10"
               }`}
             >
               {task.isCompleted && <span className="material-symbols-outlined text-[14px] font-bold">check</span>}
             </button>
             
             <div className="flex-1 min-w-0">
-              <p className={`font-bold text-[15px] text-[#1A1A1A] truncate ${task.isCompleted ? "line-through text-on-surface-variant" : ""}`}>
+              <p className={`font-bold text-[15px] text-on-background truncate ${task.isCompleted ? "line-through text-on-surface-variant" : ""}`}>
                 {task.title}
               </p>
               
               <div className="flex items-center gap-1.5 mt-1 text-[13px]">
                 {dueDateText && (
-                  <span className={`font-bold ${isOverdue ? "text-error" : "text-[#735A27]"}`}>
+                  <span className={`font-bold ${isOverdue ? "text-error" : "text-primary"}`}>
                     Due {dueDateText}
                   </span>
                 )}
                 
                 {task.hive && (
                   <>
-                    <span className="text-[#D1D1D1] px-1">•</span>
-                    <span className="text-[#757575] font-medium truncate">{task.hive.title}</span>
+                    <span className="text-outline-variant/30 px-1">•</span>
+                    <span className="text-on-surface-variant font-medium truncate">{task.hive.title}</span>
                   </>
                 )}
               </div>
@@ -99,7 +99,7 @@ export function TaskList({ initialTasks }: TaskListProps) {
             {task.material && task.hiveId && task.materialId ? (
               <Link 
                 href={`/hive/${task.hiveId}/materials/${task.materialId}`}
-                className="hidden sm:flex items-center gap-1.5 bg-[#F6F4F0] text-[#4A4A4A] text-[12px] font-bold px-3 py-1.5 rounded-lg border border-[#E5E5E5] shrink-0 hover:bg-[#EAE5DF] transition-colors"
+                className="hidden sm:flex items-center gap-1.5 bg-surface-container-low text-on-surface-variant text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 shrink-0 hover:bg-surface-container-high transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
                 <span className="material-symbols-outlined text-[14px]">description</span>

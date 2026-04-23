@@ -18,15 +18,15 @@ import { DeadlineItem } from "@/components/hive/DeadlineItem";
 
 function HiveCardSkeleton() {
   return (
-    <div className="bg-white rounded-[24px] p-7 border border-[#E5E5E5] h-full flex flex-col gap-4 animate-pulse">
+    <div className="bg-surface-container-lowest rounded-[24px] p-7 border border-outline-variant/10 h-full flex flex-col gap-4 animate-pulse">
       <div className="flex items-start justify-between">
-        <div className="w-12 h-12 bg-[#F0EDEA] rounded-xl" />
-        <div className="w-20 h-6 bg-[#F0EDEA] rounded-lg" />
+        <div className="w-12 h-12 bg-surface-container-high rounded-xl" />
+        <div className="w-20 h-6 bg-surface-container-high rounded-lg" />
       </div>
       <div className="space-y-2 flex-1">
-        <div className="h-5 bg-[#F0EDEA] rounded-lg w-3/4" />
-        <div className="h-3 bg-[#F0EDEA] rounded-lg w-full" />
-        <div className="h-3 bg-[#F0EDEA] rounded-lg w-5/6" />
+        <div className="h-5 bg-surface-container-high rounded-lg w-3/4" />
+        <div className="h-3 bg-surface-container-high rounded-lg w-full" />
+        <div className="h-3 bg-surface-container-high rounded-lg w-5/6" />
       </div>
     </div>
   );
@@ -36,8 +36,8 @@ function RecentHivesSkeleton() {
   return (
     <section>
       <div className="flex items-center justify-between mb-6">
-        <div className="h-8 w-36 bg-[#F0EDEA] rounded-lg animate-pulse" />
-        <div className="h-5 w-16 bg-[#F0EDEA] rounded animate-pulse" />
+        <div className="h-8 w-36 bg-surface-container-high rounded-lg animate-pulse" />
+        <div className="h-5 w-16 bg-surface-container-high rounded animate-pulse" />
       </div>
       <div className="flex flex-col max-h-[580px] overflow-y-auto md:overflow-y-visible md:flex-row md:space-x-6 md:overflow-x-auto md:max-h-none pb-4 snap-x custom-scrollbar">
         {[0, 1, 2].map((i) => (
@@ -52,17 +52,17 @@ function RecentHivesSkeleton() {
 
 function TasksSkeleton() {
   return (
-    <section className="bg-[#F7F6F3] rounded-[24px] p-8 animate-pulse">
+    <section className="bg-surface-container-low rounded-[24px] p-8 animate-pulse">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-6 h-6 bg-[#E5E0DB] rounded-full" />
-        <div className="h-6 w-40 bg-[#E5E0DB] rounded-lg" />
+        <div className="w-6 h-6 bg-surface-container-high rounded-full" />
+        <div className="h-6 w-40 bg-surface-container-high rounded-lg" />
       </div>
       <div className="space-y-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="bg-white rounded-xl p-4 flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full border-2 border-[#E5E5E5] shrink-0" />
-            <div className="flex-1 h-4 bg-[#F0EDEA] rounded-lg" />
-            <div className="w-16 h-4 bg-[#F0EDEA] rounded-lg" />
+          <div key={i} className="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full border-2 border-outline-variant/10 shrink-0" />
+            <div className="flex-1 h-4 bg-surface-container-high rounded-lg" />
+            <div className="w-16 h-4 bg-surface-container-high rounded-lg" />
           </div>
         ))}
       </div>
@@ -74,7 +74,7 @@ function DeadlinesSkeleton() {
   return (
     <div className="animate-pulse space-y-4">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="bg-white rounded-xl p-5 border border-[#E5E5E5]">
+        <div key={i} className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10">
           <div className="border-l-4 border-surface-container-high pl-4 space-y-2">
             <div className="h-4 bg-surface-container-high rounded w-5/6" />
             <div className="h-3 bg-surface-container-high rounded w-1/2" />
@@ -213,7 +213,7 @@ export default async function DashboardOverview() {
             <h2 className="text-[28px] font-headline font-bold text-on-background">Active Hives</h2>
             <Link
               href="/dashboard/hives"
-              className="text-sm font-bold text-[#735A27] hover:underline flex items-center gap-1"
+              className="text-sm font-bold text-primary hover:underline flex items-center gap-1"
             >
               View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </Link>
@@ -224,10 +224,10 @@ export default async function DashboardOverview() {
         </section>
 
         {/* Upcoming Tasks */}
-        <section className="bg-[#F7F6F3] rounded-[24px] p-8">
+        <section className="bg-surface-container-low rounded-[24px] p-8">
           <div className="flex items-center gap-3 mb-6">
-            <span className="material-symbols-outlined text-[24px] text-[#735A27]">check_circle</span>
-            <h2 className="text-[22px] font-headline font-bold text-[#1A1A1A]">Upcoming Tasks</h2>
+            <span className="material-symbols-outlined text-[24px] text-primary">check_circle</span>
+            <h2 className="text-[22px] font-headline font-bold text-on-background">Upcoming Tasks</h2>
           </div>
           <Suspense fallback={<TasksSkeleton />}>
             <UpcomingTasksWidget userId={user.id} />
@@ -238,9 +238,9 @@ export default async function DashboardOverview() {
 
       {/* Right Column */}
       <div className="md:col-span-4">
-        <section className="bg-[#F7F6F3] rounded-[24px] p-8 h-full sticky top-24">
+        <section className="bg-surface-container-low rounded-[24px] p-8 h-full sticky top-24">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-[20px] font-headline font-bold text-[#1A1A1A]">Deadline Central</h2>
+            <h2 className="text-[20px] font-headline font-bold text-on-background">Deadline Central</h2>
           </div>
           <Suspense fallback={<DeadlinesSkeleton />}>
             <DeadlineCentralWidget userId={user.id} />

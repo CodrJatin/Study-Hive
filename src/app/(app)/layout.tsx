@@ -4,7 +4,7 @@ import BottomNav from "@/components/BottomNav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-surface-bright min-h-screen text-on-surface font-body overflow-x-hidden">
+    <div className="bg-background min-h-screen text-on-background font-body overflow-x-hidden transition-colors duration-300">
       <Header />
       <div className="pt-16 pb-20 md:pb-0 min-h-screen">
         {children}

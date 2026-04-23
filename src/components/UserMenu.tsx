@@ -122,21 +122,7 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003" }: Use
                 {label}
               </Link>
             ))}
-            {/* Theme Toggle Placeholder */}
-            <button
-              role="menuitem"
-              className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-container-high transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">
-                  dark_mode
-                </span>
-                <span>Dark Mode</span>
-              </div>
-              <div className="w-8 h-4 bg-surface-container-high rounded-full relative group-hover:bg-primary/20 transition-colors">
-                <div className="absolute left-1 top-1 w-2 h-2 bg-on-surface-variant rounded-full group-hover:bg-primary transition-all" />
-              </div>
-            </button>
+
           </nav>
 
           {/* ── Divider + logout ───────────────────────────────── */}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --color-surface-tint: #785900;
@@ -55,11 +56,38 @@
 
 @layer base {
   body {
-    @apply bg-surface-bright text-on-background min-h-screen font-body;
+    @apply bg-background text-on-background min-h-screen font-body transition-colors duration-300;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
+}
+
+html.dark,
+.dark,
+[data-theme='dark'] {
+  --color-primary: #ffc107;
+  --color-primary-container: #785900;
+  --color-on-primary: #261a00;
+  --color-on-primary-container: #ffdf9e;
+  
+  --color-background: #0f0f12;
+  --color-on-background: #e3e2e6;
+  
+  --color-surface: #121215;
+  --color-surface-bright: #1c1c21;
+  --color-surface-dim: #0a0a0c;
+  --color-surface-container-lowest: #141418;
+  --color-surface-container-low: #1c1c21;
+  --color-surface-container: #22232a;
+  --color-surface-container-high: #2a2b33;
+  --color-surface-container-highest: #32333b;
+  
+  --color-on-surface: #e3e2e6;
+  --color-on-surface-variant: #c4c6d0;
+  
+  --color-outline: #8e9099;
+  --color-outline-variant: #44474e;
 }
 
 @layer components {
@@ -83,6 +111,21 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  .dark .clay-card {
+    box-shadow: 
+      8px 8px 16px rgba(0, 0, 0, 0.4),
+      -8px -8px 16px rgba(255, 255, 255, 0.03),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .clay-inset {
+    box-shadow: 
+      inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+      inset -4px -4px 8px rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+  }
+
   .cta-gradient {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
   }
@@ -99,6 +142,10 @@
   .glass-panel {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(20px);
+  }
+  
+  .dark .glass-panel {
+    background: rgba(0, 0, 0, 0.6);
   }
 }
 

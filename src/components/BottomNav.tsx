@@ -26,7 +26,7 @@ export default function BottomNav() {
             <Link 
               key={link.name}
               href={link.href}
-              className={`flex flex-col items-center gap-0.5 min-w-[72px] transition-colors ${isActive ? "text-[#735A27]" : "text-on-surface-variant"}`}
+              className={`flex flex-col items-center gap-0.5 min-w-[72px] transition-colors ${isActive ? "text-primary" : "text-on-surface-variant"}`}
             >
               <span className={`material-symbols-outlined shrink-0 text-[24px] transition-transform ${isActive ? "scale-110" : "scale-100"}`} style={{ fontVariationSettings: isActive ? "'FILL' 1" : "" }}>
                 {link.icon}

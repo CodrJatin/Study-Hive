@@ -118,10 +118,10 @@ export function CreateTaskForm({ userId }: { userId: string }) {
       className="bg-surface-container-lowest border border-outline-variant/10 rounded-[24px] p-6 clay-card mb-8 shadow-sm relative"
     >
       <div className="flex items-center gap-3 mb-6 border-b border-outline-variant/10 pb-4">
-        <div className="w-10 h-10 bg-[#F7F2ED] text-[#735A27] rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-surface-container-low text-primary rounded-xl flex items-center justify-center">
           <span className="material-symbols-outlined font-bold text-[20px]">add_task</span>
         </div>
-        <h2 className="text-[20px] font-headline font-bold text-[#1A1A1A]">Create New Task</h2>
+        <h2 className="text-[20px] font-headline font-bold text-on-background">Create New Task</h2>
       </div>
 
       {error && (
@@ -141,7 +141,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
               name="title"
               placeholder="e.g., Read chapter 4 of Data Structures"
               disabled={isAdding}
-              className="w-full bg-[#F7F6F3] border-none rounded-xl px-4 py-3 text-[14px] font-medium text-[#1A1A1A] outline-none focus:ring-2 focus:ring-[#735A27]/20 transition-all disabled:opacity-50"
+              className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-[14px] font-medium text-on-background outline-none focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 placeholder:text-on-surface-variant/40"
             />
           </div>
           
@@ -153,7 +153,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
               type="date"
               name="dueDate"
               disabled={isAdding}
-              className="w-full bg-[#F7F6F3] border-none rounded-xl px-4 py-3 text-[14px] font-medium text-[#1A1A1A] outline-none focus:ring-2 focus:ring-[#735A27]/20 transition-all disabled:opacity-50"
+              className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-[14px] font-medium text-on-background outline-none focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 placeholder:text-on-surface-variant/40"
             />
           </div>
         </div>
@@ -165,13 +165,13 @@ export function CreateTaskForm({ userId }: { userId: string }) {
           </label>
           
           {(selectedHive || selectedMaterial) ? (
-            <div className="flex items-center gap-3 p-3 bg-white border border-[#E5E5E5] rounded-xl flex-wrap">
-              <span className="text-[13px] font-bold text-[#1A1A1A]">Attached:</span>
+            <div className="flex items-center gap-3 p-3 bg-surface-container-low/50 border border-outline-variant/10 rounded-xl flex-wrap">
+              <span className="text-[13px] font-bold text-on-background">Attached:</span>
               
               {selectedHive && !selectedMaterial && (
                 <Link
                   href={`/hive/${selectedHive.id}`}
-                  className="flex items-center gap-1.5 bg-[#F7F2ED] text-[#735A27] text-[12px] font-bold px-3 py-1.5 rounded-lg border border-[#E5E5E5] hover:bg-[#EAE5DF] transition-colors"
+                  className="flex items-center gap-1.5 bg-surface-container-low text-primary text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-colors"
                 >
                   <span className="material-symbols-outlined text-[14px]">science</span>
                   {selectedHive.title}
@@ -181,7 +181,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
               {selectedMaterial && (
                 <Link
                   href={`/hive/${selectedHive?.id}/materials/${selectedMaterial.id}`}
-                  className="flex items-center gap-1.5 bg-[#F6F4F0] text-[#4A4A4A] text-[12px] font-bold px-3 py-1.5 rounded-lg border border-[#E5E5E5] hover:bg-[#EAE5DF] transition-colors"
+                  className="flex items-center gap-1.5 bg-surface-container-low text-on-surface-variant text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-colors"
                 >
                   <span className="material-symbols-outlined text-[14px]">description</span>
                   {selectedMaterial.title}
@@ -199,8 +199,8 @@ export function CreateTaskForm({ userId }: { userId: string }) {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex items-center bg-[#F7F6F3] rounded-xl px-4 focus-within:ring-2 focus-within:ring-[#735A27]/20 transition-all">
-                <span className={`material-symbols-outlined text-[18px] mr-2 transition-colors ${isSearching ? "text-[#735A27] animate-pulse" : "text-[#757575]"}`}>
+              <div className="flex items-center bg-surface-container-low rounded-xl px-4 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <span className={`material-symbols-outlined text-[18px] mr-2 transition-colors ${isSearching ? "text-primary animate-pulse" : "text-on-surface-variant/60"}`}>
                   search
                 </span>
                 <input
@@ -209,7 +209,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setShowSearchDropdown(true)}
-                  className="w-full bg-transparent border-none py-3 text-[14px] font-medium text-[#1A1A1A] outline-none placeholder:text-[#757575]/70"
+                  className="w-full bg-transparent border-none py-3 text-[14px] font-medium text-on-background outline-none placeholder:text-on-surface-variant/40"
                 />
               </div>
 
@@ -276,8 +276,8 @@ export function CreateTaskForm({ userId }: { userId: string }) {
         <button
           type="submit"
           disabled={isAdding}
-          className={`px-6 py-2.5 bg-[#735A27] text-white rounded-xl text-[14px] font-bold shadow-md flex items-center gap-2 transition-all ${
-            isAdding ? "opacity-70 cursor-not-allowed" : "hover:scale-[1.02] active:scale-[0.98] hover:bg-[#5C481F]"
+          className={`px-6 py-2.5 bg-primary text-on-primary rounded-xl text-[14px] font-bold shadow-md flex items-center gap-2 transition-all ${
+            isAdding ? "opacity-70 cursor-not-allowed" : "hover:scale-[1.02] active:scale-[0.98] hover:opacity-90"
           }`}
         >
           {isAdding && (
