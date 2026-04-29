@@ -1,6 +1,18 @@
 import type { NextConfig } from "next";
+import withPWAInit from "@ducanh2912/next-pwa";
+
+const withPWA = withPWAInit({
+  dest: "public",
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
+  // Silence the turbopack/webpack mismatch warning introduced in Next 16.
+  // @ducanh2912/next-pwa adds a webpack config; we explicitly opt into webpack
+  // for production builds by leaving turbopack unconfigured here.
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -9,7 +21,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['192.168.1.2'],
+  allowedDevOrigins: ["192.168.1.2"],
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

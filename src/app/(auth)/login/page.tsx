@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { login, signup } from "@/actions/auth";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
 
 // ---------------------------------------------------------------------------
 // Submit button — must be a separate component so useFormStatus can read
@@ -65,14 +67,16 @@ export default function LoginPage() {
   return (
     <>
       {/* TopAppBar */}
-      <header className="w-full top-0 sticky bg-[#fcf9f8] z-50">
+      <header className="w-full top-0 sticky bg-background z-50 transition-colors duration-300">
         <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-[#785900] tracking-tight font-headline">
+            <span className="text-2xl font-bold text-primary tracking-tight font-headline">
               StudyHive
             </span>
           </div>
-          <div className="flex items-center gap-6"></div>
+          <div className="flex items-center gap-6">
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -159,11 +163,11 @@ export default function LoginPage() {
                 </button>
 
                 <div className="relative flex items-center py-2">
-                  <div className="flex-grow border-t border-outline-variant/30"></div>
-                  <span className="flex-shrink mx-4 text-outline text-xs uppercase tracking-widest">
+                  <div className="grow border-t border-outline-variant/30"></div>
+                  <span className="shrink mx-4 text-outline text-xs uppercase tracking-widest">
                     or email
                   </span>
-                  <div className="flex-grow border-t border-outline-variant/30"></div>
+                  <div className="grow border-t border-outline-variant/30"></div>
                 </div>
 
                 {/* Form Fields */}
@@ -296,26 +300,26 @@ export default function LoginPage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-8 bg-[#fcf9f8] border-t-[0px]">
+      <footer className="w-full py-8 bg-background border-t-0 transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto gap-4">
-          <div className="text-[#1b1c1c]/60 font-body text-xs tracking-wide">
+          <div className="text-on-surface-variant/60 font-body text-xs tracking-wide">
             © 2024 StudyHive. Secured by Academic Encryption.
           </div>
           <div className="flex gap-6">
             <a
-              className="text-[#1b1c1c]/60 font-body text-xs tracking-wide transition-colors hover:text-[#006877]"
+              className="text-on-surface-variant/60 font-body text-xs tracking-wide transition-colors hover:text-primary"
               href="#"
             >
               Privacy Policy
             </a>
             <a
-              className="text-[#1b1c1c]/60 font-body text-xs tracking-wide transition-colors hover:text-[#006877]"
+              className="text-on-surface-variant/60 font-body text-xs tracking-wide transition-colors hover:text-primary"
               href="#"
             >
               Terms of Service
             </a>
             <a
-              className="text-[#1b1c1c]/60 font-body text-xs tracking-wide transition-colors hover:text-[#006877]"
+              className="text-on-surface-variant/60 font-body text-xs tracking-wide transition-colors hover:text-primary"
               href="#"
             >
               Security Standards

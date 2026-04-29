@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { InstallPWA } from "@/components/InstallPWA";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -10,9 +11,48 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-headline",
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fcf9f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f12" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "StudyHive | The Academic Atelier",
-  description: "Organize by topic, conquer by Track.",
+  description: "Organize by topic, conquer by Track. Your academic workspace.",
+  applicationName: "StudyHive",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "StudyHive",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { url: "/icons/maskable-512.png", rel: "mask-icon" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    title: "StudyHive | The Academic Atelier",
+    description: "Organize by topic, conquer by Track.",
+    images: [{ url: "/icons/icon-512.png" }],
+  },
 };
 
 export default function RootLayout({
@@ -36,6 +76,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <InstallPWA />
           <SpeedInsights />
         </ThemeProvider>
       </body>
