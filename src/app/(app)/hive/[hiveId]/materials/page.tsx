@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { MaterialCard } from "@/components/materials/MaterialCard";
+import { UploadButton } from "@/components/materials/UploadButton";
 
 // ─────────────────────────────────────────
 // Helpers (pure fns, no I/O)
@@ -84,6 +85,7 @@ async function MaterialsHeader({ hiveId }: { hiveId: string }) {
           {count} resource{count !== 1 ? "s" : ""} · Drag files anywhere to upload
         </p>
       </div>
+      <UploadButton hiveId={hiveId} />
     </div>
   );
 }

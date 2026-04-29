@@ -6,6 +6,7 @@ import { getPersonalMaterials } from "@/actions/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { MaterialCard } from "@/components/materials/MaterialCard";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
+import { UploadButton } from "@/components/materials/UploadButton";
 
 // ─────────────────────────────────────────
 // Helpers
@@ -142,6 +143,7 @@ export default async function PersonalMaterialsPage() {
               Resources you&apos;ve saved that aren&apos;t attached to any Hive.
             </p>
           </div>
+          <UploadButton />
         </div>
         <SmartPasteBar />
       </header>

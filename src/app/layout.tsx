@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { InstallPWA } from "@/components/InstallPWA";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -76,6 +77,19 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster 
+            richColors 
+            closeButton
+            position="bottom-right" 
+            theme="system" 
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-body)',
+                borderRadius: '1.25rem',
+              },
+              className: "clay-card !bg-surface-container-lowest !text-on-surface !border-outline-variant/20 !shadow-2xl !p-4",
+            }}
+          />
           <InstallPWA />
           <SpeedInsights />
         </ThemeProvider>

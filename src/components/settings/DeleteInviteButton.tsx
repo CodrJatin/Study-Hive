@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { deleteInvite } from "@/actions/invite";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { toast } from "sonner";
 
 export function DeleteInviteButton({ 
   hiveId, 
@@ -15,12 +16,21 @@ export function DeleteInviteButton({
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
-    startTransition(async () => {
-      const result = await deleteInvite(hiveId, inviteId);
-      if (result?.error) {
-        alert(result.error);
-      }
-      setShowConfirm(false);
+    // ✅ Close immediately
+    setShowConfirm(false);
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await deleteInvite(hiveId, inviteId);
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: "Revoking invite link…",
+          success: "Invite link revoked!",
+          error: (err: Error) => err.message || "Failed to revoke invite",
+        }
+      );
     });
   };
 

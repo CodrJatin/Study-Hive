@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useTransition, useOptimistic } from "react";
+import React, { useRef, useTransition } from "react";
+import { toast } from "sonner";
 import { createTopic } from "@/actions/syllabus";
-import { Topic } from "@prisma/client";
 
 interface AddTopicFormProps {
   unitId: string;
@@ -18,12 +18,26 @@ export function AddTopicForm({ unitId, hiveId, unitIndex, currentTopicCount }: A
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const title = (form.elements.namedItem("title") as HTMLInputElement).value;
-    if (!title.trim()) return;
+    const title = (form.elements.namedItem("title") as HTMLInputElement).value.trim();
+    if (!title) return;
 
-    startTransition(async () => {
-      await createTopic(unitId, hiveId, title);
-      formRef.current?.reset();
+    // ✅ Optimistic reset — user can type the next topic immediately
+    formRef.current?.reset();
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await createTopic(unitId, hiveId, title);
+          if (result && "error" in result && result.error) {
+            throw new Error(result.error);
+          }
+        })(),
+        {
+          loading: `Adding topic "${title}"…`,
+          success: `Topic "${title}" added!`,
+          error: (err: Error) => err.message || "Failed to add topic",
+        }
+      );
     });
   }
 
@@ -40,8 +54,7 @@ export function AddTopicForm({ unitId, hiveId, unitIndex, currentTopicCount }: A
         name="title"
         type="text"
         placeholder="Add topic..."
-        disabled={isPending}
-        className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-on-surface placeholder:text-on-surface-variant/35 disabled:opacity-50"
+        className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-on-surface placeholder:text-on-surface-variant/35"
         autoComplete="off"
       />
       <button

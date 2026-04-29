@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { removeMember } from "@/actions/hive";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { toast } from "sonner";
 
 export function RemoveMemberButton({
   hiveId,
@@ -15,12 +16,21 @@ export function RemoveMemberButton({
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleRemove = () => {
-    startTransition(async () => {
-      const result = await removeMember(hiveId, memberId);
-      if (result?.error) {
-        alert(result.error);
-      }
-      setShowConfirm(false);
+    // ✅ Close immediately
+    setShowConfirm(false);
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await removeMember(hiveId, memberId);
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: "Removing member…",
+          success: "Member removed!",
+          error: (err: Error) => err.message || "Failed to remove member",
+        }
+      );
     });
   };
 

@@ -1,25 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { deleteHive } from "@/actions/hive";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { toast } from "sonner";
 
 interface DeleteHiveButtonProps {
   hiveId: string;
 }
 
 export function DeleteHiveButton({ hiveId }: DeleteHiveButtonProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleDelete() {
-    setIsDeleting(true);
-    const result = await deleteHive(hiveId);
-    if (result && "error" in result) {
-      alert(result.error);
-      setIsDeleting(false);
-      setShowConfirm(false);
-    }
+    // ✅ Close immediately
+    setShowConfirm(false);
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await deleteHive(hiveId);
+          if (result && "error" in result && result.error) throw new Error(result.error);
+        })(),
+        {
+          loading: "Deleting hive…",
+          success: "Hive deleted successfully!",
+          error: (err: Error) => err.message || "Failed to delete hive",
+        }
+      );
+    });
   }
 
   return (
@@ -36,7 +46,7 @@ export function DeleteHiveButton({ hiveId }: DeleteHiveButtonProps) {
         title="Delete Hive"
         message="Are you absolutely sure you want to delete this hive? All tracks, units, and materials will be permanently removed."
         confirmText="Yes, Delete"
-        isPending={isDeleting}
+        isPending={isPending}
         onConfirm={handleDelete}
         onCancel={() => setShowConfirm(false)}
       />

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useTransition, useRef } from "react";
+import React, { useState, useTransition } from "react";
 import { updateMaterial, deleteMaterial } from "@/actions/materials";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { toast } from "sonner";
 
 interface Material {
   id: string;
@@ -25,31 +26,30 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const wasSuccessful = useRef(false);
-
-  // Close only after successful save or delete
-  React.useEffect(() => {
-    if (!isPending && wasSuccessful.current) {
-      onClose();
-    }
-  }, [isPending, onClose]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    startTransition(async () => {
-      const result = await updateMaterial(material.id, {
-        title: title.trim() || undefined,
-        url: url.trim() || undefined,
-        videoRange: isPlaylist ? videoRange : undefined,
-      });
+    // ✅ Close immediately
+    onClose();
 
-      if (result?.error) {
-        setError(result.error);
-      } else {
-        wasSuccessful.current = true;
-      }
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await updateMaterial(material.id, {
+            title: title.trim() || undefined,
+            url: url.trim() || undefined,
+            videoRange: isPlaylist ? videoRange : undefined,
+          });
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: `Saving changes to "${title}"…`,
+          success: `Material "${title}" updated!`,
+          error: (err: Error) => err.message || "Failed to update material",
+        }
+      );
     });
   }
 
@@ -58,14 +58,24 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
   }
 
   function confirmDelete() {
-    startTransition(async () => {
-      const result = await deleteMaterial(material.hiveId ?? "", material.id);
-      if (result?.error) {
-        setError(result.error);
-        setShowConfirmDelete(false);
-      } else {
-        wasSuccessful.current = true;
-      }
+    const materialTitle = title;
+    
+    // Close both modals immediately
+    setShowConfirmDelete(false);
+    onClose();
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await deleteMaterial(material.hiveId ?? "", material.id);
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: `Deleting "${materialTitle}"…`,
+          success: `"${materialTitle}" deleted!`,
+          error: (err: Error) => err.message || "Failed to delete material",
+        }
+      );
     });
   }
 

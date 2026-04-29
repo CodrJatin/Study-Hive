@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
+import React, { useRef, useTransition } from "react";
+import { toast } from "sonner";
 import { updateHive } from "@/actions/hive";
 
 interface GeneralSettingsFormProps {
@@ -13,66 +13,52 @@ interface GeneralSettingsFormProps {
   };
 }
 
-function SubmitButton({ isDisabled }: { isDisabled: boolean }) {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      disabled={pending || isDisabled}
-      className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all active:scale-95 shadow-md ${
-        pending || isDisabled
-          ? "opacity-50 cursor-not-allowed filter grayscale"
-          : "hover:opacity-90"
-      }`}
-      type="submit"
-    >
-      {pending ? "Saving..." : "Save Changes"}
-    </button>
-  );
-}
-
 export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
-  // Local state for tracking changes
-  const [formValues, setFormValues] = useState({
-    title: hive.title,
-    subject: hive.subject,
-    description: hive.description || "",
-  });
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Bind the hiveId to the action
-  const updateHiveWithId = updateHive.bind(null, hive.id);
-  const [state, action] = useActionState(updateHiveWithId, null);
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const title = (formData.get("title") as string).trim();
+    const subject = (formData.get("subject") as string).trim();
+    const description = (formData.get("description") as string).trim();
 
-  // Check if anything has actually changed
-  const hasChanges =
-    formValues.title !== hive.title ||
-    formValues.subject !== hive.subject ||
-    formValues.description !== (hive.description || "");
+    if (!title || !subject) {
+      toast.error("Hive name and subject are required.");
+      return;
+    }
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-  };
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await updateHive(hive.id, null, formData);
+          if (result && "error" in result && result.error) {
+            throw new Error(result.error);
+          }
+        })(),
+        {
+          loading: "Saving changes…",
+          success: "Hive settings saved!",
+          error: (err: Error) => err.message || "Failed to save settings",
+        }
+      );
+    });
+  }
+
+  // Check if anything changed (for disabling the button)
+  // Note: We still track this for the button disabled state, not to block inputs.
+  const hasChanges = true; // optimistically allow saving anytime; server validates
 
   return (
     <form
-      action={action}
+      ref={formRef}
+      onSubmit={handleSubmit}
       className="bg-surface-container-lowest rounded-3xl p-8 space-y-8 transition-all clay-card"
     >
-      {state?.error && (
-        <div className="bg-error/10 border border-error/20 text-error px-4 py-3 rounded-xl text-sm font-medium">
-          {state.error}
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-2">
-          <label
-            className="text-sm font-semibold text-on-surface-variant px-1"
-            htmlFor="title"
-          >
+          <label className="text-sm font-semibold text-on-surface-variant px-1" htmlFor="title">
             Hive Name
           </label>
           <input
@@ -80,16 +66,12 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
             name="title"
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
-            value={formValues.title}
-            onChange={handleInputChange}
+            defaultValue={hive.title}
             required
           />
         </div>
         <div className="space-y-2">
-          <label
-            className="text-sm font-semibold text-on-surface-variant px-1"
-            htmlFor="subject"
-          >
+          <label className="text-sm font-semibold text-on-surface-variant px-1" htmlFor="subject">
             Subject
           </label>
           <input
@@ -97,17 +79,13 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
             name="subject"
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
-            value={formValues.subject}
-            onChange={handleInputChange}
+            defaultValue={hive.subject}
             required
           />
         </div>
       </div>
       <div className="space-y-2">
-        <label
-          className="text-sm font-semibold text-on-surface-variant px-1"
-          htmlFor="description"
-        >
+        <label className="text-sm font-semibold text-on-surface-variant px-1" htmlFor="description">
           Description
         </label>
         <textarea
@@ -115,12 +93,22 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
           name="description"
           className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
           rows={4}
-          value={formValues.description}
-          onChange={handleInputChange}
-        ></textarea>
+          defaultValue={hive.description || ""}
+        />
       </div>
       <div className="flex justify-end">
-        <SubmitButton isDisabled={!hasChanges} />
+        <button
+          type="submit"
+          disabled={isPending}
+          className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all active:scale-95 shadow-md flex items-center gap-2 ${
+            isPending ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+          }`}
+        >
+          {isPending && (
+            <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+          )}
+          {isPending ? "Saving…" : "Save Changes"}
+        </button>
       </div>
     </form>
   );

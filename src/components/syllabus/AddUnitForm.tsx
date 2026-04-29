@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useTransition } from "react";
+import React, { useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
 import { createUnit } from "@/actions/syllabus";
 
 export function AddUnitForm({ hiveId }: { hiveId: string }) {
@@ -10,12 +11,26 @@ export function AddUnitForm({ hiveId }: { hiveId: string }) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const title = (form.elements.namedItem("title") as HTMLInputElement).value;
-    if (!title.trim()) return;
+    const title = (form.elements.namedItem("title") as HTMLInputElement).value.trim();
+    if (!title) return;
 
-    startTransition(async () => {
-      await createUnit(hiveId, title);
-      formRef.current?.reset();
+    // ✅ Optimistic reset — the user can type the next unit immediately
+    formRef.current?.reset();
+
+    startTransition(() => {
+      toast.promise(
+        (async () => {
+          const result = await createUnit(hiveId, title);
+          if (result && "error" in result && result.error) {
+            throw new Error(result.error);
+          }
+        })(),
+        {
+          loading: `Adding unit "${title}"…`,
+          success: `Unit "${title}" added!`,
+          error: (err: Error) => err.message || "Failed to add unit",
+        }
+      );
     });
   }
 
@@ -32,8 +47,7 @@ export function AddUnitForm({ hiveId }: { hiveId: string }) {
         name="title"
         type="text"
         placeholder="Add a new unit — press Enter to save"
-        disabled={isPending}
-        className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-on-surface placeholder:text-on-surface-variant/40 disabled:opacity-50"
+        className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-on-surface placeholder:text-on-surface-variant/40"
         autoComplete="off"
       />
       <button

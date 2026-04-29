@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { getJoinUrl } from "@/utils/get-url";
+import { toast } from "sonner";
 
 export function CopyInviteButton({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -10,6 +11,7 @@ export function CopyInviteButton({ code }: { code: string }) {
     const url = getJoinUrl(code);
     navigator.clipboard.writeText(url);
     setCopied(true);
+    toast.success("Invite link copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
 

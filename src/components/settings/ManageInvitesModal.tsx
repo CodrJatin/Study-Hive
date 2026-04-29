@@ -3,6 +3,7 @@
 import React, { useState, useOptimistic, useTransition } from "react";
 import { createInvite, deleteInvite } from "@/actions/invite";
 import { getJoinUrl } from "@/utils/get-url";
+import { toast } from "sonner";
 
 interface HiveInvite {
   id: string;
@@ -38,7 +39,6 @@ export function ManageInvitesModal({
 }: ManageInvitesModalProps) {
   const [expiry, setExpiry] = useState<string>("24");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [, startDeleteTransition] = useTransition();
@@ -56,7 +56,6 @@ export function ManageInvitesModal({
   if (!isOpen) return null;
 
   function handleCreate() {
-    setError(null);
     const expiresInHours = expiry === "never" ? null : Number(expiry);
     // Optimistic placeholder — shows immediately while server creates
     const placeholder: HiveInvite = {
@@ -65,25 +64,40 @@ export function ManageInvitesModal({
       expiresAt: expiresInHours ? new Date(Date.now() + expiresInHours * 3600_000) : null,
       createdAt: new Date(),
     };
-    startCreateTransition(async () => {
+
+    startCreateTransition(() => {
       dispatchOptimistic({ type: "add", invite: placeholder });
-      const result = await createInvite(hiveId, expiresInHours);
-      if (result?.error) {
-        setError(result.error);
-      }
-      // After revalidatePath the page will refresh with the real invite
+      
+      toast.promise(
+        (async () => {
+          const result = await createInvite(hiveId, expiresInHours);
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: "Creating invite link…",
+          success: "Invite link generated!",
+          error: (err: Error) => err.message || "Failed to create invite",
+        }
+      );
     });
   }
 
   function handleDelete(invite: HiveInvite) {
-    setError(null);
-    startDeleteTransition(async () => {
+    startDeleteTransition(() => {
       // Optimistic remove fires before the network round-trip
       dispatchOptimistic({ type: "remove", id: invite.id });
-      const result = await deleteInvite(hiveId, invite.id);
-      if (result?.error) {
-        setError(result.error);
-      }
+      
+      toast.promise(
+        (async () => {
+          const result = await deleteInvite(hiveId, invite.id);
+          if (result?.error) throw new Error(result.error);
+        })(),
+        {
+          loading: "Revoking invite link…",
+          success: "Invite link revoked!",
+          error: (err: Error) => err.message || "Failed to revoke invite",
+        }
+      );
     });
   }
 
@@ -128,11 +142,6 @@ export function ManageInvitesModal({
             <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">
               Generate New Link
             </p>
-            {error && (
-              <div className="mb-4 bg-error/10 text-error text-sm font-medium px-4 py-3 rounded-xl">
-                {error}
-              </div>
-            )}
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
                 <label className="block text-xs font-semibold text-on-surface/60 mb-1.5 px-1">
