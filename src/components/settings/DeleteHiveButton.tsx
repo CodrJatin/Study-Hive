@@ -20,8 +20,14 @@ export function DeleteHiveButton({ hiveId }: DeleteHiveButtonProps) {
     startTransition(() => {
       toast.promise(
         (async () => {
-          const result = await deleteHive(hiveId);
-          if (result && "error" in result && result.error) throw new Error(result.error);
+          try {
+            const result = await deleteHive(hiveId);
+            if (result && "error" in result && result.error) throw new Error(result.error);
+          } catch (err: any) {
+            // Next.js redirect() throws a special error that we should ignore here
+            if (err.message?.includes("NEXT_REDIRECT")) return;
+            throw err;
+          }
         })(),
         {
           loading: "Deleting hive…",

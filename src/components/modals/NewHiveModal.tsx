@@ -34,8 +34,8 @@ export function NewHiveModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#fcf9f8]/70 backdrop-blur-[8px]" onClick={onClose} />
-      <div className="w-full max-w-xl bg-surface-container-lowest rounded-[1.5rem] shadow-[0px_12px_32px_rgba(27,28,28,0.06)] overflow-hidden flex flex-col relative z-10 animate-in fade-in zoom-in duration-300 clay-card">
+      <div className="absolute inset-0 bg-[#fcf9f8]/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="w-full max-w-xl bg-surface-container-lowest rounded-3xl shadow-[0px_12px_32px_rgba(27,28,28,0.06)] overflow-hidden flex flex-col relative z-10 animate-in fade-in zoom-in duration-300 clay-card">
         <div className="px-8 py-6 flex justify-between items-center border-b border-surface-container-low">
           <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight">Create New Hive</h2>
           <button type="button" onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">

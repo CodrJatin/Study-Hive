@@ -63,7 +63,7 @@ export function InstallPWA() {
     <div
       role="banner"
       aria-label="Install StudyHive app"
-      className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm"
+      className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-100 w-[calc(100%-2rem)] max-w-sm"
     >
       <div className="clay-card flex items-center gap-4 p-4 bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/20 animate-in slide-in-from-bottom-4 duration-300">
         {/* Icon */}

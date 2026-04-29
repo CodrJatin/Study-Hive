@@ -18,6 +18,7 @@ export default async function Header() {
   const email = user?.email || authUser?.email || "";
   const initials = username.charAt(0).toUpperCase();
   const avatarColor = user?.avatarColor ?? "#fdc003";
+  const userImage = user?.image;
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest/95 backdrop-blur-md border-b border-surface-container-high z-60 flex items-center justify-between px-6 md:px-8">
@@ -59,6 +60,7 @@ export default async function Header() {
             email={email}
             initials={initials}
             avatarColor={avatarColor}
+            image={userImage}
           />
         </div>
       </div>

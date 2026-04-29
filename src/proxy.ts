@@ -19,6 +19,7 @@ export async function proxy(request: NextRequest) {
   const isAppRoute =
     !pathname.startsWith("/login") &&
     !pathname.startsWith("/signup") &&
+    !pathname.startsWith("/auth/callback") &&
     pathname !== "/";
 
   if (isAppRoute && !user) {

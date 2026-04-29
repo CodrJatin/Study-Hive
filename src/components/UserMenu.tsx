@@ -10,6 +10,7 @@ interface UserMenuProps {
   email: string;
   initials: string;
   avatarColor?: string;
+  image?: string | null;
 }
 
 const MENU_ITEMS = [
@@ -18,7 +19,7 @@ const MENU_ITEMS = [
   { label: "Help & Support", icon: "help",            href: "/dashboard/help" },
 ];
 
-export function UserMenu({ name, email, initials, avatarColor = "#fdc003" }: UserMenuProps) {
+export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,22 +69,38 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003" }: Use
           {name}
         </span>
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform text-surface-container-lowest"
+          className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform text-surface-container-lowest overflow-hidden"
           style={{ backgroundColor: avatarColor }}
         >
-          {initials}
+          {image ? (
+            <img 
+              src={image} 
+              alt={name} 
+              className="w-full h-full object-cover" 
+            />
+          ) : (
+            initials
+          )}
         </div>
       </button>
 
       {/* Mobile trigger — avatar only */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm hover:scale-105 transition-transform cursor-pointer text-surface-container-lowest"
+        className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm hover:scale-105 transition-transform cursor-pointer text-surface-container-lowest overflow-hidden"
         style={{ backgroundColor: avatarColor }}
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
-        {initials}
+        {image ? (
+          <img 
+            src={image} 
+            alt={name} 
+            className="w-full h-full object-cover" 
+          />
+        ) : (
+          initials
+        )}
       </button>
 
       {/* Dropdown panel */}
@@ -95,10 +112,18 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003" }: Use
           {/* ── Identity block ─────────────────────────────────── */}
           <div className="px-4 py-4 flex items-center gap-3 border-b border-outline-variant/10">
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg shadow-inner shrink-0 text-surface-container-lowest"
+              className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg shadow-inner shrink-0 text-surface-container-lowest overflow-hidden"
               style={{ backgroundColor: avatarColor }}
             >
-              {initials}
+              {image ? (
+                <img 
+                  src={image} 
+                  alt={name} 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                initials
+              )}
             </div>
             <div className="min-w-0">
               <p className="font-bold text-sm text-on-surface truncate">{name}</p>

@@ -2,10 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { ensurePrismaUser } from "@/utils/auth-utils";
 
 /** Shape returned when an action fails. */
 type AuthError = { error: string };
+
+/** Shape returned when signup succeeds but email verification is pending. */
+type SignupPending = { pending: "check_email"; email: string };
 
 /**
  * Server Action — Log in with email + password.
@@ -33,7 +36,17 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (error.message.toLowerCase().includes("email not confirmed")) {
+      return { error: "Please verify your email before signing in. Check your inbox for a confirmation link." };
+    }
     return { error: error.message };
+  }
+
+  // Sync the Prisma user record with any latest user_metadata (e.g. username set at signup)
+  try {
+    await ensurePrismaUser();
+  } catch {
+    // Non-fatal: proceed to dashboard even if sync fails
   }
 
   // redirect() throws internally — it must be called OUTSIDE a try/catch.
@@ -47,9 +60,9 @@ export async function login(
  * On failure, returns { error: string }.
  */
 export async function signup(
-  _prevState: AuthError | null,
+  _prevState: AuthError | SignupPending | null,
   formData: FormData
-): Promise<AuthError | null> {
+): Promise<AuthError | SignupPending | null> {
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -69,35 +82,32 @@ export async function signup(
 
   const supabase = await createClient();
 
-  // Supabase sign up
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  // Include the display name in user_metadata so ensurePrismaUser can pick it up
+  // when the verification callback fires. We do NOT create a Prisma record yet —
+  // the callback's ensurePrismaUser upsert handles that after email is confirmed.
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: username },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    },
+  });
 
   if (error) {
     return { error: error.message };
   }
 
-  if (data.user) {
-    try {
-      await prisma.user.create({
-        data: {
-          id: data.user.id,
-          name: username,
-          email: email,
-        },
-      });
-    } catch (dbError) {
-      console.error("Database Error:", dbError);
-      return { error: "Failed to initialize user profile." };
-    }
+  // If email confirmation is disabled in Supabase, the user is immediately
+  // confirmed and we can redirect straight to the dashboard.
+  if (data.user?.email_confirmed_at) {
+    redirect("/dashboard");
   }
 
-  // Supabase may require email confirmation depending on project settings.
-  // If email confirmation is disabled the user is immediately logged in and
-  // we redirect to the dashboard; otherwise they will receive a confirmation
-  // email — either way we land them on the dashboard route which the
-  // middleware will handle if they are not yet confirmed.
-  redirect("/dashboard");
+  // Email confirmation is required — tell the UI to show the "check email" screen.
+  return { pending: "check_email", email };
 }
+
 
 /**
  * Server Action — Sign the current user out.
@@ -106,4 +116,25 @@ export async function logout(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+/**
+ * Server Action — Sign in with Google OAuth.
+ */
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
 }
