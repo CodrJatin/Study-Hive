@@ -1,52 +1,44 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-export function useRealtime<T extends { id: string | number }>(
-  tableName: string,
-  initialData: T[],
-  filter?: { column: string; value: string | number }
-) {
-  const [data, setData] = useState<T[]>(initialData);
+export function useRealtime(tableName: string, filter?: { column: string; value: string | number }) {
+  const router = useRouter();
   const isEnabled = process.env.NEXT_PUBLIC_ENABLE_REALTIME === "true";
 
   useEffect(() => {
-    // If global toggle is off, don't subscribe
-    if (!isEnabled) return;
+    if (!isEnabled) {
+      console.log("Realtime is disabled via ENV");
+      return;
+    }
 
     const supabase = createClient();
+    console.log(`Subscribing to ${tableName}...`);
 
     const channel = supabase
       .channel(`realtime-${tableName}`)
       .on(
         "postgres_changes",
-        {
-          event: "*", // Listen for INSERT, UPDATE, and DELETE
-          schema: "public",
+        { 
+          event: "*", 
+          schema: "public", 
           table: tableName,
           filter: filter ? `${filter.column}=eq.${filter.value}` : undefined,
         },
         (payload) => {
-          if (payload.eventType === "INSERT") {
-            setData((prev) => [payload.new as unknown as T, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setData((prev) =>
-              prev.map((item) =>
-                item.id === (payload.new as T).id ? (payload.new as unknown as T) : item
-              )
-            );
-          } else if (payload.eventType === "DELETE") {
-            setData((prev) =>
-              prev.filter((item) => item.id !== (payload.old as T).id)
-            );
-          }
+          console.log("CHANGE DETECTED!", payload);
+          router.refresh();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`Subscription status for ${tableName}:`, status);
+      });
 
     return () => {
+      console.log(`Unsubscribing from ${tableName}`);
       supabase.removeChannel(channel);
     };
-  }, [tableName, isEnabled, filter?.value, filter?.column]);
-
-  return data;
+  }, [tableName, isEnabled, filter?.value, filter?.column, router]);
 }

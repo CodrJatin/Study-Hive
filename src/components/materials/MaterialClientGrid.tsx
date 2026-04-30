@@ -45,13 +45,13 @@ export function MaterialClientGrid({
     ? { column: "hiveId", value: hiveId } 
     : userId ? { column: "userId", value: userId } : undefined;
 
-  const liveData = useRealtime("Material", initialMaterials, filter);
+  useRealtime("Material", filter);
 
-  const grouped = liveData.reduce((acc, m) => {
+  const grouped = initialMaterials.reduce((acc, m) => {
     if (!acc[m.type]) acc[m.type] = [];
     acc[m.type].push(m);
     return acc;
-  }, {} as Record<string, typeof liveData>);
+  }, {} as Record<string, typeof initialMaterials>);
 
   const sortedGroups = Object.entries(grouped).sort(
     ([a], [b]) => TYPE_ORDER.indexOf(a) - TYPE_ORDER.indexOf(b)

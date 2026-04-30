@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { UnitAccordion } from "@/components/syllabus/UnitAccordion";
 import { AddUnitForm } from "@/components/syllabus/AddUnitForm";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -167,6 +168,9 @@ export default async function SyllabusPage({ params }: { params: Promise<{ hiveI
 
   return (
     <div className="max-w-5xl mx-auto w-full">
+      <RealtimeListener tableName="Track" filter={{ column: "hiveId", value: hiveId }} />
+      <RealtimeListener tableName="Unit" />
+      <RealtimeListener tableName="Topic" />
       {/* Header */}
       <div className="mb-10">
         <span className="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">

@@ -57,7 +57,7 @@ export async function createMaterial(
 
     const resolvedType = url ? detectType(url) : type;
 
-    const newMaterial = await prisma.material.create({
+    await prisma.material.create({
       data: {
         userId: user.id,
         hiveId: hiveId ?? null,
@@ -66,14 +66,11 @@ export async function createMaterial(
         url,
         sizeBytes,
       },
-      include: {
-        user: { select: { name: true } }
-      }
     });
 
     if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
-    return { error: "", data: newMaterial } as any;
+    return null;
   } catch (err: any) {
     console.error("createMaterial failed:", err);
     return { error: err.message || "Failed to create material" };
@@ -114,14 +111,11 @@ export async function createSmartMaterial(
         duration: metadata.totalDurationSeconds,
         playlistData: metadata.type === "playlist" ? (metadata.playlistData as object[]) : undefined,
       },
-      include: {
-        user: { select: { name: true } }
-      }
     });
 
     if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
-    return { materialId: material.id, data: material } as any;
+    return { materialId: material.id };
   } catch (err: any) {
     console.error("createSmartMaterial failed:", err);
     return { error: err.message || "Failed to create smart material" };
@@ -180,7 +174,7 @@ export async function updateMaterial(
       }
     }
 
-    const updatedMaterial = await prisma.material.update({
+    await prisma.material.update({
       where: { id: materialId },
       data: {
         ...(data.title?.trim() ? { title: data.title.trim() } : {}),
@@ -189,14 +183,11 @@ export async function updateMaterial(
         ...(recalcDuration !== undefined ? { duration: recalcDuration } : {}),
         updatedAt: new Date(),
       },
-      include: {
-        user: { select: { name: true } }
-      }
     });
 
     if (existing.hiveId) revalidatePath(`/hive/${existing.hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
-    return { error: "", data: updatedMaterial } as any;
+    return null;
   } catch (err: any) {
     console.error("updateMaterial failed:", err);
     return { error: err.message || "Failed to update material" };

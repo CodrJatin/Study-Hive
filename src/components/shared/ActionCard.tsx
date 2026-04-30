@@ -26,8 +26,8 @@ export function ActionCard({
       onClick={onClick}
       className={`group flex flex-col items-center justify-center text-center transition-all ${
         isLarge
-          ? "py-20 px-6 bg-surface-container-low rounded-[2rem] clay-inset border-2 border-dashed border-outline-variant/20"
-          : "p-8 rounded-[1.5rem] border-2 border-dashed border-outline-variant/30 hover:bg-surface-container-low hover:border-primary/40 cursor-pointer min-h-[300px]"
+          ? "py-20 px-6 bg-surface-container-low rounded-4xl clay-inset border-2 border-dashed border-outline-variant/20"
+          : "p-8 rounded-3xl border-2 border-dashed border-outline-variant/30 hover:bg-surface-container-low hover:border-primary/40 cursor-pointer min-h-[300px]"
       } ${className}`}
     >
       <div

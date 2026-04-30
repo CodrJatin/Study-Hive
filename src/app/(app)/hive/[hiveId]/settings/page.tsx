@@ -7,6 +7,7 @@ import { ManageInvitesAction } from "@/components/settings/ManageInvitesAction";
 import { CopyInviteButton } from "@/components/settings/CopyInviteButton";
 import { RemoveMemberButton } from "@/components/settings/RemoveMemberButton";
 import { DeleteInviteButton } from "@/components/settings/DeleteInviteButton";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -60,8 +61,10 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
   });
 
   return (
-    <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
-      <div className="divide-y divide-surface-container">
+    <>
+      <RealtimeListener tableName="HiveMember" filter={{ column: "hiveId", value: hiveId }} />
+      <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
+        <div className="divide-y divide-surface-container">
         {members.map((member) => (
           <div
             key={member.id}
@@ -96,8 +99,9 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
             </div>
           </div>
         ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

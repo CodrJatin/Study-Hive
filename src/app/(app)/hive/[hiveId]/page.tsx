@@ -7,6 +7,7 @@ import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -99,8 +100,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
   const announcements = await prisma.announcement.findMany({
     where: { hiveId },
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true, title: true, content: true, createdAt: true,
+    include: {
       author: { select: { name: true } },
     },
   });
@@ -143,6 +143,7 @@ async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
 
   return (
     <>
+      <RealtimeListener tableName="Deadline" filter={{ column: "hiveId", value: hiveId }} />
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
           <span className="material-symbols-outlined text-error text-3xl">event_busy</span>
