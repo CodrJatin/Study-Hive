@@ -11,9 +11,10 @@ interface GeneralSettingsFormProps {
     subject: string;
     description: string | null;
   };
+  isAdmin: boolean;
 }
 
-export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
+export function GeneralSettingsForm({ hive, isAdmin }: GeneralSettingsFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -67,6 +68,7 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
             defaultValue={hive.title}
+            disabled={!isAdmin}
             required
           />
         </div>
@@ -80,6 +82,7 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
             defaultValue={hive.subject}
+            disabled={!isAdmin}
             required
           />
         </div>
@@ -94,21 +97,24 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
           className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
           rows={4}
           defaultValue={hive.description || ""}
+          disabled={!isAdmin}
         />
       </div>
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={isPending}
-          className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all active:scale-95 shadow-md flex items-center gap-2 ${
-            isPending ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
-          }`}
-        >
-          {isPending && (
-            <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
-          )}
-          {isPending ? "Saving…" : "Save Changes"}
-        </button>
+        {isAdmin && (
+          <button
+            type="submit"
+            disabled={isPending}
+            className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all active:scale-95 shadow-md flex items-center gap-2 ${
+              isPending ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+            }`}
+          >
+            {isPending && (
+              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+            )}
+            {isPending ? "Saving…" : "Save Changes"}
+          </button>
+        )}
       </div>
     </form>
   );

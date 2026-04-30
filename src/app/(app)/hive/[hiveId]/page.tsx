@@ -76,7 +76,7 @@ function DeadlineSkeleton() {
 // ─────────────────────────────────────────
 
 async function HiveOverviewWidget({ hiveId, userId }: { hiveId: string; userId: string | null }) {
-  const [hive, totalTopics, completedTopics] = await Promise.all([
+  const [hive, totalTopics, completedTopics, membership] = await Promise.all([
     prisma.hive.findUnique({
       where: { id: hiveId },
       select: { title: true, description: true },
@@ -87,13 +87,20 @@ async function HiveOverviewWidget({ hiveId, userId }: { hiveId: string; userId: 
           where: { userId, status: "COMPLETED", topic: { unit: { hiveId } } },
         })
       : Promise.resolve(0),
+    userId
+      ? prisma.hiveMember.findUnique({
+          where: { userId_hiveId: { userId, hiveId } },
+          select: { role: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   if (!hive) return null;
 
   const progress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+  const isAdmin = membership?.role === "ADMIN";
 
-  return <HiveOverviewCard hive={hive} progress={progress} />;
+  return <HiveOverviewCard hive={hive} progress={progress} isAdmin={isAdmin} />;
 }
 
 async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userName: string }) {

@@ -3,10 +3,12 @@ import { ProgressBar } from "@/components/hive/ProgressBar";
 
 export function HiveOverviewCard({ 
   hive, 
-  progress 
+  progress,
+  isAdmin
 }: { 
   hive: { title: string; description: string | null },
-  progress: number
+  progress: number;
+  isAdmin: boolean;
 }) {
   return (
     <>
@@ -24,18 +26,15 @@ export function HiveOverviewCard({
                 {hive.description || "Course Overview"}
               </p>
             </div>
-            <div className="flex gap-2 shrink-0">
-              <button className="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
-                <span className="material-symbols-outlined text-xl" data-icon="share">
-                  share
-                </span>
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all border border-outline-variant/10">
-                <span className="material-symbols-outlined text-xl" data-icon="more_vert">
-                  more_vert
-                </span>
-              </button>
-            </div>
+            {!isAdmin && (
+              <div className="flex gap-2 shrink-0">
+                <button className="w-10 h-10 flex items-center justify-center bg-surface-container-low rounded-xl text-error hover:bg-error-container hover:text-on-error-container transition-all border border-outline-variant/10" title="Leave Hive">
+                  <span className="material-symbols-outlined text-xl" data-icon="logout">
+                    logout
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
 
           <ProgressBar progress={progress} label="Hive Mastery" labelSecondary="Course completion" />

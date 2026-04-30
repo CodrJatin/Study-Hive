@@ -8,6 +8,7 @@ import { CopyInviteButton } from "@/components/settings/CopyInviteButton";
 import { RemoveMemberButton } from "@/components/settings/RemoveMemberButton";
 import { DeleteInviteButton } from "@/components/settings/DeleteInviteButton";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
+import { createClient } from "@/utils/supabase/server";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -40,17 +41,17 @@ function SectionSkeleton({ rows = 2 }: { rows?: number }) {
 // Async Widgets
 // ─────────────────────────────────────────
 
-async function GeneralSection({ hiveId }: { hiveId: string }) {
+async function GeneralSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
   const hive = await prisma.hive.findUnique({
     where: { id: hiveId },
     select: { id: true, title: true, subject: true, description: true },
   });
   if (!hive) return null;
 
-  return <GeneralSettingsForm hive={hive} />;
+  return <GeneralSettingsForm hive={hive} isAdmin={isAdmin} />;
 }
 
-async function MembersSection({ hiveId }: { hiveId: string }) {
+async function MembersSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
   const members = await prisma.hiveMember.findMany({
     where: { hiveId },
     select: {
@@ -86,14 +87,15 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
                 </div>
               ) : (
                 <select
-                  className="bg-surface-container-high hover:bg-surface-container-highest border-none rounded-xl text-sm font-bold py-2 pl-4 pr-10 focus:ring-4 focus:ring-primary/10 outline-none transition-all cursor-pointer appearance-none text-on-surface"
+                  className="bg-surface-container-high hover:bg-surface-container-highest border-none rounded-xl text-sm font-bold py-2 pl-4 pr-10 focus:ring-4 focus:ring-primary/10 outline-none transition-all cursor-not-allowed appearance-none text-on-surface opacity-70"
                   defaultValue={member.role}
+                  disabled
                 >
                   <option value="MEMBER">Member</option>
                   <option value="VIEW_ONLY">View Only</option>
                 </select>
               )}
-              {member.role !== "ADMIN" && (
+              {isAdmin && member.role !== "ADMIN" && (
                 <RemoveMemberButton hiveId={hiveId} memberId={member.id} />
               )}
             </div>
@@ -105,7 +107,7 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
   );
 }
 
-async function InvitesSection({ hiveId }: { hiveId: string }) {
+async function InvitesSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
   const invites = await prisma.hiveInvite.findMany({
     where: { hiveId },
     orderBy: { createdAt: "desc" },
@@ -121,7 +123,7 @@ async function InvitesSection({ hiveId }: { hiveId: string }) {
             Create shareable links with optional expiration to onboard new members.
           </p>
         </div>
-        <ManageInvitesAction hiveId={hiveId} invites={invites} />
+        {isAdmin && <ManageInvitesAction hiveId={hiveId} invites={invites} />}
       </div>
 
       <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
@@ -152,7 +154,7 @@ async function InvitesSection({ hiveId }: { hiveId: string }) {
                   </div>
                   <div className="flex items-center gap-1">
                     <CopyInviteButton code={invite.code} />
-                    <DeleteInviteButton hiveId={hiveId} inviteId={invite.id} />
+                    {isAdmin && <DeleteInviteButton hiveId={hiveId} inviteId={invite.id} />}
                   </div>
                 </div>
               );
@@ -174,6 +176,17 @@ export default async function SettingsPage({
   params: Promise<{ hiveId: string }>;
 }) {
   const { hiveId } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const membership = user
+    ? await prisma.hiveMember.findUnique({
+        where: { userId_hiveId: { userId: user.id, hiveId } },
+        select: { role: true },
+      })
+    : null;
+
+  const isAdmin = membership?.role === "ADMIN";
 
   const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
   if (!exists) return notFound();
@@ -191,7 +204,7 @@ export default async function SettingsPage({
           <p className="text-on-surface-variant">Update your hive&apos;s identity and visual presence.</p>
         </div>
         <Suspense fallback={<div className="animate-pulse h-40 bg-surface-container-high rounded-2xl" />}>
-          <GeneralSection hiveId={hiveId} />
+          <GeneralSection hiveId={hiveId} isAdmin={isAdmin} />
         </Suspense>
       </section>
 
@@ -202,29 +215,31 @@ export default async function SettingsPage({
           <p className="text-on-surface-variant">Control who can access and edit this workspace.</p>
         </div>
         <Suspense fallback={<SectionSkeleton rows={3} />}>
-          <MembersSection hiveId={hiveId} />
+          <MembersSection hiveId={hiveId} isAdmin={isAdmin} />
         </Suspense>
       </section>
 
       {/* Invites */}
       <section className="space-y-6">
         <Suspense fallback={<SectionSkeleton rows={2} />}>
-          <InvitesSection hiveId={hiveId} />
+          <InvitesSection hiveId={hiveId} isAdmin={isAdmin} />
         </Suspense>
       </section>
 
-      {/* Danger Zone */}
-      <section className="pt-8 border-t border-outline-variant/10">
-        <div className="bg-error-container/30 rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-error/10">
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold text-error">Danger Zone</h3>
-            <p className="text-on-surface-variant max-w-lg">
-              Deleting a hive is permanent. All notes, members, and collaborative progress will be erased forever.
-            </p>
+      {/* Danger Zone - Only for Admins */}
+      {isAdmin && (
+        <section className="pt-8 border-t border-outline-variant/10">
+          <div className="bg-error-container/30 rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-error/10">
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-error">Danger Zone</h3>
+              <p className="text-on-surface-variant max-w-lg">
+                Deleting a hive is permanent. All notes, members, and collaborative progress will be erased forever.
+              </p>
+            </div>
+            <DeleteHiveButton hiveId={hiveId} />
           </div>
-          <DeleteHiveButton hiveId={hiveId} />
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
