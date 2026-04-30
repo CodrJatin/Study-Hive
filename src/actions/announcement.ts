@@ -26,17 +26,20 @@ export async function createAnnouncement(
   }
 
   try {
-    await prisma.announcement.create({
+    const newAnnouncement = await prisma.announcement.create({
       data: {
         title,
-        content: content || "", // Allow empty content
+        content: content || "",
         hiveId,
         authorId: user.id,
       },
+      include: {
+        author: { select: { name: true } }
+      }
     });
 
     revalidatePath(`/hive/${hiveId}`);
-    return null;
+    return { error: "", data: newAnnouncement } as any;
   } catch (error) {
     console.error("Announcement Error:", error);
     return { error: "Failed to post announcement" };

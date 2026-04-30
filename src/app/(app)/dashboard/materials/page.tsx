@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { getPersonalMaterials } from "@/actions/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
-import { MaterialCard } from "@/components/materials/MaterialCard";
+import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { UploadButton } from "@/components/materials/UploadButton";
 
@@ -95,30 +95,7 @@ async function PersonalMaterialsWidget({ userId }: { userId: string }) {
     );
   }
 
-  return (
-    <div className="space-y-10">
-      {sortedGroups.map(([type, items]) => {
-        const styling = getMaterialStyling(type);
-        return (
-          <section key={type}>
-            <div className="flex items-center gap-4 mb-5">
-              <div className={`w-8 h-8 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
-                <span className={`material-symbols-outlined text-base ${styling.iconColor}`}>{styling.icon}</span>
-              </div>
-              <h2 className="text-lg font-headline font-bold text-on-surface">{TYPE_LABELS[type] ?? type}</h2>
-              <div className="h-px flex-1 bg-outline-variant/20" />
-              <span className="text-xs font-bold text-on-surface-variant/50">{items.length}</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {items.map((m) => (
-                <MaterialCard key={m.id} material={{ ...m, hiveId: null }} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  );
+  return <MaterialClientGrid userId={userId} initialMaterials={materials as any} />;
 }
 
 // ─────────────────────────────────────────

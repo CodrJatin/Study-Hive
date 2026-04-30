@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
-import { AnnouncementCard } from "@/components/hive/AnnouncementCard";
+import { AnnouncementsClientList } from "@/components/hive/AnnouncementsClientList";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
 import { prisma } from "@/lib/prisma";
@@ -114,26 +114,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
         </h3>
         <CreateAnnouncementAction hiveId={hiveId} userName={userName} />
       </div>
-      <div className="space-y-4">
-        {announcements.map((announcement) => (
-          <AnnouncementCard
-            key={announcement.id}
-            announcement={{
-              title: announcement.title,
-              content: announcement.content,
-              timeAgo: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(announcement.createdAt),
-              authorInitials: announcement.author.name.charAt(0).toUpperCase(),
-              authorName: announcement.author.name,
-            }}
-          />
-        ))}
-        {announcements.length === 0 && (
-          <div className="bg-surface-container-low rounded-3xl p-10 border border-outline-variant/10 flex flex-col items-center justify-center gap-4 clay-inset">
-            <span className="material-symbols-outlined text-on-surface-variant/10 text-6xl">campaign</span>
-            <p className="text-on-surface-variant/40 font-bold uppercase tracking-widest text-xs">No announcements yet</p>
-          </div>
-        )}
-      </div>
+      <AnnouncementsClientList hiveId={hiveId} initialAnnouncements={announcements} />
     </>
   );
 }
