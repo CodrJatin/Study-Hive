@@ -49,7 +49,6 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
     // Materials within those hives OR personal materials
     prisma.material.findMany({
       where: {
-        userId: user.id,
         OR: [
           { hiveId: { in: hiveIds } },
           { hiveId: null }
