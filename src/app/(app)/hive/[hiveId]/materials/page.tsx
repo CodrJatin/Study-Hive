@@ -97,7 +97,8 @@ async function MaterialGrid({ hiveId }: { hiveId: string }) {
     select: {
       id: true, title: true, type: true, url: true,
       sizeBytes: true, channelName: true, duration: true,
-      videoRange: true, playlistData: true,
+      videoRange: true, playlistData: true, userId: true,
+      user: { select: { name: true } },
     },
   });
 

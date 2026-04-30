@@ -14,6 +14,7 @@ type MaterialType = {
   duration: number | null;
   videoRange: string | null;
   playlistData: any | null;
+  userId: string;
 };
 
 const TYPE_ORDER = ["VIDEO", "PLAYLIST", "PDF", "DOC", "LINK"];

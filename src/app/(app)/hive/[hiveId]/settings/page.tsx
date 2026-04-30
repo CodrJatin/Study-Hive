@@ -9,6 +9,9 @@ import { RemoveMemberButton } from "@/components/settings/RemoveMemberButton";
 import { DeleteInviteButton } from "@/components/settings/DeleteInviteButton";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
 import { createClient } from "@/utils/supabase/server";
+import { DangerZoneSettings } from "@/components/settings/DangerZoneSettings";
+import { ChangeRoleDropdown } from "@/components/settings/ChangeRoleDropdown";
+import { LeaveHiveSection } from "@/components/settings/LeaveHiveSection";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -41,17 +44,17 @@ function SectionSkeleton({ rows = 2 }: { rows?: number }) {
 // Async Widgets
 // ─────────────────────────────────────────
 
-async function GeneralSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
+async function GeneralSection({ hiveId }: { hiveId: string }) {
   const hive = await prisma.hive.findUnique({
     where: { id: hiveId },
     select: { id: true, title: true, subject: true, description: true },
   });
   if (!hive) return null;
 
-  return <GeneralSettingsForm hive={hive} isAdmin={isAdmin} />;
+  return <GeneralSettingsForm hive={hive} />;
 }
 
-async function MembersSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
+async function MembersSection({ hiveId }: { hiveId: string }) {
   const members = await prisma.hiveMember.findMany({
     where: { hiveId },
     select: {
@@ -64,12 +67,12 @@ async function MembersSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
   return (
     <>
       <RealtimeListener tableName="HiveMember" filter={{ column: "hiveId", value: hiveId }} />
-      <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
+      <div className="bg-surface-container-lowest rounded-3xl clay-card">
         <div className="divide-y divide-surface-container">
         {members.map((member) => (
           <div
             key={member.id}
-            className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-surface-container-low transition-colors gap-4"
+            className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-surface-container-low transition-colors gap-4 first:rounded-t-3xl last:rounded-b-3xl"
           >
             <div className="flex items-center gap-4 text-left">
               <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center font-bold text-on-primary-container">
@@ -81,23 +84,8 @@ async function MembersSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
               </div>
             </div>
             <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
-              {member.role === "ADMIN" ? (
-                <div className="px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider border border-primary/10">
-                  Admin
-                </div>
-              ) : (
-                <select
-                  className="bg-surface-container-high hover:bg-surface-container-highest border-none rounded-xl text-sm font-bold py-2 pl-4 pr-10 focus:ring-4 focus:ring-primary/10 outline-none transition-all cursor-not-allowed appearance-none text-on-surface opacity-70"
-                  defaultValue={member.role}
-                  disabled
-                >
-                  <option value="MEMBER">Member</option>
-                  <option value="VIEW_ONLY">View Only</option>
-                </select>
-              )}
-              {isAdmin && member.role !== "ADMIN" && (
-                <RemoveMemberButton hiveId={hiveId} memberId={member.id} />
-              )}
+              <ChangeRoleDropdown hiveId={hiveId} memberId={member.id} currentRole={member.role} />
+              <RemoveMemberButton hiveId={hiveId} memberId={member.id} targetRole={member.role} />
             </div>
           </div>
         ))}
@@ -107,7 +95,7 @@ async function MembersSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
   );
 }
 
-async function InvitesSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: boolean }) {
+async function InvitesSection({ hiveId }: { hiveId: string }) {
   const invites = await prisma.hiveInvite.findMany({
     where: { hiveId },
     orderBy: { createdAt: "desc" },
@@ -123,10 +111,10 @@ async function InvitesSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
             Create shareable links with optional expiration to onboard new members.
           </p>
         </div>
-        {isAdmin && <ManageInvitesAction hiveId={hiveId} invites={invites} />}
+        <ManageInvitesAction hiveId={hiveId} invites={invites} />
       </div>
 
-      <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
+      <div className="bg-surface-container-lowest rounded-3xl clay-card">
         <div className="divide-y divide-surface-container">
           {invites.length === 0 ? (
             <div className="p-8 text-center text-on-surface-variant/40 text-sm font-medium">
@@ -136,7 +124,7 @@ async function InvitesSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
             invites.map((invite) => {
               const isExpired = invite.expiresAt && invite.expiresAt < new Date();
               return (
-                <div key={invite.id} className="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors">
+                <div key={invite.id} className="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors first:rounded-t-3xl last:rounded-b-3xl">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <span className={`material-symbols-outlined text-xl ${isExpired ? "text-error" : "text-primary"}`}>
                       {isExpired ? "link_off" : "link"}
@@ -154,7 +142,7 @@ async function InvitesSection({ hiveId, isAdmin }: { hiveId: string; isAdmin: bo
                   </div>
                   <div className="flex items-center gap-1">
                     <CopyInviteButton code={invite.code} />
-                    {isAdmin && <DeleteInviteButton hiveId={hiveId} inviteId={invite.id} />}
+                    <DeleteInviteButton hiveId={hiveId} inviteId={invite.id} />
                   </div>
                 </div>
               );
@@ -179,15 +167,6 @@ export default async function SettingsPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const membership = user
-    ? await prisma.hiveMember.findUnique({
-        where: { userId_hiveId: { userId: user.id, hiveId } },
-        select: { role: true },
-      })
-    : null;
-
-  const isAdmin = membership?.role === "ADMIN";
-
   const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
   if (!exists) return notFound();
 
@@ -204,7 +183,7 @@ export default async function SettingsPage({
           <p className="text-on-surface-variant">Update your hive&apos;s identity and visual presence.</p>
         </div>
         <Suspense fallback={<div className="animate-pulse h-40 bg-surface-container-high rounded-2xl" />}>
-          <GeneralSection hiveId={hiveId} isAdmin={isAdmin} />
+          <GeneralSection hiveId={hiveId} />
         </Suspense>
       </section>
 
@@ -215,31 +194,22 @@ export default async function SettingsPage({
           <p className="text-on-surface-variant">Control who can access and edit this workspace.</p>
         </div>
         <Suspense fallback={<SectionSkeleton rows={3} />}>
-          <MembersSection hiveId={hiveId} isAdmin={isAdmin} />
+          <MembersSection hiveId={hiveId} />
         </Suspense>
       </section>
 
       {/* Invites */}
       <section className="space-y-6">
         <Suspense fallback={<SectionSkeleton rows={2} />}>
-          <InvitesSection hiveId={hiveId} isAdmin={isAdmin} />
+          <InvitesSection hiveId={hiveId} />
         </Suspense>
       </section>
 
-      {/* Danger Zone - Only for Admins */}
-      {isAdmin && (
-        <section className="pt-8 border-t border-outline-variant/10">
-          <div className="bg-error-container/30 rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-error/10">
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-error">Danger Zone</h3>
-              <p className="text-on-surface-variant max-w-lg">
-                Deleting a hive is permanent. All notes, members, and collaborative progress will be erased forever.
-              </p>
-            </div>
-            <DeleteHiveButton hiveId={hiveId} />
-          </div>
-        </section>
-      )}
+      {/* Leave Hive */}
+      <LeaveHiveSection hiveId={hiveId} />
+
+      {/* Danger Zone */}
+      <DangerZoneSettings hiveId={hiveId} />
     </div>
   );
 }

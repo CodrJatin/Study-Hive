@@ -176,6 +176,7 @@ export async function addDeadline(
         title,
         dueDate: new Date(dueDateStr),
         hiveId,
+        creatorId: user.id,
       },
     });
 
@@ -197,6 +198,30 @@ export async function deleteDeadline(
   if (!user) return { error: "Authorization required" };
 
   try {
+    const deadline = await prisma.deadline.findUnique({
+      where: { id: deadlineId },
+      include: {
+        hive: {
+          include: {
+            members: {
+              where: { userId: user.id },
+            },
+          },
+        },
+      },
+    });
+
+    if (!deadline) return { error: "Deadline not found" };
+
+    const membership = deadline.hive.members[0];
+    if (!membership) return { error: "You are not a member of this hive" };
+
+    // Use our central permissions check
+    const { Permissions } = await import("@/lib/permissions");
+    if (!Permissions.canEditOrDeleteItem(membership.role, deadline.creatorId || "", user.id)) {
+      return { error: "You do not have permission to delete this deadline" };
+    }
+
     await prisma.deadline.delete({
       where: { id: deadlineId },
     });
@@ -255,5 +280,117 @@ export async function removeMember(
   } catch (error) {
     console.error("Remove Member Error:", error);
     return { error: "Failed to remove member" };
+  }
+}
+
+export async function leaveHive(hiveId: string): Promise<HiveActionError | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Authorization required" };
+
+  try {
+    const membership = await prisma.hiveMember.findUnique({
+      where: {
+        userId_hiveId: {
+          userId: user.id,
+          hiveId: hiveId,
+        },
+      },
+    });
+
+    if (!membership) return { error: "You are not a member of this hive" };
+
+    if (membership.role === HiveRole.ADMIN) {
+      return { error: "Admins cannot leave the hive. You must transfer ownership or delete the hive." };
+    }
+
+    await prisma.hiveMember.delete({
+      where: {
+        userId_hiveId: {
+          userId: user.id,
+          hiveId: hiveId,
+        },
+      },
+    });
+
+    revalidatePath("/dashboard");
+  } catch (error) {
+    console.error("Leave Hive Error:", error);
+    return { error: "Failed to leave hive" };
+  }
+
+  redirect("/dashboard");
+  return null;
+}
+
+export async function updateMemberRole(
+  hiveId: string,
+  memberId: string,
+  newRole: HiveRole
+): Promise<HiveActionError | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Authorization required" };
+
+  try {
+    // 1. Get caller membership
+    const callerMembership = await prisma.hiveMember.findUnique({
+      where: {
+        userId_hiveId: {
+          userId: user.id,
+          hiveId: hiveId,
+        },
+      },
+    });
+
+    if (!callerMembership) {
+      return { error: "You are not a member of this hive" };
+    }
+
+    // 2. Get target membership
+    const targetMember = await prisma.hiveMember.findUnique({
+      where: { id: memberId },
+    });
+
+    if (!targetMember) return { error: "Member not found" };
+
+    // 3. Permission checks
+    // Caller cannot change their own role this way (should leave hive or pass ownership)
+    if (targetMember.userId === user.id) {
+      return { error: "You cannot change your own role" };
+    }
+
+    // Using the same logic as our frontend Permissions.canManageRole
+    const canManageRole = (currentRole: HiveRole, targetUserRole: HiveRole) => {
+      if (currentRole === "ADMIN" && targetUserRole !== "ADMIN") return true;
+      if (currentRole === "MODERATOR" && (targetUserRole === "MEMBER" || targetUserRole === "VIEWER")) return true;
+      return false;
+    };
+
+    // Caller must be able to manage the target's CURRENT role
+    if (!canManageRole(callerMembership.role, targetMember.role)) {
+      return { error: "You do not have permission to modify this member's role" };
+    }
+
+    // Caller must be able to manage the target's NEW role (e.g. MODERATOR can't promote to ADMIN)
+    // Wait, if current role is ADMIN, they can manage any new role except ADMIN? 
+    // Yes, canManageRole returns true for ADMIN if target is not ADMIN.
+    if (!canManageRole(callerMembership.role, newRole)) {
+      return { error: "You do not have permission to assign this role" };
+    }
+
+    // 4. Update the role
+    await prisma.hiveMember.update({
+      where: { id: memberId },
+      data: { role: newRole },
+    });
+
+    revalidatePath(`/hive/${hiveId}/settings`);
+    return null;
+  } catch (error) {
+    console.error("Update Member Role Error:", error);
+    return { error: "Failed to update member role" };
   }
 }

@@ -17,8 +17,9 @@ export function useRealtime(tableName: string, filter?: { column: string; value:
     const supabase = createClient();
     console.log(`Subscribing to ${tableName}...`);
 
+    const channelName = `realtime-${tableName}-${Math.random().toString(36).substring(2, 9)}`;
     const channel = supabase
-      .channel(`realtime-${tableName}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         { 

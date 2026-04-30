@@ -110,6 +110,7 @@ async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string
       createdAt: true,
       updatedAt: true,
       hiveId: true,
+      creatorId: true,
       topics: {
         orderBy: { position: "asc" },
         select: {
@@ -121,6 +122,7 @@ async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string
           createdAt: true,
           updatedAt: true,
           unitId: true,
+          creatorId: true,
           topicProgress: {
             where: { userId },
             select: { status: true },

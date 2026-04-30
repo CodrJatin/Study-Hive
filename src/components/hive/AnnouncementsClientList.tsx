@@ -30,6 +30,9 @@ export function AnnouncementsClientList({
         <AnnouncementCard
           key={announcement.id}
           announcement={{
+            id: announcement.id,
+            hiveId: announcement.hiveId,
+            authorId: announcement.authorId,
             title: announcement.title,
             content: announcement.content,
             timeAgo: new Intl.DateTimeFormat("en-US", { 

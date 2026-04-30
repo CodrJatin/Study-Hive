@@ -4,6 +4,8 @@ import React, { useState, useTransition } from "react";
 import { deleteInvite } from "@/actions/invite";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { toast } from "sonner";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 export function DeleteInviteButton({ 
   hiveId, 
@@ -14,6 +16,11 @@ export function DeleteInviteButton({
 }) {
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
+  const { role } = useHiveContext();
+
+  if (!Permissions.canManageHive(role)) {
+    return null;
+  }
 
   const handleDelete = () => {
     // ✅ Close immediately

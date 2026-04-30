@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Link from "next/link";
 import { EditMaterialModal } from "./EditMaterialModal";
+import { HiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface Material {
   id: string;
@@ -15,6 +17,8 @@ interface Material {
   videoRange?: string | null;
   playlistData?: unknown;
   hiveId: string | null;
+  userId: string;
+  user?: { name: string } | null;
 }
 
 interface MaterialCardProps {
@@ -57,6 +61,11 @@ export function MaterialCard({ material }: MaterialCardProps) {
   const duration = formatDuration(material.duration);
   const size = formatSize(material.sizeBytes);
   const playlist = isPlaylist(material);
+  const hiveContext = useContext(HiveContext);
+
+  const canEdit = hiveContext 
+    ? Permissions.canEditOrDeleteItem(hiveContext.role, material.userId, hiveContext.userId)
+    : true;
 
   return (
     <>
@@ -88,15 +97,6 @@ export function MaterialCard({ material }: MaterialCardProps) {
           <h3 className="font-headline font-bold text-on-surface text-base leading-tight mb-1.5 line-clamp-2">
             {material.title}
           </h3>
-
-          {/* Channel name for YouTube */}
-          {material.channelName && (
-            <p className="text-xs font-semibold text-on-surface-variant/70 mb-2 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">account_circle</span>
-              {material.channelName}
-            </p>
-          )}
-
           {/* Duration / filesize row */}
           <div className="flex items-center flex-wrap gap-3 mt-2">
             {duration && (
@@ -144,14 +144,28 @@ export function MaterialCard({ material }: MaterialCardProps) {
             </a>
           ) : null}
 
-          {/* Edit button — visible on hover */}
-          <button
-            onClick={() => setIsEditOpen(true)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant opacity-0 group-hover/card:opacity-100 hover:bg-surface-container-high hover:text-primary transition-all ml-auto"
-            title="Edit material"
-          >
-            <span className="material-symbols-outlined text-[18px]">edit</span>
-          </button>
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Edit button — visible on hover */}
+            {canEdit && (
+              <button
+                onClick={() => setIsEditOpen(true)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant opacity-0 group-hover/card:opacity-100 hover:bg-surface-container-high hover:text-primary transition-all"
+                title="Edit material"
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+              </button>
+            )}
+
+            {/* Uploader details */}
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-on-surface-variant/40 hover:text-on-surface-variant/70 transition-colors">
+              <span className="material-symbols-outlined text-[14px]">
+                {material.channelName ? "account_circle" : "person"}
+              </span>
+              <span className="max-w-[80px] truncate" title={material.channelName || material.user?.name || "Unknown User"}>
+                {material.channelName || material.user?.name || "Unknown User"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

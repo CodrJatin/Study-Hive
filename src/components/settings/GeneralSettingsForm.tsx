@@ -3,6 +3,8 @@
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { updateHive } from "@/actions/hive";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface GeneralSettingsFormProps {
   hive: {
@@ -11,12 +13,13 @@ interface GeneralSettingsFormProps {
     subject: string;
     description: string | null;
   };
-  isAdmin: boolean;
 }
 
-export function GeneralSettingsForm({ hive, isAdmin }: GeneralSettingsFormProps) {
+export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const { role } = useHiveContext();
+  const canManage = Permissions.canManageHive(role);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,7 +71,7 @@ export function GeneralSettingsForm({ hive, isAdmin }: GeneralSettingsFormProps)
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
             defaultValue={hive.title}
-            disabled={!isAdmin}
+            disabled={!canManage}
             required
           />
         </div>
@@ -82,7 +85,7 @@ export function GeneralSettingsForm({ hive, isAdmin }: GeneralSettingsFormProps)
             className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
             type="text"
             defaultValue={hive.subject}
-            disabled={!isAdmin}
+            disabled={!canManage}
             required
           />
         </div>
@@ -97,11 +100,11 @@ export function GeneralSettingsForm({ hive, isAdmin }: GeneralSettingsFormProps)
           className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
           rows={4}
           defaultValue={hive.description || ""}
-          disabled={!isAdmin}
+          disabled={!canManage}
         />
       </div>
       <div className="flex justify-end">
-        {isAdmin && (
+        {canManage && (
           <button
             type="submit"
             disabled={isPending}

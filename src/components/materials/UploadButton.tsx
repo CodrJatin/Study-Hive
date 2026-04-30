@@ -1,89 +1,67 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useContext } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { createMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
 import { toast } from "sonner";
+import { HiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface UploadButtonProps {
   hiveId?: string;
   variant?: "primary" | "secondary" | "ghost";
 }
 
+import { ConfirmUploadModal } from "@/components/modals/ConfirmUploadModal";
+import { uploadFiles } from "@/utils/upload-utils";
+
 export function UploadButton({ hiveId, variant = "primary" }: UploadButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const hiveContext = useContext(HiveContext);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (hiveContext && !Permissions.canAddItems(hiveContext.role)) {
+    return null;
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    setIsUploading(true);
-    const supabase = createClient();
-    const targetHiveId = hiveId && hiveId.trim() !== "" ? hiveId : undefined;
-    
-    let successCount = 0;
-    let failCount = 0;
-
-    const uploadToast = toast.loading(`Uploading ${files.length} file(s)...`);
-
-    for (const file of Array.from(files)) {
-      try {
-        const path = `${targetHiveId ?? "personal"}/${Date.now()}-${file.name}`;
-
-        const { error: storageError } = await supabase.storage
-          .from("hive-materials")
-          .upload(path, file, { cacheControl: "3600", upsert: false });
-
-        if (storageError) {
-          console.error("Storage Error:", storageError);
-          failCount++;
-          continue;
-        }
-
-        const { data: publicData } = supabase.storage
-          .from("hive-materials")
-          .getPublicUrl(path);
-
-        // Detect material type from MIME
-        let type: MaterialType = MaterialType.LINK;
-        if (file.type.includes("pdf")) type = MaterialType.PDF;
-        else if (file.type.startsWith("image/")) type = MaterialType.IMAGE;
-        else if (file.type.includes("video")) type = MaterialType.VIDEO;
-        else if (file.type.includes("word") || file.type.includes("document"))
-          type = MaterialType.DOC;
-
-        const result = await createMaterial(
-          file.name.replace(/\.[^.]+$/, ""),
-          type,
-          targetHiveId,
-          publicData.publicUrl,
-          file.size
-        );
-
-        if (result?.error) {
-          console.error("Database Error:", result.error);
-          failCount++;
-        } else {
-          successCount++;
-        }
-      } catch (err) {
-        console.error("Unexpected error:", err);
-        failCount++;
-      }
-    }
-
-    setIsUploading(false);
+    setSelectedFiles(Array.from(files));
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
-    if (failCount === 0) {
-      toast.success(`Successfully uploaded ${successCount} file(s)`, { id: uploadToast });
-    } else if (successCount > 0) {
-      toast.warning(`Uploaded ${successCount} files, but ${failCount} failed.`, { id: uploadToast });
-    } else {
-      toast.error("Failed to upload files. Please try again.", { id: uploadToast });
-    }
+  const confirmUpload = async () => {
+    if (!selectedFiles) return;
+    const files = selectedFiles;
+    setSelectedFiles(null);
+    setIsUploading(true);
+
+    const partial = () =>
+      (globalThis as { __lastUploadPartial?: { successCount: number; total: number } })
+        .__lastUploadPartial;
+
+    toast.promise(uploadFiles(files, hiveId), {
+      loading: files.length === 1
+        ? `Uploading "${files[0].name}"…`
+        : `Uploading ${files.length} files…`,
+      success: () => {
+        setIsUploading(false);
+        const p = partial();
+        if (p && p.successCount < p.total) {
+          return `Uploaded ${p.successCount} of ${p.total} files (some failed)`;
+        }
+        return files.length === 1
+          ? `"${files[0].name}" added!`
+          : `${files.length} files added!`;
+      },
+      error: (err: Error) => {
+        setIsUploading(false);
+        return err.message || "Upload failed";
+      },
+    });
   };
 
   const getButtonStyle = () => {
@@ -117,6 +95,15 @@ export function UploadButton({ hiveId, variant = "primary" }: UploadButtonProps)
         </span>
         {isUploading ? "Uploading..." : "Upload Files"}
       </button>
+
+      {selectedFiles && (
+        <ConfirmUploadModal
+          files={selectedFiles}
+          onConfirm={confirmUpload}
+          onCancel={() => setSelectedFiles(null)}
+        />
+      )}
     </>
   );
 }
+

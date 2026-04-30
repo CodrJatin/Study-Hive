@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { ManageDeadlinesModal } from "./ManageDeadlinesModal";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface ManageDeadlinesActionProps {
   hiveId: string;
@@ -10,6 +12,11 @@ interface ManageDeadlinesActionProps {
 
 export function ManageDeadlinesAction({ hiveId, deadlines }: ManageDeadlinesActionProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { role } = useHiveContext();
+
+  if (!Permissions.canAddItems(role)) {
+    return null;
+  }
 
   return (
     <>

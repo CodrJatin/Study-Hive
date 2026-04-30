@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useRef, useTransition, useState } from "react";
+import React, { useRef, useTransition, useState, useContext } from "react";
 import { createSmartMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
+import { HiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface SmartPasteBarProps {
   hiveId?: string;
@@ -19,6 +21,11 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(null);
+  const hiveContext = useContext(HiveContext);
+
+  if (hiveContext && !Permissions.canAddItems(hiveContext.role)) {
+    return null;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

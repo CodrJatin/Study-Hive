@@ -3,10 +3,17 @@
 import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { createUnit } from "@/actions/syllabus";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 export function AddUnitForm({ hiveId }: { hiveId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const { role } = useHiveContext();
+
+  if (!Permissions.canAddItems(role)) {
+    return null;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

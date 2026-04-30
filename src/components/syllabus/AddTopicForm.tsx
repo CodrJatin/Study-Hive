@@ -3,17 +3,22 @@
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { createTopic } from "@/actions/syllabus";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface AddTopicFormProps {
   unitId: string;
   hiveId: string;
-  unitIndex: number;
-  currentTopicCount: number;
 }
 
-export function AddTopicForm({ unitId, hiveId, unitIndex, currentTopicCount }: AddTopicFormProps) {
+export function AddTopicForm({ unitId, hiveId }: AddTopicFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const { role } = useHiveContext();
+
+  if (!Permissions.canAddItems(role)) {
+    return null;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,9 +52,7 @@ export function AddTopicForm({ unitId, hiveId, unitIndex, currentTopicCount }: A
       onSubmit={handleSubmit}
       className="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50 border border-dashed border-outline-variant/20 hover:border-primary/25 transition-colors clay-inset"
     >
-      <span className="text-[11px] font-black text-on-surface-variant/30 w-6 text-center shrink-0">
-        {unitIndex + 1}.{currentTopicCount + 1}
-      </span>
+
       <input
         name="title"
         type="text"

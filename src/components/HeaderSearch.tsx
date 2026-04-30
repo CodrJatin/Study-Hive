@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { globalSearch, SearchResult } from "@/actions/search";
+import { Dropdown, DropdownOption } from "@/components/shared/Dropdown";
 
 // Icon map for each result type
 const TYPE_ICON: Record<SearchResult["type"], string> = {
@@ -126,6 +127,58 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   const isTypingOrSearching = query.trim().length >= 2 && (isPending || query.trim() !== lastSearchedQuery.current);
   const showDropdown = isOpen && query.trim().length >= 2;
 
+  const options: DropdownOption[] = results.map((result) => {
+    let icon = TYPE_ICON[result.type];
+    let colorClass = TYPE_COLOR[result.type];
+    const isPersonal = result.type === "material" && !result.hiveId;
+
+    if (result.type === "material" && result.materialType) {
+      switch (result.materialType) {
+        case "PLAYLIST": icon = "playlist_play"; colorClass = "text-tertiary bg-tertiary/10"; break;
+        case "VIDEO": icon = "play_circle"; colorClass = "text-primary bg-primary/10"; break;
+        case "PDF": icon = "picture_as_pdf"; colorClass = "text-error bg-error/10"; break;
+        case "LINK": icon = "link"; colorClass = "text-secondary bg-secondary/10"; break;
+        case "IMAGE": icon = "image"; colorClass = "text-secondary bg-secondary/10"; break;
+      }
+    }
+
+    return {
+      id: result.id,
+      title: result.title,
+      subtext: result.subtitle || undefined,
+      icon: (
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
+          <span className="material-symbols-outlined text-[18px]">{icon}</span>
+        </div>
+      ),
+      icon2: "arrow_forward",
+      icon2Color: "text-on-surface-variant/30 group-hover:text-primary transition-all",
+      pill: isPersonal ? (
+        <span className="px-1.5 py-0.5 rounded-md bg-surface-container-high text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-tighter shrink-0 border border-outline-variant/10">
+          Personal
+        </span>
+      ) : result.type === "material" && result.hiveId ? (
+        <span className="px-1.5 py-0.5 rounded-md bg-primary/5 text-[9px] font-bold text-primary/60 uppercase tracking-tighter shrink-0 border border-primary/10">
+          Shared
+        </span>
+      ) : undefined,
+      onSelect: () => handleSelect(result),
+    };
+  });
+
+  const loadingMessage = (
+    <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-2">
+      <span className="material-symbols-outlined text-base animate-spin text-primary">progress_activity</span>
+      Searching for "{query}"...
+    </div>
+  );
+
+  const emptyMessage = (
+    <div className="px-4 py-8 text-center text-on-surface-variant/60 text-sm italic">
+      No results found for "{query}"
+    </div>
+  );
+
   // ── Mobile Specific ─────────────────────────────────────────────────────
   if (isMobile) {
     return (
@@ -143,48 +196,36 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
         {/* Full-width Mobile Input Bar (appears below header) */}
         {isMobileSearchActive && (
           <div className="fixed top-16 left-0 right-0 bg-surface-container-lowest/98 backdrop-blur-xl border-b border-outline-variant/10 p-4 z-50 animate-in slide-in-from-top-2 duration-200">
-            <div className="flex items-center bg-surface-container-high px-4 py-2 rounded-2xl ring-2 ring-primary/20">
-              <span className={`material-symbols-outlined mr-3 text-lg ${isPending ? "animate-pulse text-primary" : "text-on-surface-variant"}`}>
-                search
-              </span>
-              <input
-                autoFocus
-                className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none"
-                placeholder="Search everything..."
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button onClick={() => { setQuery(""); setResults([]); lastSearchedQuery.current = ""; }}>
-                  <span className="material-symbols-outlined text-base">close</span>
-                </button>
-              )}
-            </div>
-
-            {/* Results for Mobile */}
-            {showDropdown && (
-              <div className="mt-2 bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/10 overflow-hidden max-h-[70vh] overflow-y-auto">
-                {isTypingOrSearching && (
-                  <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-2">
-                    <span className="material-symbols-outlined text-base animate-spin text-primary">progress_activity</span>
-                    Searching...
-                  </div>
-                )}
-                {!isTypingOrSearching && !hasResults && (
-                   <div className="px-4 py-8 text-center text-on-surface-variant/60 text-sm italic">
-                     No results found for "{query}"
-                   </div>
-                )}
-                {hasResults && (
-                  <ul className="divide-y divide-outline-variant/5">
-                    {results.map((result) => (
-                      <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
+            <Dropdown
+              options={options}
+              isOpen={showDropdown}
+              onOpenChange={setIsOpen}
+              disableTriggerClick
+              isLoading={isTypingOrSearching}
+              loadingMessage={loadingMessage}
+              emptyMessage={emptyMessage}
+              menuClassName="w-full left-0 right-0 max-h-[70vh] shadow-xl border-outline-variant/10 !mt-2"
+              trigger={
+                <div className="flex items-center bg-surface-container-high px-4 py-2 rounded-2xl ring-2 ring-primary/20">
+                  <span className={`material-symbols-outlined mr-3 text-lg ${isPending ? "animate-pulse text-primary" : "text-on-surface-variant"}`}>
+                    search
+                  </span>
+                  <input
+                    autoFocus
+                    className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none"
+                    placeholder="Search everything..."
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  {query && (
+                    <button onClick={() => { setQuery(""); setResults([]); lastSearchedQuery.current = ""; }}>
+                      <span className="material-symbols-outlined text-base">close</span>
+                    </button>
+                  )}
+                </div>
+              }
+            />
           </div>
         )}
       </div>
@@ -194,106 +235,49 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   // ── Desktop Rendering ─────────────────────────────────────────────────────
   return (
     <div ref={containerRef} className="relative w-full">
-      <div
-        className={`flex items-center px-4 py-2 rounded-full transition-all duration-200 ${
-          isOpen
-            ? "bg-surface-container-lowest ring-2 ring-primary/30 shadow-md"
-            : "bg-surface-container-high focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/20"
-        }`}
-      >
-        <span
-          className={`material-symbols-outlined mr-3 text-lg transition-colors ${
-            isPending ? "text-primary animate-pulse" : "text-on-surface-variant"
-          }`}
-        >
-          search
-        </span>
-        <input
-          className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none placeholder:text-on-surface-variant/60"
-          placeholder="Search hives, materials, topics…"
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => { if (query.trim().length >= 2) setIsOpen(true); }}
-        />
-        {query && (
-          <button
-            onClick={() => { setQuery(""); setResults([]); setIsOpen(false); lastSearchedQuery.current = ""; }}
-            className="ml-2 text-on-surface-variant/60 hover:text-on-surface transition-colors"
+      <Dropdown
+        options={options}
+        isOpen={showDropdown}
+        onOpenChange={setIsOpen}
+        disableTriggerClick
+        isLoading={isTypingOrSearching}
+        loadingMessage={loadingMessage}
+        emptyMessage={emptyMessage}
+        menuClassName="w-full left-0 right-0 max-h-[60vh] shadow-2xl border-outline-variant/20 !mt-2 z-[999] clay-card"
+        trigger={
+          <div
+            className={`flex items-center px-4 py-2 rounded-full transition-all duration-200 ${
+              isOpen
+                ? "bg-surface-container-lowest ring-2 ring-primary/30 shadow-md"
+                : "bg-surface-container-high focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/20"
+            }`}
           >
-            <span className="material-symbols-outlined text-base">close</span>
-          </button>
-        )}
-      </div>
-
-      {showDropdown && (
-        <div className="clay-card absolute top-full mt-2 left-0 right-0 bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/20 overflow-hidden z-999 animate-in fade-in slide-in-from-top-2 duration-150">
-          {isTypingOrSearching && (
-            <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-3">
-              <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
-              Searching for "{query}"...
-            </div>
-          )}
-          {!isTypingOrSearching && !hasResults && (
-             <div className="py-8 text-center text-on-surface-variant/40 text-sm">No results found.</div>
-          )}
-          {hasResults && (
-            <ul className="divide-y divide-outline-variant/5">
-              {results.map((result) => (
-                <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SearchResultItem({ result, onSelect }: { result: SearchResult, onSelect: (r: SearchResult) => void }) {
-  let icon = TYPE_ICON[result.type];
-  let colorClass = TYPE_COLOR[result.type];
-  const isPersonal = result.type === "material" && !result.hiveId;
-
-  if (result.type === "material" && result.materialType) {
-    switch (result.materialType) {
-      case "PLAYLIST": icon = "playlist_play"; colorClass = "text-tertiary bg-tertiary/10"; break;
-      case "VIDEO": icon = "play_circle"; colorClass = "text-primary bg-primary/10"; break;
-      case "PDF": icon = "picture_as_pdf"; colorClass = "text-error bg-error/10"; break;
-      case "LINK": icon = "link"; colorClass = "text-secondary bg-secondary/10"; break;
-      case "IMAGE": icon = "image"; colorClass = "text-secondary bg-secondary/10"; break;
-    }
-  }
-
-  return (
-    <li role="option">
-      <button
-        onClick={() => onSelect(result)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high/60 transition-colors text-left group"
-      >
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
-          <span className="material-symbols-outlined text-[18px]">{icon}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-on-surface truncate group-hover:text-primary transition-colors">
-              {result.title}
-            </p>
-            {isPersonal && (
-              <span className="px-1.5 py-0.5 rounded-md bg-surface-container-high text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-tighter shrink-0 border border-outline-variant/10">
-                Personal
-              </span>
-            )}
-            {result.type === "material" && result.hiveId && (
-              <span className="px-1.5 py-0.5 rounded-md bg-primary/5 text-[9px] font-bold text-primary/60 uppercase tracking-tighter shrink-0 border border-primary/10">
-                Shared
-              </span>
+            <span
+              className={`material-symbols-outlined mr-3 text-lg transition-colors ${
+                isPending ? "text-primary animate-pulse" : "text-on-surface-variant"
+              }`}
+            >
+              search
+            </span>
+            <input
+              className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none placeholder:text-on-surface-variant/60"
+              placeholder="Search hives, materials, topics…"
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => { if (query.trim().length >= 2) setIsOpen(true); }}
+            />
+            {query && (
+              <button
+                onClick={() => { setQuery(""); setResults([]); setIsOpen(false); lastSearchedQuery.current = ""; }}
+                className="ml-2 text-on-surface-variant/60 hover:text-on-surface transition-colors"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
             )}
           </div>
-          {result.subtitle && <p className="text-xs text-on-surface-variant/60 truncate mt-0.5">{result.subtitle}</p>}
-        </div>
-        <span className="material-symbols-outlined text-base text-on-surface-variant/30 group-hover:text-primary transition-all">arrow_forward</span>
-      </button>
-    </li>
+        }
+      />
+    </div>
   );
 }

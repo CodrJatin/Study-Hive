@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { ManageInvitesModal } from "./ManageInvitesModal";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
 
 interface HiveInvite {
   id: string;
@@ -17,6 +19,11 @@ interface ManageInvitesActionProps {
 
 export function ManageInvitesAction({ hiveId, invites }: ManageInvitesActionProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { role } = useHiveContext();
+
+  if (!Permissions.canManageHive(role)) {
+    return null;
+  }
 
   return (
     <>

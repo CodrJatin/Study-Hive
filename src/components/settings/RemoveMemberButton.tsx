@@ -4,16 +4,26 @@ import React, { useState, useTransition } from "react";
 import { removeMember } from "@/actions/hive";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { toast } from "sonner";
+import { useHiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
+import { HiveRole } from "@prisma/client";
 
 export function RemoveMemberButton({
   hiveId,
   memberId,
+  targetRole,
 }: {
   hiveId: string;
   memberId: string;
+  targetRole: HiveRole;
 }) {
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
+  const { role } = useHiveContext();
+
+  if (!Permissions.canManageRole(role, targetRole)) {
+    return null;
+  }
 
   const handleRemove = () => {
     // ✅ Close immediately

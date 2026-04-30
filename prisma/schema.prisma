@@ -31,6 +31,9 @@ model User {
   topicProgress    UserTopicProgress[]
   tasks         Task[]
   materials     Material[]
+  deadlines     Deadline[]
+  units         Unit[]
+  topics        Topic[]
 }
 
 // ─────────────────────────────────────────
@@ -70,13 +73,16 @@ model Deadline {
   hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
   hiveId String
 
+  creator   User?   @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorId String?
+
   @@index([hiveId, dueDate])
 }
 
 // Many-to-many join table: User <-> Hive
 model HiveMember {
   id       String   @id @default(cuid())
-  role     HiveRole @default(MEMBER)
+  role     HiveRole @default(VIEWER)
   joinedAt DateTime @default(now())
   lastAccessedAt DateTime @default(now())
 
@@ -91,7 +97,9 @@ model HiveMember {
 
 enum HiveRole {
   ADMIN
+  MODERATOR
   MEMBER
+  VIEWER
 }
 
 // ─────────────────────────────────────────
@@ -127,6 +135,9 @@ model Unit {
   hive   Hive   @relation(fields: [hiveId], references: [id], onDelete: Cascade)
   hiveId String
 
+  creator   User?   @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorId String?
+
   topics Topic[]
 
   @@index([hiveId, position])
@@ -147,6 +158,9 @@ model Topic {
 
   unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId String
+
+  creator   User?   @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorId String?
 
   trackTopics   TrackTopic[]
   topicProgress UserTopicProgress[]

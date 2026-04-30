@@ -55,7 +55,7 @@ export async function createUnit(
   const count = await prisma.unit.count({ where: { hiveId } });
 
   await prisma.unit.create({
-    data: { hiveId, title: title.trim(), position: count },
+    data: { hiveId, title: title.trim(), position: count, creatorId: user.id },
   });
 
   revalidatePath(`/hive/${hiveId}/syllabus`);
@@ -76,9 +76,104 @@ export async function createTopic(
   const count = await prisma.topic.count({ where: { unitId } });
 
   await prisma.topic.create({
-    data: { unitId, title: title.trim(), position: count },
+    data: { unitId, title: title.trim(), position: count, creatorId: user.id },
   });
 
   revalidatePath(`/hive/${hiveId}/syllabus`);
   return null;
+}
+
+export async function deleteUnit(
+  hiveId: string,
+  unitId: string
+): Promise<ActionError | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Authorization required" };
+
+  try {
+    const unit = await prisma.unit.findUnique({
+      where: { id: unitId },
+      include: {
+        hive: {
+          include: {
+            members: {
+              where: { userId: user.id },
+            },
+          },
+        },
+      },
+    });
+
+    if (!unit) return { error: "Unit not found" };
+
+    const membership = unit.hive.members[0];
+    if (!membership) return { error: "You are not a member of this hive" };
+
+    const { Permissions } = await import("@/lib/permissions");
+    if (!Permissions.canEditOrDeleteItem(membership.role, unit.creatorId || "", user.id)) {
+      return { error: "You do not have permission to delete this unit" };
+    }
+
+    // Prisma's onDelete: Cascade on Unit.topics relation will delete all topics inside this unit
+    await prisma.unit.delete({
+      where: { id: unitId },
+    });
+
+    revalidatePath(`/hive/${hiveId}/syllabus`);
+    return null;
+  } catch (error) {
+    console.error("Delete Unit Error:", error);
+    return { error: "Failed to delete unit" };
+  }
+}
+
+export async function deleteTopic(
+  hiveId: string,
+  topicId: string
+): Promise<ActionError | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Authorization required" };
+
+  try {
+    const topic = await prisma.topic.findUnique({
+      where: { id: topicId },
+      include: {
+        unit: {
+          include: {
+            hive: {
+              include: {
+                members: {
+                  where: { userId: user.id },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!topic) return { error: "Topic not found" };
+
+    const membership = topic.unit.hive.members[0];
+    if (!membership) return { error: "You are not a member of this hive" };
+
+    const { Permissions } = await import("@/lib/permissions");
+    if (!Permissions.canEditOrDeleteItem(membership.role, topic.creatorId || "", user.id)) {
+      return { error: "You do not have permission to delete this topic" };
+    }
+
+    await prisma.topic.delete({
+      where: { id: topicId },
+    });
+
+    revalidatePath(`/hive/${hiveId}/syllabus`);
+    return null;
+  } catch (error) {
+    console.error("Delete Topic Error:", error);
+    return { error: "Failed to delete topic" };
+  }
 }

@@ -4,6 +4,7 @@ import React, { useState, useOptimistic, useTransition } from "react";
 import { createInvite, deleteInvite } from "@/actions/invite";
 import { getJoinUrl } from "@/utils/get-url";
 import { toast } from "sonner";
+import { Dropdown } from "@/components/shared/Dropdown";
 
 interface HiveInvite {
   id: string;
@@ -39,7 +40,6 @@ export function ManageInvitesModal({
 }: ManageInvitesModalProps) {
   const [expiry, setExpiry] = useState<string>("24");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [, startDeleteTransition] = useTransition();
 
@@ -116,7 +116,7 @@ export function ManageInvitesModal({
       />
 
       {/* Modal */}
-      <div className="w-full max-w-2xl bg-surface-container-lowest rounded-4xl shadow-[0px_12px_32px_rgba(27,28,28,0.10)] ring-1 ring-on-surface/5 flex flex-col relative z-10 clay-card animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-hidden">
+      <div className="w-full max-w-2xl bg-surface-container-lowest rounded-4xl shadow-[0px_12px_32px_rgba(27,28,28,0.10)] ring-1 ring-on-surface/5 flex flex-col relative z-10 clay-card animate-in fade-in zoom-in duration-300 max-h-[90vh]">
         
         {/* Header */}
         <div className="flex justify-between items-start px-8 pt-8 pb-6 shrink-0">
@@ -147,66 +147,17 @@ export function ManageInvitesModal({
                 <label className="block text-xs font-semibold text-on-surface/60 mb-1.5 px-1">
                   Expiration
                 </label>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full bg-surface-container-high hover:bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-4 focus:ring-primary/10 outline-none flex items-center justify-between transition-all cursor-pointer"
-                  >
-                    <span>
-                      {expiry === "1"
-                        ? "1 Hour"
-                        : expiry === "24"
-                        ? "24 Hours"
-                        : expiry === "168"
-                        ? "7 Days"
-                        : "Never"}
-                    </span>
-                    <span
-                      className={`material-symbols-outlined text-on-surface/50 transition-transform duration-300 ${
-                        isDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    >
-                      keyboard_arrow_down
-                    </span>
-                  </button>
-
-                  {isDropdownOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-60"
-                        onClick={() => setIsDropdownOpen(false)}
-                      />
-                      <div className="absolute top-full left-0 w-full mt-2 bg-surface-container-lowest rounded-2xl shadow-2xl ring-1 ring-on-surface/5 py-2 z-70 clay-card animate-in fade-in slide-in-from-top-2 duration-200">
-                        {[
-                          { val: "1", lab: "1 Hour" },
-                          { val: "24", lab: "24 Hours" },
-                          { val: "168", lab: "7 Days" },
-                          { val: "never", lab: "Never" },
-                        ].map((opt) => (
-                          <button
-                            key={opt.val}
-                            onClick={() => {
-                              setExpiry(opt.val);
-                              setIsDropdownOpen(false);
-                            }}
-                            className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors flex items-center justify-between ${
-                              expiry === opt.val
-                                ? "bg-primary/10 text-primary"
-                                : "text-on-surface hover:bg-surface-container-high"
-                            }`}
-                          >
-                            {opt.lab}
-                            {expiry === opt.val && (
-                              <span className="material-symbols-outlined text-lg">
-                                check
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
+                  <Dropdown
+                    options={[
+                      { id: "1", title: "1 Hour", icon: "schedule" },
+                      { id: "24", title: "24 Hours", icon: "today" },
+                      { id: "168", title: "7 Days", icon: "date_range" },
+                      { id: "never", title: "Never", icon: "all_inclusive" },
+                    ]}
+                    value={expiry}
+                    onChange={(val) => setExpiry(val)}
+                    className="w-full"
+                  />
               </div>
               <div className="shrink-0">
                 <button

@@ -5,118 +5,72 @@ import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import { createMaterial } from "@/actions/materials";
 import { MaterialType } from "@prisma/client";
+import { HiveContext } from "@/components/providers/HiveProviders";
+import { Permissions } from "@/lib/permissions";
+import { useContext } from "react";
 
 interface DropzoneOverlayProps {
   hiveId?: string;
 }
 
-// ─── Upload helper (returns a Promise so toast.promise can track it) ───────────
-async function uploadFiles(files: File[], hiveId: string | undefined): Promise<void> {
-  const supabase = createClient();
-  const targetHiveId = hiveId && hiveId.trim() !== "" ? hiveId : undefined;
-
-  let successCount = 0;
-  let lastError: string | null = null;
-
-  for (const file of files) {
-    try {
-      const path = `${targetHiveId ?? "personal"}/${Date.now()}-${file.name}`;
-
-      const { error: storageError } = await supabase.storage
-        .from("hive-materials")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
-
-      if (storageError) {
-        lastError = `Storage error on "${file.name}": ${storageError.message}`;
-        continue;
-      }
-
-      const { data: publicData } = supabase.storage
-        .from("hive-materials")
-        .getPublicUrl(path);
-
-      let type: MaterialType = MaterialType.LINK;
-      if (file.type.includes("pdf")) type = MaterialType.PDF;
-      else if (file.type.startsWith("image/")) type = MaterialType.IMAGE;
-      else if (file.type.includes("video")) type = MaterialType.VIDEO;
-      else if (file.type.includes("word") || file.type.includes("document"))
-        type = MaterialType.DOC;
-
-      const result = await createMaterial(
-        file.name.replace(/\.[^.]+$/, ""),
-        type,
-        targetHiveId,
-        publicData.publicUrl,
-        file.size
-      );
-
-      if (result?.error) {
-        lastError = result.error;
-      } else {
-        successCount++;
-      }
-    } catch (err: unknown) {
-      lastError = err instanceof Error ? err.message : "Unknown error";
-    }
-  }
-
-  if (successCount === 0) {
-    throw new Error(lastError ?? "All uploads failed");
-  }
-
-  // Partial success — still resolves, but the toast message reflects it
-  if (lastError) {
-    // We resolve so toast.promise shows "success", but with a note in the message
-    // The caller handles partial messaging via successMessage function
-    (globalThis as { __lastUploadPartial?: { successCount: number; total: number } }).__lastUploadPartial = {
-      successCount,
-      total: files.length,
-    };
-  }
-}
+import { ConfirmUploadModal } from "@/components/modals/ConfirmUploadModal";
+import { uploadFiles } from "@/utils/upload-utils";
 
 export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [droppedFiles, setDroppedFiles] = useState<File[] | null>(null);
+  const hiveContext = useContext(HiveContext);
+
+  const canUpload = hiveId 
+    ? (hiveContext ? Permissions.canAddItems(hiveContext.role) : false) 
+    : true;
 
   const handleDrop = useCallback(
     (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      // ✅ Immediately reset drag state — the user can drag another file right away
       setIsDragging(false);
+
+      if (!canUpload) return; // Respect permissions
 
       if (!e.dataTransfer?.files.length) return;
       const files = Array.from(e.dataTransfer.files);
-
-      const partial = () =>
-        (globalThis as { __lastUploadPartial?: { successCount: number; total: number } })
-          .__lastUploadPartial;
-
-      // ✅ Fire-and-forget: toast.promise runs the upload in the background
-      toast.promise(uploadFiles(files, hiveId), {
-        loading: files.length === 1
-          ? `Uploading "${files[0].name}"…`
-          : `Uploading ${files.length} files…`,
-        success: () => {
-          const p = partial();
-          if (p && p.successCount < p.total) {
-            return `Uploaded ${p.successCount} of ${p.total} files (some failed)`;
-          }
-          return files.length === 1
-            ? `"${files[0].name}" added!`
-            : `${files.length} files added!`;
-        },
-        error: (err: Error) => err.message || "Upload failed",
-      });
+      setDroppedFiles(files);
     },
-    [hiveId]
+    [canUpload]
   );
+
+  const confirmUpload = () => {
+    if (!droppedFiles) return;
+    const files = droppedFiles;
+    setDroppedFiles(null);
+
+    const partial = () =>
+      (globalThis as { __lastUploadPartial?: { successCount: number; total: number } })
+        .__lastUploadPartial;
+
+    toast.promise(uploadFiles(files, hiveId), {
+      loading: files.length === 1
+        ? `Uploading "${files[0].name}"…`
+        : `Uploading ${files.length} files…`,
+      success: () => {
+        const p = partial();
+        if (p && p.successCount < p.total) {
+          return `Uploaded ${p.successCount} of ${p.total} files (some failed)`;
+        }
+        return files.length === 1
+          ? `"${files[0].name}" added!`
+          : `${files.length} files added!`;
+      },
+      error: (err: Error) => err.message || "Upload failed",
+    });
+  };
 
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setIsDragging(true);
+      if (canUpload) setIsDragging(true);
     };
 
     const handleDragLeave = (e: DragEvent) => {
@@ -134,9 +88,19 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
       window.removeEventListener("dragleave", handleDragLeave);
       window.removeEventListener("drop", handleDrop);
     };
-  }, [handleDrop]);
+  }, [handleDrop, canUpload]);
 
-  // ✅ Only shows the visual target when dragging — disappears the moment files are dropped
+  if (droppedFiles && droppedFiles.length > 0) {
+    return (
+      <ConfirmUploadModal 
+        files={droppedFiles}
+        onConfirm={confirmUpload}
+        onCancel={() => setDroppedFiles(null)}
+      />
+    );
+  }
+
+  if (!canUpload) return null;
   if (!isDragging) return null;
 
   return (
@@ -156,3 +120,4 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
     </div>
   );
 }
+
