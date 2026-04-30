@@ -1,19 +1,18 @@
 // src/utils/get-url.ts
 
 export const getBaseUrl = () => {
-  // 1. If we are in the browser, use the current window location
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
+  let url =
+    process.env.NEXT_PUBLIC_SITE_URL ??       // Set this manually in Vercel
+    process.env.NEXT_PUBLIC_VERCEL_URL ??      // Automatically set by Vercel
+    "http://localhost:3000";                   // Local fallback
 
-  // 2. If we are on the server (during SSR or Server Actions)
-  // Use the environment variable set by your hosting provider (like Vercel or Render)
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
+  // 1. Ensure the protocol is included (Vercel URL lacks it)
+  url = url.includes("http") ? url : `https://${url}`;
 
-  // 3. Fallback for local development if the env variable isn't set
-  return `http://localhost:${process.env.PORT || 3000}`;
+  // 2. Remove any trailing slash to prevent double slashes like //auth/callback
+  url = url.endsWith("/") ? url.slice(0, -1) : url;
+
+  return url;
 };
 
 export const getJoinUrl = (inviteCode: string) => {

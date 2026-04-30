@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { ensurePrismaUser } from "@/utils/auth-utils";
+import { getBaseUrl } from "@/utils/get-url";
 
 /** Shape returned when an action fails. */
 type AuthError = { error: string };
@@ -90,7 +91,7 @@ export async function signup(
     password,
     options: {
       data: { full_name: username },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${getBaseUrl()}/auth/callback`,
     },
   });
 
@@ -126,7 +127,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: `${getBaseUrl()}/auth/callback`,
     },
   });
 
