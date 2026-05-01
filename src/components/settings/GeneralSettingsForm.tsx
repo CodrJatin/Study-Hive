@@ -18,9 +18,16 @@ interface GeneralSettingsFormProps {
 export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [title, setTitle] = React.useState(hive.title);
+  const [description, setDescription] = React.useState(hive.description || "");
   const [selectedIcon, setSelectedIcon] = React.useState(hive.icon || "science");
   const { role } = useHiveContext();
   const canManage = Permissions.canManageHive(role);
+
+  const hasChanges = 
+    title.trim() !== hive.title.trim() || 
+    description.trim() !== (hive.description || "").trim() || 
+    selectedIcon !== hive.icon;
 
   const icons = [
     "science", "menu_book", "school", "psychology", "calculate",
@@ -35,9 +42,9 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.append("icon", selectedIcon);
-    const title = (formData.get("title") as string).trim();
+    const titleVal = (formData.get("title") as string).trim();
 
-    if (!title) {
+    if (!titleVal) {
       toast.error("Hive name is required.");
       return;
     }
@@ -73,10 +80,11 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
           <input
             id="title"
             name="title"
-            className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
+            className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none text-on-surface"
             type="text"
-            defaultValue={hive.title}
-            disabled={!canManage}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={!canManage || isPending}
             required
           />
         </div>
@@ -90,13 +98,13 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
               <button
                 key={icon}
                 type="button"
-                disabled={!canManage}
+                disabled={!canManage || isPending}
                 onClick={() => setSelectedIcon(icon)}
                 className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all ${
                   selectedIcon === icon 
                     ? "bg-primary/15 text-primary shadow-sm scale-110" 
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
-                } ${!canManage ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${!canManage || isPending ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <span className="material-symbols-outlined text-5xl">{icon}</span>
                 </button>
@@ -111,10 +119,11 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
           <textarea
             id="description"
             name="description"
-            className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none"
+            className="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all outline-none text-on-surface"
             rows={4}
-            defaultValue={hive.description || ""}
-            disabled={!canManage}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={!canManage || isPending}
           />
         </div>
       </div>
@@ -123,9 +132,11 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
         {canManage && (
           <button
             type="submit"
-            disabled={isPending}
-            className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all active:scale-95 shadow-md flex items-center gap-2 ${
-              isPending ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+            disabled={isPending || !hasChanges}
+            className={`cta-gradient text-white px-8 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${
+              (isPending || !hasChanges) 
+                ? "opacity-50 cursor-not-allowed" 
+                : "hover:opacity-90 hover:shadow-lg active:scale-95"
             }`}
           >
             {isPending && (

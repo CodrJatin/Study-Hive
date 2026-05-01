@@ -24,7 +24,6 @@ function MemberRowSkeleton() {
         <div className="w-10 h-10 rounded-full bg-surface-container-high" />
         <div className="space-y-1.5">
           <div className="h-4 w-32 bg-surface-container-high rounded-lg" />
-          <div className="h-3 w-44 bg-surface-container-high rounded" />
         </div>
       </div>
       <div className="w-20 h-8 bg-surface-container-high rounded-xl" />
@@ -60,7 +59,7 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
     select: {
       id: true,
       role: true,
-      user: { select: { name: true, email: true, image: true, avatarColor: true, avatarType: true } },
+      user: { select: { name: true, image: true, avatarColor: true, avatarType: true } },
     },
   });
 
@@ -91,7 +90,6 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
               </div>
               <div>
                 <p className="font-semibold text-on-surface truncate max-w-[200px]">{member.user.name}</p>
-                <p className="text-sm text-on-surface-variant truncate max-w-[200px]">{member.user.email}</p>
               </div>
             </div>
             <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
