@@ -30,7 +30,6 @@ async function main() {
     data: {
       id: "cm0x_mock_hive_1",
       title: "Organic Chemistry",
-      subject: "Chemistry",
       description: "Winter Semester 2024 Study Group",
       targetDate: new Date('2024-12-15T00:00:00.000Z'),
     }
@@ -108,7 +107,21 @@ async function main() {
     }
   });
 
-  // @ts-ignore
+  await prisma.announcement.createMany({
+    data: [
+      {
+        title: "Welcome to Organic Chemistry! 🧪",
+        hiveId: hive.id,
+        authorId: user.id,
+      },
+      {
+        title: "Reminder: Midterm next week",
+        hiveId: hive.id,
+        authorId: user.id,
+      }
+    ]
+  });
+
   await prisma.deadline.create({
     data: {
       title: "Stereochemistry Assignment",
@@ -117,7 +130,6 @@ async function main() {
     }
   });
 
-  // @ts-ignore
   await prisma.deadline.create({
     data: {
       title: "Quiz: Reaction Mechanisms",
