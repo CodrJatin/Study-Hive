@@ -55,9 +55,7 @@ export default async function HivesPage() {
       id: hive.id,
       title: hive.title,
       description: hive.description || "No description provided.",
-      nextDeadline: nearestDeadline
-        ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(nearestDeadline.dueDate)
-        : "No deadlines",
+      icon: hive.icon,
       daysLeft,
     };
   });
