@@ -47,7 +47,7 @@ function SectionSkeleton({ rows = 2 }: { rows?: number }) {
 async function GeneralSection({ hiveId }: { hiveId: string }) {
   const hive = await prisma.hive.findUnique({
     where: { id: hiveId },
-    select: { id: true, title: true, subject: true, description: true },
+    select: { id: true, title: true, icon: true, description: true },
   });
   if (!hive) return null;
 
@@ -60,7 +60,7 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
     select: {
       id: true,
       role: true,
-      user: { select: { name: true, email: true } },
+      user: { select: { name: true, email: true, image: true, avatarColor: true, avatarType: true } },
     },
   });
 
@@ -75,8 +75,19 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
             className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-surface-container-low transition-colors gap-4 first:rounded-t-3xl last:rounded-b-3xl"
           >
             <div className="flex items-center gap-4 text-left">
-              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center font-bold text-on-primary-container">
-                {member.user.name.charAt(0).toUpperCase()}
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-inner overflow-hidden shrink-0"
+                style={{ backgroundColor: member.user.avatarColor }}
+              >
+                {member.user.image && member.user.avatarType === "image" ? (
+                  <img 
+                    src={member.user.image} 
+                    alt={member.user.name} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  member.user.name.charAt(0).toUpperCase()
+                )}
               </div>
               <div>
                 <p className="font-semibold text-on-surface truncate max-w-[200px]">{member.user.name}</p>

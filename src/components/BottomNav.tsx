@@ -16,6 +16,7 @@ export default function BottomNav() {
       { name: "Hives", href: "/dashboard/hives", icon: "hive" },
       { name: "Tasks", href: "/dashboard/tasks", icon: "task_alt" },
       { name: "My Material", href: "/dashboard/materials", icon: "inbox" },
+      { name: "Settings", href: "/dashboard/settings", icon: "settings" },
     ];
 
     return (

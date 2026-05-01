@@ -10,16 +10,24 @@ interface UserMenuProps {
   email: string;
   initials: string;
   avatarColor?: string;
+  avatarType?: string;
   image?: string | null;
 }
 
 const MENU_ITEMS = [
-  { label: "Manage Profile", icon: "manage_accounts", href: "/dashboard/profile" },
-  { label: "App Settings",   icon: "settings",        href: "/dashboard/settings" },
-  { label: "Help & Support", icon: "help",            href: "/dashboard/help" },
+  { label: "Manage Profile", icon: "manage_accounts", href: "/dashboard/settings#profile" },
+  { label: "My preferences", icon: "tune", href: "/dashboard/settings#preferences" },
+  { label: "About the site", icon: "info", href: "/dashboard/settings#about" },
 ];
 
-export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image }: UserMenuProps) {
+export function UserMenu({
+  name,
+  email,
+  initials,
+  avatarColor = "#fdc003",
+  avatarType = "image",
+  image
+}: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,16 +63,14 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image
       {/* Trigger — user name + avatar */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-200 group ${
-          isOpen ? "bg-primary-container" : "hover:bg-surface-container-high"
-        }`}
+        className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-200 group ${isOpen ? "bg-primary-container" : "hover:bg-surface-container-high"
+          }`}
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
         <span
-          className={`text-sm font-bold transition-colors ${
-            isOpen ? "text-on-primary-container" : "text-on-surface group-hover:text-primary"
-          }`}
+          className={`text-sm font-bold transition-colors ${isOpen ? "text-on-primary-container" : "text-on-surface group-hover:text-primary"
+            }`}
         >
           {name}
         </span>
@@ -72,11 +78,11 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image
           className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform text-surface-container-lowest overflow-hidden"
           style={{ backgroundColor: avatarColor }}
         >
-          {image ? (
-            <img 
-              src={image} 
-              alt={name} 
-              className="w-full h-full object-cover" 
+          {image && avatarType === "image" ? (
+            <img
+              src={image}
+              alt={name}
+              className="w-full h-full object-cover"
             />
           ) : (
             initials
@@ -92,11 +98,11 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
-        {image ? (
-          <img 
-            src={image} 
-            alt={name} 
-            className="w-full h-full object-cover" 
+        {image && avatarType === "image" ? (
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover"
           />
         ) : (
           initials
@@ -115,11 +121,11 @@ export function UserMenu({ name, email, initials, avatarColor = "#fdc003", image
               className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg shadow-inner shrink-0 text-surface-container-lowest overflow-hidden"
               style={{ backgroundColor: avatarColor }}
             >
-              {image ? (
-                <img 
-                  src={image} 
-                  alt={name} 
-                  className="w-full h-full object-cover" 
+              {image && avatarType === "image" ? (
+                <img
+                  src={image}
+                  alt={name}
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 initials

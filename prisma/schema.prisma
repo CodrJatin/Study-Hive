@@ -20,9 +20,13 @@ model User {
   email       String   @unique
   image       String?
   avatarColor String   @default("#fdc003") // hex, used in UI
-  role        HiveRole @default(MEMBER)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  // App Preferences (Merged)
+  theme       String  @default("dark") // "system" | "light" | "dark"
+  autoPlayHum Boolean @default(false)
+  avatarType  String  @default("image") // "image" | "initials"
 
   hiveMembers   HiveMember[]
   announcements Announcement[]
@@ -36,13 +40,14 @@ model User {
   topics        Topic[]
 }
 
+
 // ─────────────────────────────────────────
 // Hive — the top-level course container
 // ─────────────────────────────────────────
 model Hive {
   id          String    @id @default(cuid())
   title       String
-  subject     String
+  icon        String    @default("science")
   description String?
   targetDate  DateTime?
   createdAt   DateTime  @default(now())
@@ -108,8 +113,6 @@ enum HiveRole {
 model Announcement {
   id        String   @id @default(cuid())
   title     String
-  content   String
-  pinned    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

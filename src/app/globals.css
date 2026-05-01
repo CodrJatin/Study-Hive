@@ -3,7 +3,7 @@
 
 @theme {
   --color-surface-tint: #785900;
-  --color-error-container: #ffdad6;
+  --color-error-container: var(--error-container);
   --color-tertiary-fixed-dim: #00daf8;
   --color-tertiary: #006877;
   --color-on-secondary: #ffffff;
@@ -54,6 +54,10 @@
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  --error-container: #ffdad6;
+}
+
 @layer base {
   body {
     @apply bg-background text-on-background min-h-screen font-body transition-colors duration-300;
@@ -87,7 +91,10 @@ html.dark,
   --color-on-surface-variant: #c4c6d0;
   
   --color-outline: #8e9099;
-  --color-outline-variant: #44474e;
+  --error-container: #410002;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
 }
 
 @layer components {

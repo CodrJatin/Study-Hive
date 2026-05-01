@@ -5,8 +5,8 @@ interface HiveCardProps {
     id: string;
     title: string;
     description: string;
-    nextDeadline: string;
     daysLeft: number | null;
+    icon: string;
   };
 }
 
@@ -14,12 +14,12 @@ export function HiveCard({ hive }: HiveCardProps) {
   return (
     <div className="relative group h-full">
       <Link href={`/hive/${hive.id}`} className="block h-full group">
-        <div className="bg-surface-container-lowest rounded-[24px] p-7 transition-all duration-300 hover:shadow-lg hover:translate-y-[-4px] border border-outline-variant/10 h-full flex flex-col">
+        <div className="bg-surface-container-lowest rounded-[24px] p-7 transition-all duration-300 hover:shadow-lg border border-outline-variant/10 h-full flex flex-col">
           {/* Top Header: Icon & Badge */}
           <div className="flex items-start justify-between mb-6">
             <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center shrink-0 border border-outline-variant/10">
               <span className="material-symbols-outlined text-primary text-[24px]">
-                science
+                {hive.icon || "science"}
               </span>
             </div>
 
@@ -49,7 +49,7 @@ export function HiveCard({ hive }: HiveCardProps) {
       {/* Materials Quick Link */}
       <Link 
         href={`/hive/${hive.id}/materials`}
-        className="absolute bottom-6 right-6 w-10 h-10 bg-primary/5 hover:bg-primary text-primary hover:text-on-primary rounded-xl flex items-center justify-center transition-all duration-200 border border-primary/10"
+        className="absolute bottom-6 right-6 w-10 h-10 text-primary/40 hover:text-primary flex items-center justify-center transition-all duration-200"
         title="View Materials"
       >
         <span className="material-symbols-outlined text-[20px]">

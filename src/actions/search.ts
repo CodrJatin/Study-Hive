@@ -42,7 +42,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
         id: { in: hiveIds },
         title: { contains: q, mode: "insensitive" },
       },
-      select: { id: true, title: true, subject: true },
+      select: { id: true, title: true, icon: true },
       take: 5,
     }),
 
@@ -87,7 +87,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       title: h.title,
       type: "hive" as const,
       hiveId: h.id,
-      subtitle: h.subject,
+      subtitle: "Workspace",
     })),
 
     ...materials.map((m) => ({

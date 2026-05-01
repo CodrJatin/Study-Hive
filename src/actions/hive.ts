@@ -27,7 +27,7 @@ export async function createHive(
   // ── 2. Extract form data ────────────────────────────────────────────────────
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const subject = formData.get("subject") as string;
+  const icon = formData.get("icon") as string;
 
   if (!title?.trim()) {
     return { error: "A Hive title is required." };
@@ -39,7 +39,7 @@ export async function createHive(
       data: {
         title,
         description,
-        subject: subject || "General",
+        icon: icon || "science",
         members: {
           create: {
             // Use the real authenticated user's ID — no more mock IDs.
@@ -111,7 +111,7 @@ export async function updateHive(
   }
 
   const title = formData.get("title") as string;
-  const subject = formData.get("subject") as string;
+  const icon = formData.get("icon") as string;
   const description = formData.get("description") as string;
 
   if (!title?.trim()) {
@@ -137,7 +137,7 @@ export async function updateHive(
       where: { id: hiveId },
       data: {
         title,
-        subject,
+        icon,
         description,
       },
     });

@@ -41,7 +41,7 @@ function RecentHivesSkeleton() {
       </div>
       <div className="flex flex-col max-h-[580px] overflow-y-auto md:overflow-y-visible md:flex-row md:space-x-6 md:overflow-x-auto md:max-h-none pb-4 snap-x custom-scrollbar">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="min-w-full md:min-w-[42%] shrink-0 snap-start mb-6 md:mb-0">
+          <div key={i} className="min-w-full md:min-w-[380px] md:max-w-[380px] shrink-0 snap-start mb-6 md:mb-0">
             <HiveCardSkeleton />
           </div>
         ))}
@@ -118,16 +118,14 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
         }
 
         return (
-          <div key={hive.id} className="min-w-full md:min-w-[42%] shrink-0 snap-start mb-6 md:mb-0">
+          <div key={hive.id} className="min-w-full md:min-w-[380px] md:max-w-[380px] shrink-0 snap-start mb-6 md:mb-0">
             <HiveCard
               hive={{
                 id: hive.id,
                 title: hive.title,
                 description: hive.description || "No description provided.",
-                nextDeadline: nearestDeadline
-                  ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(nearestDeadline.dueDate)
-                  : "No deadlines",
                 daysLeft,
+                icon: hive.icon,
               }}
             />
           </div>
@@ -152,41 +150,6 @@ async function UpcomingTasksWidget({ userId }: { userId: string }) {
   return <TaskList initialTasks={quickTasks} />;
 }
 
-async function DeadlineCentralWidget({ userId }: { userId: string }) {
-  const upcomingDeadlines = await getUpcomingDeadlines(userId);
-
-  if (upcomingDeadlines.length === 0) {
-    return (
-      <div className="py-12 text-center bg-surface-container-low/30 rounded-[2.5rem] clay-inset">
-        <span className="material-symbols-outlined text-on-surface-variant/10 text-5xl mb-2">event_available</span>
-        <p className="text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">All clear for now</p>
-      </div>
-    );
-  }
-
-  const mappedDeadlines = upcomingDeadlines.map((d) => {
-    const diff = new Date(d.dueDate).getTime() - Date.now();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    const isOverdue = days < 0;
-
-    return {
-      id: d.id,
-      title: d.title,
-      dueDate: isOverdue ? "Overdue" : days === 0 ? "Due Today" : days === 1 ? "Due Tomorrow" : `${days} days left`,
-      dueColor: isOverdue || days <= 1 ? "error" : "on-surface/40",
-      dateBadge: new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short" }).format(new Date(d.dueDate)),
-      indicatorColor: isOverdue || days <= 1 ? "bg-error" : "bg-outline-variant",
-    };
-  });
-
-  return (
-    <div className="bg-surface-container-low/30 rounded-[2.5rem] p-6 clay-inset space-y-4">
-      {mappedDeadlines.map((deadline) => (
-        <DeadlineItem key={deadline.id} deadline={deadline} />
-      ))}
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────
 // Page Shell — only fetches user identity
@@ -202,10 +165,13 @@ export default async function DashboardOverview() {
     redirect("/login");
   }
 
+  const upcomingDeadlines = await getUpcomingDeadlines(user.id);
+  const hasDeadlines = upcomingDeadlines.length > 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12">
       {/* Left Column */}
-      <div className="md:col-span-8 space-y-10">
+      <div className={`${hasDeadlines ? "md:col-span-8" : "md:col-span-12"} space-y-10`}>
 
         {/* Active Hives */}
         <section>
@@ -237,17 +203,44 @@ export default async function DashboardOverview() {
       </div>
 
       {/* Right Column */}
-      <div className="md:col-span-4">
-        <section className="bg-surface-container-low rounded-[24px] p-8 h-full sticky top-24">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-[20px] font-headline font-bold text-on-background">Deadline Central</h2>
-          </div>
-          <Suspense fallback={<DeadlinesSkeleton />}>
-            <DeadlineCentralWidget userId={user.id} />
-          </Suspense>
-        </section>
-      </div>
+      {hasDeadlines && (
+        <div className="md:col-span-4">
+          <section className="bg-surface-container-low rounded-[24px] p-8 h-full sticky top-24">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="material-symbols-outlined text-[24px] text-error">event_busy</span>
+              <h2 className="text-[20px] font-headline font-bold text-on-background">Deadline Central</h2>
+            </div>
+            <DeadlineCentralWidget upcomingDeadlines={upcomingDeadlines} />
+          </section>
+        </div>
+      )}
 
+    </div>
+  );
+}
+
+async function DeadlineCentralWidget({ upcomingDeadlines }: { upcomingDeadlines: any[] }) {
+  const mappedDeadlines = upcomingDeadlines.map((d) => {
+    const diff = new Date(d.dueDate).getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const isOverdue = days < 0;
+
+    return {
+      id: d.id,
+      title: d.title,
+      hiveTitle: d.hive.title,
+      dueDate: isOverdue ? "Overdue" : days === 0 ? "Due Today" : days === 1 ? "Due Tomorrow" : `${days} days left`,
+      dueColor: isOverdue || days <= 1 ? "error" : "on-surface/40",
+      dateBadge: new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short" }).format(new Date(d.dueDate)),
+      indicatorColor: isOverdue || days <= 1 ? "bg-error" : "bg-outline-variant",
+    };
+  });
+
+  return (
+    <div className="space-y-3">
+      {mappedDeadlines.map((deadline) => (
+        <DeadlineItem key={deadline.id} deadline={deadline} />
+      ))}
     </div>
   );
 }

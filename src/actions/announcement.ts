@@ -19,7 +19,6 @@ export async function createAnnouncement(
   }
 
   const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
 
   if (!title?.trim()) {
     return { error: "A title is required" };
@@ -29,7 +28,6 @@ export async function createAnnouncement(
     await prisma.announcement.create({
       data: {
         title,
-        content: content || "",
         hiveId,
         authorId: user.id,
       },

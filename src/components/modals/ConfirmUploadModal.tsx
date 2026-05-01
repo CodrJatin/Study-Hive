@@ -12,8 +12,9 @@ export function ConfirmUploadModal({ files, onConfirm, onCancel }: ConfirmUpload
   const hasOversizedFiles = files.some(f => f.size > 10 * 1024 * 1024);
 
   return (
-    <div className="fixed inset-0 z-1000 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-4xl p-8 shadow-2xl flex flex-col gap-6 scale-in-center">
+    <div className="fixed inset-0 z-1000 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" onClick={onCancel} />
+      <div className="relative z-10 bg-surface-container-lowest w-full max-w-md rounded-4xl p-8 shadow-2xl flex flex-col gap-6 scale-in-center">
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-headline font-bold text-on-surface">Confirm Upload</h2>
           <p className="text-sm text-on-surface-variant">

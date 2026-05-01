@@ -12,6 +12,7 @@ export function DashboardNav() {
     { name: "Hives", href: "/dashboard/hives", icon: "hive" },
     { name: "Task Studio", href: "/dashboard/tasks", icon: "task_alt" },
     { name: "My Material", href: "/dashboard/materials", icon: "inbox" },
+    { name: "App Settings", href: "/dashboard/settings", icon: "settings" },
   ];
 
   return (

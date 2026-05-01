@@ -18,11 +18,18 @@ export function DeadlineItem({ deadline }: { deadline: any }) {
         <h5 className="text-[15px] font-bold text-on-surface truncate group-hover:text-primary transition-colors">
           {deadline.title}
         </h5>
-        <div className="flex items-center gap-1.5 mt-1">
-          <div className={`w-2 h-2 rounded-full ${deadline.indicatorColor}`}></div>
-          <p className="text-[12px] text-on-surface-variant font-bold">
+        <div className="flex items-center gap-2 mt-1">
+          <p className={`${deadline.indicatorColor.replace('bg-', 'text-')} text-[12px] font-bold shrink-0`}>
             {deadline.dueDate}
           </p>
+          {deadline.hiveTitle && (
+            <>
+              <span className="text-outline-variant/30 text-[10px] shrink-0">•</span>
+              <p className="text-on-surface-variant/40 text-[11px] font-bold truncate max-w-[100px]">
+                {deadline.hiveTitle}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

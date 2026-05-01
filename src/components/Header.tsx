@@ -20,6 +20,7 @@ export default async function Header() {
   const initials = username.charAt(0).toUpperCase();
   const avatarColor = user?.avatarColor ?? "#fdc003";
   const userImage = user?.image;
+  const avatarType = user?.avatarType ?? "image";
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest/95 backdrop-blur-md border-b border-surface-container-high z-60 flex items-center justify-between px-6 md:px-8">
@@ -52,7 +53,7 @@ export default async function Header() {
           <ThemeToggle />
 
           {/* Hive Hum */}
-          <HiveHum />
+          <HiveHum autoPlay={user?.autoPlayHum ?? false} />
 
           {/* User Dropdown */}
           <UserMenu
@@ -61,6 +62,7 @@ export default async function Header() {
             initials={initials}
             avatarColor={avatarColor}
             image={userImage}
+            avatarType={avatarType}
           />
         </div>
       </div>

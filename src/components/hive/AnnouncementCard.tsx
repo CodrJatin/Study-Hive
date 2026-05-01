@@ -12,10 +12,12 @@ interface AnnouncementProps {
   hiveId: string;
   authorId: string;
   title: string;
-  content: string;
   timeAgo: string;
   authorInitials: string;
   authorName: string;
+  authorImage?: string | null;
+  authorAvatarColor?: string;
+  authorAvatarType?: string;
 }
 
 export function AnnouncementCard({ announcement }: { announcement: AnnouncementProps }) {
@@ -70,15 +72,23 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementP
             </span>
           </div>
         </div>
-        <p className="text-on-surface/70 leading-relaxed mb-6">
-          {announcement.content}
-        </p>
         
         {/* Maker Badge (moved to the right) */}
         <div className="flex items-center justify-end gap-3">
           <span className="text-sm font-semibold text-on-surface/80">{announcement.authorName}</span>
-          <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">
-            {announcement.authorInitials}
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center text-surface-container-lowest font-bold text-[10px] overflow-hidden shadow-sm"
+            style={{ backgroundColor: announcement.authorAvatarColor || "#fdc003" }}
+          >
+            {announcement.authorImage && announcement.authorAvatarType === "image" ? (
+              <img 
+                src={announcement.authorImage} 
+                alt={announcement.authorName} 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              announcement.authorInitials
+            )}
           </div>
         </div>
       </article>

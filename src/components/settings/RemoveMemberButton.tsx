@@ -26,7 +26,7 @@ export function RemoveMemberButton({
   }
 
   const handleRemove = () => {
-    // ✅ Close immediately
+    //Close immediately
     setShowConfirm(false);
 
     startTransition(() => {

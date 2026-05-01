@@ -12,8 +12,8 @@ export function NavLinks() {
 
   // Define nav items dynamically using the current hiveId
   const navItems = [
-    { href: `/hive/${hiveId}`, label: "General", icon: "grid_view", exact: true },
-    { href: `/hive/${hiveId}/syllabus`, label: "Syllabus", icon: "account_tree" },
+    { href: `/hive/${hiveId}`, label: "General", icon: "space_dashboard", exact: true },
+    { href: `/hive/${hiveId}/syllabus`, label: "Syllabus", icon: "subject" },
     { href: `/hive/${hiveId}/materials`, label: "Materials", icon: "folder_open" },
     { href: `/hive/${hiveId}/tracks`, label: "Tracks", icon: "insights" },
     { href: `/hive/${hiveId}/settings`, label: "Settings", icon: "settings" },

@@ -40,17 +40,18 @@ function OverviewCardSkeleton() {
 
 function AnnouncementSkeleton() {
   return (
-    <div className="clay-card bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 animate-pulse space-y-3">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-surface-container-high" />
-        <div className="flex-1 space-y-1.5">
-          <div className="h-4 w-1/2 bg-surface-container-high rounded-lg" />
-          <div className="h-3 w-1/4 bg-surface-container-high rounded" />
-        </div>
+    <div className="clay-card bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 animate-pulse space-y-4">
+      <div className="flex justify-between items-start">
+        <div className="h-6 w-1/2 bg-surface-container-high rounded-lg" />
+        <div className="h-5 w-16 bg-surface-container-high rounded-md" />
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <div className="h-3 bg-surface-container-high rounded w-full" />
         <div className="h-3 bg-surface-container-high rounded w-5/6" />
+      </div>
+      <div className="flex justify-end items-center gap-3 pt-2">
+        <div className="h-4 w-24 bg-surface-container-high rounded" />
+        <div className="w-8 h-8 rounded-full bg-surface-container-high" />
       </div>
     </div>
   );
@@ -101,7 +102,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
     where: { hiveId },
     orderBy: { createdAt: "desc" },
     include: {
-      author: { select: { name: true } },
+      author: { select: { name: true, image: true, avatarColor: true, avatarType: true } },
     },
   });
 
@@ -151,7 +152,7 @@ async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
         </h3>
         <ManageDeadlinesAction hiveId={hiveId} deadlines={rawDeadlines} />
       </div>
-      <div className="bg-surface-container-low/30 rounded-[2.5rem] p-6 clay-inset space-y-4">
+      <div className="space-y-3">
         {mappedDeadlines.map((deadline) => (
           <DeadlineItem key={deadline.id} deadline={deadline} />
         ))}

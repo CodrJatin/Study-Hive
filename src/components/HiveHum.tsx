@@ -15,7 +15,7 @@ const FALLBACK_TRACK: Track = {
   src: "",
 };
 
-export function HiveHum() {
+export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isActive, setIsActive] = useState(false);
@@ -23,6 +23,7 @@ export function HiveHum() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const autoPlayAttempted = useRef(false);
 
   // Fetch tracks from API
   useEffect(() => {
@@ -41,16 +42,60 @@ export function HiveHum() {
     fetchMusic();
   }, []);
 
-  const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : FALLBACK_TRACK;
+  // Initialize audio element immediately if not present
+  if (typeof window !== "undefined" && !audioRef.current) {
+    audioRef.current = new Audio();
+    audioRef.current.preload = "metadata";
+    audioRef.current.loop = true;
+  }
 
-  // Global audio element (created only once to persist playback)
+  // Handle Auto-play & Interaction fallback
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.preload = "metadata";
-      audioRef.current.loop = true;
+    if (!autoPlay || isLoading || tracks.length === 0 || autoPlayAttempted.current) return;
+
+    const attemptPlay = () => {
+      if (!audioRef.current || autoPlayAttempted.current) return;
+      
+      const track = tracks[currentTrackIndex];
+      if (track.src) {
+        audioRef.current.src = track.src;
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            setIsActive(true);
+            autoPlayAttempted.current = true;
+            // Clean up listeners if they were added
+            window.removeEventListener("click", attemptPlay);
+            window.removeEventListener("keydown", attemptPlay);
+            window.removeEventListener("mousedown", attemptPlay);
+            window.removeEventListener("touchstart", attemptPlay);
+          })
+          .catch((err) => {
+            console.warn("Autoplay still blocked. Waiting for interaction...", err);
+          });
+      }
+    };
+
+    // First attempt
+    attemptPlay();
+
+    // Listen for interaction if initial attempt failed
+    if (!autoPlayAttempted.current) {
+      window.addEventListener("click", attemptPlay, { once: true });
+      window.addEventListener("keydown", attemptPlay, { once: true });
+      window.addEventListener("mousedown", attemptPlay, { once: true });
+      window.addEventListener("touchstart", attemptPlay, { once: true });
     }
-  }, []);
+
+    return () => {
+      window.removeEventListener("click", attemptPlay);
+      window.removeEventListener("keydown", attemptPlay);
+      window.removeEventListener("mousedown", attemptPlay);
+      window.removeEventListener("touchstart", attemptPlay);
+    };
+  }, [autoPlay, isLoading, tracks, currentTrackIndex]);
+
+  const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : FALLBACK_TRACK;
 
   // Sync track changes
   useEffect(() => {

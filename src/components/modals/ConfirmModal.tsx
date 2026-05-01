@@ -28,9 +28,9 @@ export function ConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={() => !isPending && onCancel()}
       />
       <div className="relative w-full max-w-md bg-surface-container-lowest rounded-3xl shadow-2xl ring-1 ring-on-surface/5 clay-card z-10 animate-in fade-in zoom-in duration-200">

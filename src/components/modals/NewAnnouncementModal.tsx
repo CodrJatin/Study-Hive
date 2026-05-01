@@ -41,8 +41,8 @@ export function NewAnnouncementModal({ isOpen, onClose, hiveId, userName }: NewA
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-xs" onClick={onClose} />
+    <div className="fixed inset-0 z-1000 flex items-center justify-center animate-in fade-in">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       <form
         ref={formRef}
         onSubmit={handleSubmit}
@@ -66,17 +66,9 @@ export function NewAnnouncementModal({ isOpen, onClose, hiveId, userName }: NewA
             <input name="title" type="text" required placeholder="e.g., Upcoming Lab Session Details"
               className="w-full bg-surface-container-high border-none rounded-xl px-6 py-4 text-on-surface placeholder:text-on-surface/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-body outline-none" />
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-1">
-              <label className="block text-sm font-label font-semibold text-on-surface/60">Content</label>
-              <span className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">Optional</span>
-            </div>
-            <textarea name="content" rows={5} placeholder="Write your announcement here (optional)..."
-              className="w-full bg-surface-container-high border-none rounded-xl px-6 py-4 text-on-surface placeholder:text-on-surface/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all font-body resize-none outline-none" />
-          </div>
         </div>
 
-        <div className="px-10 py-8 bg-surface-container-low/50 flex justify-end items-center gap-4">
+        <div className="px-10 py-5 bg-surface-container-low/50 flex justify-between items-center gap-4">
           <button type="button" onClick={onClose} className="px-8 py-3 text-on-surface/70 font-headline font-bold hover:text-on-surface transition-colors">
             Cancel
           </button>

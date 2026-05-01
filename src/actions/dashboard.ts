@@ -19,6 +19,7 @@ export async function getRecentHives(userId: string) {
           title: true,
           description: true,
           targetDate: true,
+          icon: true,
           deadlines: {
             where: { dueDate: { gte: new Date() } },
             orderBy: { dueDate: "asc" },

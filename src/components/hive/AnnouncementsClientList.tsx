@@ -8,6 +8,9 @@ import { Announcement } from "@prisma/client";
 type AnnouncementWithAuthor = Announcement & {
   author: {
     name: string | null;
+    image: string | null;
+    avatarColor: string | null;
+    avatarType: string | null;
   };
 };
 
@@ -34,15 +37,21 @@ export function AnnouncementsClientList({
             hiveId: announcement.hiveId,
             authorId: announcement.authorId,
             title: announcement.title,
-            content: announcement.content,
-            timeAgo: new Intl.DateTimeFormat("en-US", { 
+            timeAgo: new Intl.DateTimeFormat("en-IN", { 
               month: "short", 
-              day: "numeric" 
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+              timeZone: "Asia/Kolkata"
             }).format(new Date(announcement.createdAt)),
             authorInitials: announcement.author?.name 
               ? announcement.author.name.charAt(0).toUpperCase() 
               : "?",
             authorName: announcement.author?.name || "Unknown Author",
+            authorImage: announcement.author?.image,
+            authorAvatarColor: announcement.author?.avatarColor || "#fdc003",
+            authorAvatarType: announcement.author?.avatarType || "image",
           }}
         />
       ))}
