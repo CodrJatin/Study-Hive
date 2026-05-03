@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useTransition, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { globalSearch, SearchResult } from "@/actions/search";
+import type { SearchResult } from "@/types/search";
 import { Dropdown, DropdownOption } from "@/components/shared/Dropdown";
 
 // Icon map for each result type
@@ -21,27 +21,12 @@ const TYPE_COLOR: Record<SearchResult["type"], string> = {
 };
 
 function buildHref(result: SearchResult): string {
-  // 1. Materials: Conditional routing for Hive vs. Personal
   if (result.type === "material") {
-    // If it has a hiveId, it's a shared Hive resource
-    if (result.hiveId) {
-      return `/hive/${result.hiveId}/materials/${result.id}`;
-    }
-    // If hiveId is null, it's a personal material in the dashboard
+    if (result.hiveId) return `/hive/${result.hiveId}/materials/${result.id}`;
     return `/dashboard/materials/${result.id}`;
   }
-
-  // 2. Hives: Navigate directly to the hive overview
-  if (result.type === "hive") {
-    return `/hive/${result.id}`;
-  }
-
-  // 3. Topics and Units: These always belong to a Hive
-  if (result.hiveId) {
-    return `/hive/${result.hiveId}/syllabus`;
-  }
-
-  // 4. Default Fallback: Go to the main dashboard
+  if (result.type === "hive") return `/hive/${result.id}`;
+  if (result.hiveId) return `/hive/${result.hiveId}/syllabus`;
   return "/dashboard";
 }
 
@@ -49,53 +34,71 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  // resultsFor tracks which query the current results belong to
   const [resultsFor, setResultsFor] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── Derive open state from query length + having results (no setState in effect) ─
   const trimmed = query.trim();
-  const hasMinLength = trimmed.length >= 2;
-  // Show dropdown when there's enough input, regardless of results (loading state)
+  const hasMinLength = trimmed.length >= 3;
   const isOpen = hasMinLength;
-  // Still "typing / pending" if the query is different from the last fetched results
-  const isTypingOrSearching = isPending || (hasMinLength && trimmed !== resultsFor);
+  // "pending" while debounce hasn't fired yet OR a fetch is in-flight
+  const isTypingOrSearching = hasMinLength && (isFetching || trimmed !== resultsFor);
 
-  // ── Debounced search ─────────────────────────────────────────────────────
+  // ── Abortable fetch ───────────────────────────────────────────────────────
   const runSearch = useCallback((q: string) => {
     const t = q.trim();
-    if (t.length < 2) {
+    if (t.length < 3) {
       setResults([]);
       setResultsFor("");
       return;
     }
 
-    startTransition(async () => {
-      const data = await globalSearch(t);
-      setResults(data);
-      setResultsFor(t);
-    });
+    // Cancel any in-flight request before starting a new one
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setIsFetching(true);
+    fetch(`/api/search?q=${encodeURIComponent(t)}`, { signal: controller.signal })
+      .then((res) => res.json() as Promise<SearchResult[]>)
+      .then((data) => {
+        setResults(data);
+        setResultsFor(t);
+      })
+      .catch((err) => {
+        // AbortError is expected on query change — swallow it silently
+        if (err instanceof Error && err.name !== "AbortError") {
+          setResults([]);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsFetching(false);
+      });
   }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    // Clear stale results when query shortens below threshold
     if (!hasMinLength) {
+      abortRef.current?.abort();
       setResults([]);
       setResultsFor("");
+      setIsFetching(false);
       return;
     }
-    debounceRef.current = setTimeout(() => runSearch(query), 500);
+    debounceRef.current = setTimeout(() => runSearch(query), 400);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, runSearch]);
 
-  // ── Close on outside click ───────────────────────────────────────────────
+  // Abort on unmount
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
+
+  // ── Close on outside click ────────────────────────────────────────────────
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -106,12 +109,10 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [isMobile]);
 
-  // ── Keyboard shortcut: Escape to close ──────────────────────────────────
+  // ── Keyboard: Escape ──────────────────────────────────────────────────────
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        if (isMobile) setIsMobileSearchActive(false);
-      }
+      if (e.key === "Escape" && isMobile) setIsMobileSearchActive(false);
     }
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
@@ -124,8 +125,6 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     setResultsFor("");
     router.push(buildHref(result));
   }
-
-  const showDropdown = isOpen;
 
   const options: DropdownOption[] = results.map((result) => {
     let icon = TYPE_ICON[result.type];
@@ -179,11 +178,10 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     </div>
   );
 
-  // ── Mobile Specific ─────────────────────────────────────────────────────
+  // ── Mobile ────────────────────────────────────────────────────────────────
   if (isMobile) {
     return (
       <div ref={containerRef} className="flex items-center">
-        {/* Mobile Search Toggle */}
         <button
           onClick={() => setIsMobileSearchActive(!isMobileSearchActive)}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
@@ -193,12 +191,11 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
           <span className="material-symbols-outlined">{isMobileSearchActive ? "close" : "search"}</span>
         </button>
 
-        {/* Full-width Mobile Input Bar (appears below header) */}
         {isMobileSearchActive && (
           <div className="fixed top-16 left-0 right-0 bg-surface-container-lowest/98 backdrop-blur-xl border-b border-outline-variant/10 p-4 z-50 animate-in slide-in-from-top-2 duration-200">
             <Dropdown
               options={options}
-              isOpen={showDropdown}
+              isOpen={isOpen}
               onOpenChange={() => {}}
               disableTriggerClick
               isLoading={isTypingOrSearching}
@@ -207,7 +204,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
               menuClassName="w-full left-0 right-0 max-h-[70vh] shadow-xl border-outline-variant/10 !mt-2"
               trigger={
                 <div className="flex items-center bg-surface-container-high px-4 py-2 rounded-2xl ring-2 ring-primary/20">
-                  <span className={`material-symbols-outlined mr-3 text-lg ${isPending ? "animate-pulse text-primary" : "text-on-surface-variant"}`}>
+                  <span className={`material-symbols-outlined mr-3 text-lg ${isFetching ? "animate-pulse text-primary" : "text-on-surface-variant"}`}>
                     search
                   </span>
                   <input
@@ -232,12 +229,12 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     );
   }
 
-  // ── Desktop Rendering ─────────────────────────────────────────────────────
+  // ── Desktop ───────────────────────────────────────────────────────────────
   return (
     <div ref={containerRef} className="relative w-full">
       <Dropdown
         options={options}
-        isOpen={showDropdown}
+        isOpen={isOpen}
         onOpenChange={() => {}}
         disableTriggerClick
         isLoading={isTypingOrSearching}
@@ -254,7 +251,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
           >
             <span
               className={`material-symbols-outlined mr-3 text-lg transition-colors ${
-                isPending ? "text-primary animate-pulse" : "text-on-surface-variant"
+                isFetching ? "text-primary animate-pulse" : "text-on-surface-variant"
               }`}
             >
               search

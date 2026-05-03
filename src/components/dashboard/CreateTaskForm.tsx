@@ -1,50 +1,62 @@
 "use client";
 
-import React, { useRef, useState, useTransition } from "react";
+import React, { useRef, useState, useTransition, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { createTask } from "@/actions/tasks";
-import { globalSearch, SearchResult } from "@/actions/search";
-import { useCallback, useEffect } from "react";
+import type { SearchResult } from "@/types/search";
 
 export function CreateTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
-  const [isSearching, startSearchTransition] = useTransition();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
   const [lastSearchedQuery, setLastSearchedQuery] = useState("");
   const [selectedHive, setSelectedHive] = useState<{ id: string; title: string } | null>(null);
   const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; title: string; type?: string } | null>(null);
 
-  const isTypingOrSearching = searchQuery.trim().length >= 2 && (isSearching || searchQuery.trim() !== lastSearchedQuery);
-  const showDropdown = showSearchDropdown && searchQuery.trim().length >= 2;
+  const isTypingOrSearching = searchQuery.trim().length >= 3 && (isFetching || searchQuery.trim() !== lastSearchedQuery);
+  const showDropdown = showSearchDropdown && searchQuery.trim().length >= 3;
 
-  // ── Debounced search ──────────────────────────────────────────────────────
+  // ── Abortable fetch ────────────────────────────────────────────────────────
   const runSearch = useCallback((q: string) => {
     const trimmed = q.trim();
-    if (trimmed.length < 2) {
+    if (trimmed.length < 3) {
       setSearchResults([]);
       setLastSearchedQuery("");
       return;
     }
-    startSearchTransition(async () => {
-      const data = await globalSearch(trimmed);
-      setSearchResults(data);
-      setLastSearchedQuery(trimmed);
-    });
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setIsFetching(true);
+    fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal })
+      .then((res) => res.json() as Promise<SearchResult[]>)
+      .then((data) => {
+        setSearchResults(data);
+        setLastSearchedQuery(trimmed);
+      })
+      .catch((err) => {
+        if (err instanceof Error && err.name !== "AbortError") setSearchResults([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsFetching(false);
+      });
   }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => runSearch(searchQuery), 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery, runSearch]);
+
+  // Abort on unmount
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "hive") {
@@ -187,7 +199,7 @@ export function CreateTaskForm() {
           ) : (
             <div className="relative">
               <div className="flex items-center bg-surface-container-low rounded-xl px-4 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                <span className={`material-symbols-outlined text-[18px] mr-2 transition-colors ${isSearching ? "text-primary animate-pulse" : "text-on-surface-variant/60"}`}>
+                <span className={`material-symbols-outlined text-[18px] mr-2 transition-colors ${isFetching ? "text-primary animate-pulse" : "text-on-surface-variant/60"}`}>
                   search
                 </span>
                 <input
