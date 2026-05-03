@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, cache } from "react";
 import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
 import { AnnouncementsClientList } from "@/components/hive/AnnouncementsClientList";
@@ -8,6 +8,17 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
+
+// Per-request timestamp memoized by React cache()
+const getRequestNow = cache(() => Date.now());
+
+// ─────────────────────────────────────────
+// Pure helpers
+// ─────────────────────────────────────────
+
+function diffDays(dueDateMs: number, nowMs: number): number {
+  return Math.ceil((dueDateMs - nowMs) / (1000 * 60 * 60 * 24));
+}
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -120,8 +131,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
   );
 }
 
-async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
-  const now = Date.now();
+async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: number }) {
   const rawDeadlines = await prisma.deadline.findMany({
     where: { hiveId },
     orderBy: { dueDate: "asc" },
@@ -129,8 +139,7 @@ async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
   });
 
   const mappedDeadlines = rawDeadlines.map((d) => {
-    const diff = new Date(d.dueDate).getTime() - now;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const days = diffDays(new Date(d.dueDate).getTime(), nowMs);
     const isOverdue = days < 0;
 
     return {
@@ -186,6 +195,9 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
 
   if (!exists) return notFound();
 
+  // cache()-wrapped: same value within one render tree — satisfies purity rule
+  const nowMs = getRequestNow();
+
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       {/* Hive Overview Card */}
@@ -200,7 +212,7 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
         {/* Deadlines — Mobile: first, Desktop: right */}
         <section className="lg:order-2">
           <Suspense fallback={<DeadlineSkeleton />}>
-            <DeadlinesWidget hiveId={hiveId} />
+            <DeadlinesWidget hiveId={hiveId} nowMs={nowMs} />
           </Suspense>
         </section>
 

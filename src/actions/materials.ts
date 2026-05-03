@@ -9,6 +9,10 @@ import { getYouTubeMetadata, parseYouTubeUrl, YouTubePlaylistItem } from "@/util
 
 type ActionError = { error: string };
 
+function getMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 // ─────────────────────────────────────────────────────────────────
 // Internal Helpers
 // ─────────────────────────────────────────────────────────────────
@@ -71,9 +75,9 @@ export async function createMaterial(
     if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
     return null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("createMaterial failed:", err);
-    return { error: err.message || "Failed to create material" };
+    return { error: getMessage(err) || "Failed to create material" };
   }
 }
 
@@ -95,9 +99,9 @@ export async function createSmartMaterial(
     let metadata;
     try {
       metadata = await getYouTubeMetadata(url);
-    } catch (apiErr: any) {
+    } catch (apiErr: unknown) {
       console.error("YouTube API error:", apiErr);
-      return { error: apiErr?.message ?? "Failed to fetch YouTube metadata" };
+      return { error: apiErr instanceof Error ? apiErr.message : "Failed to fetch YouTube metadata" };
     }
 
     const material = await prisma.material.create({
@@ -116,9 +120,9 @@ export async function createSmartMaterial(
     if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
     return { materialId: material.id };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("createSmartMaterial failed:", err);
-    return { error: err.message || "Failed to create smart material" };
+    return { error: getMessage(err) || "Failed to create smart material" };
   }
 }
 
@@ -188,9 +192,9 @@ export async function updateMaterial(
     if (existing.hiveId) revalidatePath(`/hive/${existing.hiveId}/materials`);
     revalidatePath(`/dashboard/materials`);
     return null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("updateMaterial failed:", err);
-    return { error: err.message || "Failed to update material" };
+    return { error: getMessage(err) || "Failed to update material" };
   }
 }
 
@@ -205,7 +209,7 @@ export async function getPersonalMaterials(userId: string) {
     select: {
       id: true, title: true, type: true, url: true,
       sizeBytes: true, channelName: true, duration: true,
-      videoRange: true, playlistData: true,
+      videoRange: true, playlistData: true, userId: true,
     },
   });
 }
@@ -267,9 +271,9 @@ export async function deleteMaterial(
     revalidatePath(`/dashboard/materials`);
 
     return null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("deleteMaterial failed:", err);
-    return { error: err.message || "Failed to delete material" };
+    return { error: getMessage(err) || "Failed to delete material" };
   }
 }
 
@@ -308,8 +312,8 @@ export async function toggleVideoProgress(
       revalidatePath(`/dashboard/materials/${materialId}`);
     }
     return null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("toggleVideoProgress failed:", err);
-    return { error: err.message || "Failed to update progress" };
+    return { error: getMessage(err) || "Failed to update progress" };
   }
 }

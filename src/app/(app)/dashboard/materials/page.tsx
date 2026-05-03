@@ -68,7 +68,7 @@ async function PersonalMaterialsWidget({ userId }: { userId: string }) {
     );
   }
 
-  return <MaterialClientGrid userId={userId} initialMaterials={materials as any} />;
+  return <MaterialClientGrid userId={userId} initialMaterials={materials} />;
 }
 
 // ─────────────────────────────────────────

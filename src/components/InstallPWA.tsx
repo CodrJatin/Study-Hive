@@ -9,23 +9,25 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISSED_KEY = "studyhive_pwa_install_dismissed";
 
+function getInitialIsInstalled(): boolean {
+  // Lazy initializer — runs once on mount (client-only), avoids setState in effect
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(display-mode: standalone)").matches;
+}
+
 export function InstallPWA() {
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  // Use lazy initializer so we never call setState synchronously inside an effect
+  const [isInstalled, setIsInstalled] = useState<boolean>(getInitialIsInstalled);
 
   useEffect(() => {
     // Don't show if already dismissed in this session or recently
     const dismissed = sessionStorage.getItem(DISMISSED_KEY);
     if (dismissed) return;
 
-    // Check standalone status
-    const checkStandalone = () => {
-      if (window.matchMedia("(display-mode: standalone)").matches) {
-        setIsInstalled(true);
-      }
-    };
-    checkStandalone();
+    // If already standalone, nothing to show
+    if (isInstalled) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -33,14 +35,19 @@ export function InstallPWA() {
       setIsVisible(true);
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
-
-    window.addEventListener("appinstalled", () => {
+    const installedHandler = () => {
       setIsInstalled(true);
       setIsVisible(false);
-    });
+    };
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInstall = async () => {

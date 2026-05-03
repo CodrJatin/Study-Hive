@@ -1,8 +1,19 @@
-import React, { Suspense } from "react";
+import React, { Suspense, cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { TrackCard } from "@/components/tracks/TrackCard";
 import { AddTrackCard } from "@/components/tracks/AddTrackCard";
+
+// Per-request timestamp memoized by React cache()
+const getRequestNow = cache(() => Date.now());
+
+// ─────────────────────────────────────────
+// Pure helpers
+// ─────────────────────────────────────────
+
+function diffDays(dueDateMs: number, nowMs: number): number {
+  return Math.ceil((dueDateMs - nowMs) / (1000 * 60 * 60 * 24));
+}
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -37,7 +48,7 @@ function TracksGridSkeleton() {
 // Async Widgets
 // ─────────────────────────────────────────
 
-async function TracksGrid({ hiveId }: { hiveId: string }) {
+async function TracksGrid({ hiveId, nowMs }: { hiveId: string; nowMs: number }) {
   const [tracks, materials] = await Promise.all([
     prisma.track.findMany({
       where: { hiveId },
@@ -57,7 +68,6 @@ async function TracksGrid({ hiveId }: { hiveId: string }) {
     }),
   ]);
 
-  const now = Date.now();
   const mappedTracks = tracks.map((track) => ({
     id: track.id,
     title: track.name,
@@ -70,7 +80,7 @@ async function TracksGrid({ hiveId }: { hiveId: string }) {
     statusColor: track.type === "QUICK_ADD" ? "primary" : "secondary",
     materialsCount: track._count.trackTopics * 2,
     daysLeft: track.targetDate
-      ? Math.max(0, Math.ceil((new Date(track.targetDate).getTime() - now) / (1000 * 60 * 60 * 24)))
+      ? Math.max(0, diffDays(new Date(track.targetDate).getTime(), nowMs))
       : 0,
   }));
 
@@ -94,6 +104,9 @@ export default async function TracksPage({ params }: { params: Promise<{ hiveId:
   const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
   if (!exists) return notFound();
 
+  // cache()-wrapped: same value within one render tree — satisfies purity rule
+  const nowMs = getRequestNow();
+
   return (
     <div className="max-w-6xl mx-auto">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -109,7 +122,7 @@ export default async function TracksPage({ params }: { params: Promise<{ hiveId:
       </header>
 
       <Suspense fallback={<TracksGridSkeleton />}>
-        <TracksGrid hiveId={hiveId} />
+        <TracksGrid hiveId={hiveId} nowMs={nowMs} />
       </Suspense>
     </div>
   );

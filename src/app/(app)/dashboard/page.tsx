@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, cache } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
@@ -11,6 +11,15 @@ import { HiveCard } from "@/components/dashboard/HiveCard";
 import { TaskList } from "@/components/dashboard/TaskList";
 
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
+
+// ─────────────────────────────────────────
+// Per-request timestamp: cache() memoizes within one render tree, satisfying
+// the React compiler's purity rule (same value returned for the same request).
+const getRequestNow = cache(() => Date.now());
+
+function diffDays(dueDateMs: number, nowMs: number): number {
+  return Math.ceil((dueDateMs - nowMs) / (1000 * 60 * 60 * 24));
+}
 
 // ─────────────────────────────────────────
 // Skeleton Fallbacks
@@ -75,9 +84,8 @@ function TasksSkeleton() {
 // Async Widget Components
 // ─────────────────────────────────────────
 
-async function RecentHivesWidget({ userId }: { userId: string }) {
+async function RecentHivesWidget({ userId, nowMs }: { userId: string; nowMs: number }) {
   const recentHives = await getRecentHives(userId);
-  const now = Date.now();
 
   if (recentHives.length === 0) {
     return (
@@ -97,11 +105,9 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
         const nearestDeadline = hive.deadlines?.[0];
         let daysLeft: number | null = null;
         if (nearestDeadline) {
-          const diff = nearestDeadline.dueDate.getTime() - now;
-          daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+          daysLeft = Math.max(0, diffDays(nearestDeadline.dueDate.getTime(), nowMs));
         } else if (hive.targetDate) {
-          const diff = hive.targetDate.getTime() - now;
-          daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+          daysLeft = Math.max(0, diffDays(hive.targetDate.getTime(), nowMs));
         }
 
         return (
@@ -122,15 +128,16 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
   );
 }
 
-async function UpcomingTasksWidget({ userId }: { userId: string }) {
+async function UpcomingTasksWidget({ userId, nowMs }: { userId: string; nowMs: number }) {
   const allTasks = await getUserTasks(userId);
+  const todayStr = new Date(nowMs).toDateString();
 
   const quickTasks = allTasks
     .filter(
       (task) =>
         !task.isCompleted ||
         (task.dueDate &&
-          new Date(task.dueDate).toDateString() === new Date().toDateString())
+          new Date(task.dueDate).toDateString() === todayStr)
     )
     .slice(0, 5);
 
@@ -152,6 +159,9 @@ export default async function DashboardOverview() {
     redirect("/login");
   }
 
+  // cache()-wrapped: same value returned within one render tree — satisfies purity rule
+  const nowMs = getRequestNow();
+
   const upcomingDeadlines = await getUpcomingDeadlines(user.id);
   const hasDeadlines = upcomingDeadlines.length > 0;
 
@@ -172,7 +182,7 @@ export default async function DashboardOverview() {
             </Link>
           </div>
           <Suspense fallback={<RecentHivesSkeleton />}>
-            <RecentHivesWidget userId={user.id} />
+            <RecentHivesWidget userId={user.id} nowMs={nowMs} />
           </Suspense>
         </section>
 
@@ -183,7 +193,7 @@ export default async function DashboardOverview() {
             <h2 className="text-[22px] font-headline font-bold text-on-background">Upcoming Tasks</h2>
           </div>
           <Suspense fallback={<TasksSkeleton />}>
-            <UpcomingTasksWidget userId={user.id} />
+            <UpcomingTasksWidget userId={user.id} nowMs={nowMs} />
           </Suspense>
         </section>
 
@@ -197,7 +207,7 @@ export default async function DashboardOverview() {
               <span className="material-symbols-outlined text-[24px] text-error">event_busy</span>
               <h2 className="text-[20px] font-headline font-bold text-on-background">Deadline Central</h2>
             </div>
-            <DeadlineCentralWidget upcomingDeadlines={upcomingDeadlines} />
+            <DeadlineCentralWidget upcomingDeadlines={upcomingDeadlines} nowMs={nowMs} />
           </section>
         </div>
       )}
@@ -215,11 +225,9 @@ interface UpcomingDeadline {
   };
 }
 
-async function DeadlineCentralWidget({ upcomingDeadlines }: { upcomingDeadlines: UpcomingDeadline[] }) {
-  const now = Date.now();
+async function DeadlineCentralWidget({ upcomingDeadlines, nowMs }: { upcomingDeadlines: UpcomingDeadline[]; nowMs: number }) {
   const mappedDeadlines = upcomingDeadlines.map((d) => {
-    const diff = new Date(d.dueDate).getTime() - now;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const days = diffDays(new Date(d.dueDate).getTime(), nowMs);
     const isOverdue = days < 0;
 
     return {

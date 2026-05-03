@@ -49,53 +49,56 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  // resultsFor tracks which query the current results belong to
+  const [resultsFor, setResultsFor] = useState("");
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
   const [isPending, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [lastSearchedQuery, setLastSearchedQuery] = useState("");
+
+  // ── Derive open state from query length + having results (no setState in effect) ─
+  const trimmed = query.trim();
+  const hasMinLength = trimmed.length >= 2;
+  // Show dropdown when there's enough input, regardless of results (loading state)
+  const isOpen = hasMinLength;
+  // Still "typing / pending" if the query is different from the last fetched results
+  const isTypingOrSearching = isPending || (hasMinLength && trimmed !== resultsFor);
 
   // ── Debounced search ─────────────────────────────────────────────────────
   const runSearch = useCallback((q: string) => {
-    const trimmed = q.trim();
-    if (trimmed.length < 2) {
+    const t = q.trim();
+    if (t.length < 2) {
       setResults([]);
-      setIsOpen(false);
-      setLastSearchedQuery("");
+      setResultsFor("");
       return;
     }
-    
+
     startTransition(async () => {
-      const data = await globalSearch(trimmed);
+      const data = await globalSearch(t);
       setResults(data);
-      setLastSearchedQuery(trimmed);
-      setIsOpen(true);
+      setResultsFor(t);
     });
   }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    
-    // Open immediately if long enough
-    if (query.trim().length >= 2) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
+    // Clear stale results when query shortens below threshold
+    if (!hasMinLength) {
       setResults([]);
+      setResultsFor("");
+      return;
     }
-
     debounceRef.current = setTimeout(() => runSearch(query), 500);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, runSearch]);
 
   // ── Close on outside click ───────────────────────────────────────────────
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
         if (isMobile) setIsMobileSearchActive(false);
       }
     }
@@ -107,7 +110,6 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        setIsOpen(false);
         if (isMobile) setIsMobileSearchActive(false);
       }
     }
@@ -116,15 +118,14 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   }, [isMobile]);
 
   function handleSelect(result: SearchResult) {
-    setIsOpen(false);
     setIsMobileSearchActive(false);
     setQuery("");
-    setLastSearchedQuery("");
+    setResults([]);
+    setResultsFor("");
     router.push(buildHref(result));
   }
 
-  const isTypingOrSearching = query !== lastSearchedQuery || isPending;
-  const showDropdown = isOpen && query.trim().length >= 2;
+  const showDropdown = isOpen;
 
   const options: DropdownOption[] = results.map((result) => {
     let icon = TYPE_ICON[result.type];
@@ -198,7 +199,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
             <Dropdown
               options={options}
               isOpen={showDropdown}
-              onOpenChange={setIsOpen}
+              onOpenChange={() => {}}
               disableTriggerClick
               isLoading={isTypingOrSearching}
               loadingMessage={loadingMessage}
@@ -218,7 +219,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
                     onChange={(e) => setQuery(e.target.value)}
                   />
                   {query && (
-                    <button onClick={() => { setQuery(""); setResults([]); setLastSearchedQuery(""); }}>
+                    <button onClick={() => { setQuery(""); setResults([]); setResultsFor(""); }}>
                       <span className="material-symbols-outlined text-base">close</span>
                     </button>
                   )}
@@ -237,7 +238,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
       <Dropdown
         options={options}
         isOpen={showDropdown}
-        onOpenChange={setIsOpen}
+        onOpenChange={() => {}}
         disableTriggerClick
         isLoading={isTypingOrSearching}
         loadingMessage={loadingMessage}
@@ -264,11 +265,10 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => { if (query.trim().length >= 2) setIsOpen(true); }}
             />
             {query && (
               <button
-                onClick={() => { setQuery(""); setResults([]); setIsOpen(false); setLastSearchedQuery(""); }}
+                onClick={() => { setQuery(""); setResults([]); setResultsFor(""); }}
                 className="ml-2 text-on-surface-variant/60 hover:text-on-surface transition-colors"
               >
                 <span className="material-symbols-outlined text-base">close</span>
