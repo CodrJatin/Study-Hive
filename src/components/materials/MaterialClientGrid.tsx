@@ -1,8 +1,6 @@
-"use client";
-
 import React from "react";
 import { MaterialCard } from "./MaterialCard";
-import { useRealtime } from "@/hooks/useRealtime";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 type MaterialType = {
   id: string;
@@ -46,8 +44,6 @@ export function MaterialClientGrid({
     ? { column: "hiveId", value: hiveId } 
     : userId ? { column: "userId", value: userId } : undefined;
 
-  useRealtime("Material", filter);
-
   const grouped = initialMaterials.reduce((acc, m) => {
     if (!acc[m.type]) acc[m.type] = [];
     acc[m.type].push(m);
@@ -60,39 +56,45 @@ export function MaterialClientGrid({
 
   if (sortedGroups.length === 0) {
     return (
-      <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
-        <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">folder_open</span>
-        <h3 className="text-xl font-headline font-bold text-on-surface mb-1">No Materials Yet</h3>
-        <p className="text-on-surface-variant text-sm">Paste a link above or drag and drop files anywhere on this page.</p>
-      </div>
+      <>
+        <RealtimeListener tableName="Material" filter={filter} />
+        <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
+          <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">folder_open</span>
+          <h3 className="text-xl font-headline font-bold text-on-surface mb-1">No Materials Yet</h3>
+          <p className="text-on-surface-variant text-sm">Paste a link above or drag and drop files anywhere on this page.</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-10">
-      {sortedGroups.map(([type, items]) => {
-        const styling = getMaterialStyling(type);
-        return (
-          <section key={type}>
-            <div className="flex items-center gap-4 mb-5">
-              <div className={`w-8 h-8 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
-                <span className={`material-symbols-outlined text-base ${styling.iconColor}`}>{styling.icon}</span>
+    <>
+      <RealtimeListener tableName="Material" filter={filter} />
+      <div className="space-y-10">
+        {sortedGroups.map(([type, items]) => {
+          const styling = getMaterialStyling(type);
+          return (
+            <section key={type}>
+              <div className="flex items-center gap-4 mb-5">
+                <div className={`w-8 h-8 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
+                  <span className={`material-symbols-outlined text-base ${styling.iconColor}`}>{styling.icon}</span>
+                </div>
+                <h2 className="text-lg font-headline font-bold text-on-surface">{TYPE_LABELS[type] ?? type}</h2>
+                <div className="h-px flex-1 bg-outline-variant/20" />
+                <span className="text-xs font-bold text-on-surface-variant/50">{items.length}</span>
               </div>
-              <h2 className="text-lg font-headline font-bold text-on-surface">{TYPE_LABELS[type] ?? type}</h2>
-              <div className="h-px flex-1 bg-outline-variant/20" />
-              <span className="text-xs font-bold text-on-surface-variant/50">{items.length}</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {items.map((m) => (
-                <MaterialCard
-                  key={m.id}
-                  material={{ ...m, hiveId: hiveId || null }}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {items.map((m) => (
+                  <MaterialCard
+                    key={m.id}
+                    material={{ ...m, hiveId: hiveId || null }}
+                  />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </>
   );
 }

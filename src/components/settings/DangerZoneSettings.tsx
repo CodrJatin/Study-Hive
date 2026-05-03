@@ -1,14 +1,14 @@
-"use client";
-
 import React from "react";
 import { DeleteHiveButton } from "./DeleteHiveButton";
-import { useHiveContext } from "@/components/providers/HiveProviders";
-import { Permissions } from "@/lib/permissions";
 
-export function DangerZoneSettings({ hiveId }: { hiveId: string }) {
-  const { role } = useHiveContext();
-
-  if (!Permissions.canManageHive(role)) {
+export function DangerZoneSettings({
+  hiveId,
+  canManageHive,
+}: {
+  hiveId: string;
+  canManageHive: boolean;
+}) {
+  if (!canManageHive) {
     return null;
   }
 

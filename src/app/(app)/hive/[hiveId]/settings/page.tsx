@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/server";
 import { DangerZoneSettings } from "@/components/settings/DangerZoneSettings";
 import { ChangeRoleDropdown } from "@/components/settings/ChangeRoleDropdown";
 import { LeaveHiveSection } from "@/components/settings/LeaveHiveSection";
+import { Permissions } from "@/lib/permissions";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -176,10 +177,20 @@ export default async function SettingsPage({
 }) {
   const { hiveId } = await params;
   const supabase = await createClient();
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
+  const [exists, membership] = await Promise.all([
+    prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
+    user
+      ? prisma.hiveMember.findUnique({
+          where: { userId_hiveId: { userId: user.id, hiveId } },
+          select: { role: true },
+        })
+      : null,
+  ]);
   if (!exists) return notFound();
+
+  const canManageHive = membership ? Permissions.canManageHive(membership.role) : false;
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -220,7 +231,7 @@ export default async function SettingsPage({
       <LeaveHiveSection hiveId={hiveId} />
 
       {/* Danger Zone */}
-      <DangerZoneSettings hiveId={hiveId} />
+      <DangerZoneSettings hiveId={hiveId} canManageHive={canManageHive} />
     </div>
   );
 }
