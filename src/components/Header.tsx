@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { HeaderSearch } from "@/components/HeaderSearch";
 import { UserMenu } from "@/components/UserMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { HiveHum } from "@/components/HiveHum";
+import { HiveHumLazy } from "@/components/HiveHumLazy";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -52,8 +52,8 @@ export default async function Header() {
 
           <ThemeToggle />
 
-          {/* Hive Hum */}
-          <HiveHum autoPlay={user?.autoPlayHum ?? false} />
+          {/* Hive Hum — loads player chunk only on first click or when autoPlay is on */}
+          <HiveHumLazy autoPlay={user?.autoPlayHum ?? false} />
 
           {/* User Dropdown */}
           <UserMenu

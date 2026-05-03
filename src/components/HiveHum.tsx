@@ -42,12 +42,15 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
     fetchMusic();
   }, []);
 
-  // Initialize audio element immediately if not present
-  if (typeof window !== "undefined" && !audioRef.current) {
-    audioRef.current = new Audio();
-    audioRef.current.preload = "metadata";
-    audioRef.current.loop = true;
-  }
+  // Initialize audio element once after mount — never during render
+  useEffect(() => {
+    if (!audioRef.current) {
+      const audio = new Audio();
+      audio.preload = "metadata";
+      audio.loop = true;
+      audioRef.current = audio;
+    }
+  }, []);
 
   // Handle Auto-play & Interaction fallback
   useEffect(() => {
