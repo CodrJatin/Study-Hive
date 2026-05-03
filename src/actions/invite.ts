@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { Permissions } from "@/lib/permissions";
 
 export type InviteActionError = { error: string };
 
@@ -18,6 +19,16 @@ export async function createInvite(
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return { error: "Authorization required" };
+
+  // Verify caller is an ADMIN of this hive (canManageHive === ADMIN-only)
+  const membership = await prisma.hiveMember.findUnique({
+    where: { userId_hiveId: { userId: user.id, hiveId } },
+    select: { role: true },
+  });
+
+  if (!membership || !Permissions.canManageHive(membership.role)) {
+    return { error: "Only hive admins can create invite links" };
+  }
 
   const expiresAt = expiresInHours
     ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000)
@@ -52,10 +63,28 @@ export async function deleteInvite(
 
   if (!user) return { error: "Authorization required" };
 
+  // Verify caller is an ADMIN of this hive
+  const membership = await prisma.hiveMember.findUnique({
+    where: { userId_hiveId: { userId: user.id, hiveId } },
+    select: { role: true },
+  });
+
+  if (!membership || !Permissions.canManageHive(membership.role)) {
+    return { error: "Only hive admins can revoke invite links" };
+  }
+
+  // Fetch the invite first to verify it belongs to this hive
+  // (prevents cross-hive deletion by supplying an unrelated hiveId)
+  const invite = await prisma.hiveInvite.findUnique({
+    where: { id: inviteId },
+    select: { hiveId: true },
+  });
+
+  if (!invite) return { error: "Invite not found" };
+  if (invite.hiveId !== hiveId) return { error: "Invite does not belong to this hive" };
+
   try {
-    await prisma.hiveInvite.delete({
-      where: { id: inviteId },
-    });
+    await prisma.hiveInvite.delete({ where: { id: inviteId } });
 
     revalidatePath(`/hive/${hiveId}/settings`);
     return null;

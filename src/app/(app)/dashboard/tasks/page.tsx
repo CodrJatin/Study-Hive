@@ -15,7 +15,7 @@ export default async function TaskStudioPage() {
     redirect("/login");
   }
 
-  const tasks = await getUserTasks(user.id);
+  const tasks = await getUserTasks();
   
   const pendingTasks = tasks.filter(t => !t.isCompleted);
   const completedTasks = tasks.filter(t => t.isCompleted);
@@ -23,7 +23,7 @@ export default async function TaskStudioPage() {
   return (
     <div className="max-w-4xl mx-auto pb-12">
       
-      <CreateTaskForm userId={user.id} />
+      <CreateTaskForm />
 
       <div className="space-y-10">
         <section>

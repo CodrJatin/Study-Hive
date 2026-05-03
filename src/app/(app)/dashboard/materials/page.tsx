@@ -53,7 +53,7 @@ function MaterialGridSkeleton() {
 // ─────────────────────────────────────────
 
 async function PersonalMaterialsWidget({ userId }: { userId: string }) {
-  const materials = await getPersonalMaterials(userId);
+  const materials = await getPersonalMaterials();
 
   if (materials.length === 0) {
     return (

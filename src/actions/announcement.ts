@@ -24,6 +24,19 @@ export async function createAnnouncement(
     return { error: "A title is required" };
   }
 
+  // Verify membership and permission before writing
+  const membership = await prisma.hiveMember.findUnique({
+    where: { userId_hiveId: { userId: user.id, hiveId } },
+    select: { role: true },
+  });
+
+  if (!membership) return { error: "You are not a member of this hive" };
+
+  const { Permissions } = await import("@/lib/permissions");
+  if (!Permissions.canAddItems(membership.role)) {
+    return { error: "You do not have permission to post announcements" };
+  }
+
   try {
     await prisma.announcement.create({
       data: {

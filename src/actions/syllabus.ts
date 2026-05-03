@@ -51,6 +51,19 @@ export async function createUnit(
 
   if (!title.trim()) return { error: "Title is required" };
 
+  // Verify membership and permission
+  const membership = await prisma.hiveMember.findUnique({
+    where: { userId_hiveId: { userId: user.id, hiveId } },
+    select: { role: true },
+  });
+
+  if (!membership) return { error: "You are not a member of this hive" };
+
+  const { Permissions } = await import("@/lib/permissions");
+  if (!Permissions.canAddItems(membership.role)) {
+    return { error: "You do not have permission to add units" };
+  }
+
   // Count existing units to set position
   const count = await prisma.unit.count({ where: { hiveId } });
 
@@ -73,13 +86,36 @@ export async function createTopic(
 
   if (!title.trim()) return { error: "Title is required" };
 
+  // Derive hiveId from the unit — do not trust the client-supplied hiveId
+  const unit = await prisma.unit.findUnique({
+    where: { id: unitId },
+    select: { hiveId: true },
+  });
+
+  if (!unit) return { error: "Unit not found" };
+
+  const derivedHiveId = unit.hiveId;
+
+  // Verify membership and permission against the derived hiveId
+  const membership = await prisma.hiveMember.findUnique({
+    where: { userId_hiveId: { userId: user.id, hiveId: derivedHiveId } },
+    select: { role: true },
+  });
+
+  if (!membership) return { error: "You are not a member of this hive" };
+
+  const { Permissions } = await import("@/lib/permissions");
+  if (!Permissions.canAddItems(membership.role)) {
+    return { error: "You do not have permission to add topics" };
+  }
+
   const count = await prisma.topic.count({ where: { unitId } });
 
   await prisma.topic.create({
     data: { unitId, title: title.trim(), position: count, creatorId: user.id },
   });
 
-  revalidatePath(`/hive/${hiveId}/syllabus`);
+  revalidatePath(`/hive/${derivedHiveId}/syllabus`);
   return null;
 }
 

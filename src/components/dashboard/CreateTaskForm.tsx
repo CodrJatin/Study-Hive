@@ -7,7 +7,7 @@ import { createTask } from "@/actions/tasks";
 import { globalSearch, SearchResult } from "@/actions/search";
 import { useCallback, useEffect } from "react";
 
-export function CreateTaskForm({ userId }: { userId: string }) {
+export function CreateTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
   const [isSearching, startSearchTransition] = useTransition();
@@ -94,7 +94,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
     startTransition(() => {
       toast.promise(
         (async () => {
-          const result = await createTask(userId, snapshot);
+          const result = await createTask(snapshot);
           if (result.error) throw new Error(result.error);
         })(),
         {

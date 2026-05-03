@@ -128,8 +128,8 @@ async function RecentHivesWidget({ userId, nowMs }: { userId: string; nowMs: num
   );
 }
 
-async function UpcomingTasksWidget({ userId, nowMs }: { userId: string; nowMs: number }) {
-  const allTasks = await getUserTasks(userId);
+async function UpcomingTasksWidget({ nowMs }: { nowMs: number }) {
+  const allTasks = await getUserTasks();
   const todayStr = new Date(nowMs).toDateString();
 
   const quickTasks = allTasks
@@ -193,7 +193,7 @@ export default async function DashboardOverview() {
             <h2 className="text-[22px] font-headline font-bold text-on-background">Upcoming Tasks</h2>
           </div>
           <Suspense fallback={<TasksSkeleton />}>
-            <UpcomingTasksWidget userId={user.id} nowMs={nowMs} />
+            <UpcomingTasksWidget nowMs={nowMs} />
           </Suspense>
         </section>
 

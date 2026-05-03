@@ -148,7 +148,22 @@ export async function updateMaterial(
     });
 
     if (!existing) return { error: "Material not found" };
-    if (existing.userId !== user.id) return { error: "Unauthorized access" };
+
+    // Authorization: owner always permitted; hive ADMIN/MODERATOR may also edit
+    const isOwner = existing.userId === user.id;
+    if (!isOwner) {
+      if (!existing.hiveId) return { error: "Unauthorized access" };
+
+      const { Permissions } = await import("@/lib/permissions");
+      const membership = await prisma.hiveMember.findUnique({
+        where: { userId_hiveId: { userId: user.id, hiveId: existing.hiveId } },
+        select: { role: true },
+      });
+
+      if (!membership || !Permissions.canEditOrDeleteAnyItem(membership.role)) {
+        return { error: "Unauthorized access" };
+      }
+    }
 
     let recalcDuration: number | undefined;
     let finalVideoRange: string | null | undefined;
@@ -202,9 +217,10 @@ export async function updateMaterial(
 // Get personal (unassigned) materials
 // ─────────────────────────────────────────────────────────────────
 
-export async function getPersonalMaterials(userId: string) {
+export async function getPersonalMaterials() {
+  const user = await ensurePrismaUser();
   return prisma.material.findMany({
-    where: { userId, hiveId: null },
+    where: { userId: user.id, hiveId: null },
     orderBy: { createdAt: "desc" },
     select: {
       id: true, title: true, type: true, url: true,
@@ -224,20 +240,34 @@ export async function deleteMaterial(
 ): Promise<ActionError | null> {
   try {
     const user = await ensurePrismaUser();
-    // ✅ Make sure you import createClient from "@/utils/supabase/server" at the top
     const supabase = await createClient();
 
     // 1. Fetch material info BEFORE deleting from DB
     const existing = await prisma.material.findUnique({
       where: { id: materialId },
-      select: { userId: true, url: true, type: true },
+      select: { userId: true, url: true, type: true, hiveId: true },
     });
 
     if (!existing) return { error: "Material not found" };
-    if (existing.userId !== user.id) return { error: "Unauthorized" };
+
+    // Authorization: owner always permitted; hive ADMIN/MODERATOR may also delete
+    const isOwner = existing.userId === user.id;
+    if (!isOwner) {
+      const effectiveHiveId = existing.hiveId;
+      if (!effectiveHiveId) return { error: "Unauthorized" };
+
+      const { Permissions } = await import("@/lib/permissions");
+      const membership = await prisma.hiveMember.findUnique({
+        where: { userId_hiveId: { userId: user.id, hiveId: effectiveHiveId } },
+        select: { role: true },
+      });
+
+      if (!membership || !Permissions.canEditOrDeleteAnyItem(membership.role)) {
+        return { error: "Unauthorized" };
+      }
+    }
 
     // 2. Identify stored files
-    // ✅ FIX: Explicitly type the array as MaterialType[] to prevent the narrowing error
     const storageTypes: MaterialType[] = [
       MaterialType.PDF,
       MaterialType.IMAGE,
