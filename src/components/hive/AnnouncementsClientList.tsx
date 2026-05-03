@@ -2,10 +2,10 @@
 
 import { useRealtime } from "@/hooks/useRealtime";
 import { AnnouncementCard } from "./AnnouncementCard";
-import { Announcement } from "@prisma/client";
+import type { ClientAnnouncement } from "@/types/client-prisma";
 
 // Define the type to include the author relation
-type AnnouncementWithAuthor = Announcement & {
+type AnnouncementWithAuthor = ClientAnnouncement & {
   author: {
     name: string | null;
     image: string | null;

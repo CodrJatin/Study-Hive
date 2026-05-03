@@ -3,15 +3,17 @@
 import React, { useState, useTransition } from "react";
 import { TopicRow } from "./TopicRow";
 import { AddTopicForm } from "./AddTopicForm";
-import { Topic, Unit } from "@prisma/client";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 import { deleteUnit } from "@/actions/syllabus";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import type { ClientTopic, ClientUnit, TopicStatus } from "@/types/client-prisma";
 
 interface UnitAccordionProps {
-  unit: Unit & { creatorId: string | null, topics: (Topic & { creatorId: string | null, topicProgress?: { status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" }[] })[] };
+  unit: ClientUnit & {
+    topics: (ClientTopic & { topicProgress?: { status: TopicStatus }[] })[];
+  };
   index: number;
   hiveId: string;
 }

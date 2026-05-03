@@ -2,21 +2,18 @@
 
 import React, { useOptimistic, useTransition } from "react";
 import { toggleTaskComplete } from "@/actions/tasks";
-import { Task } from "@prisma/client";
 import Link from "next/link";
+import type { ClientTask } from "@/types/client-prisma";
 
 interface TaskListProps {
-  initialTasks: Task[];
+  initialTasks: ClientTask[];
 }
 
 export function TaskList({ initialTasks }: TaskListProps) {
   const [, startTransition] = useTransition();
-  // Adjusted Task type for relations
-  type ExtendedTask = Task & { hive?: { title: string } | null; material?: { title: string } | null; };
-
   const [optimisticTasks, addOptimisticTask] = useOptimistic(
-    initialTasks as ExtendedTask[],
-    (state: ExtendedTask[], updatedTask: { id: string; isCompleted: boolean }) =>
+    initialTasks,
+    (state: ClientTask[], updatedTask: { id: string; isCompleted: boolean }) =>
       state.map((task) =>
         task.id === updatedTask.id
           ? { ...task, isCompleted: updatedTask.isCompleted }

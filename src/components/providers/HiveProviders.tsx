@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext } from "react";
-import { HiveRole } from "@prisma/client";
 import { useRealtime } from "@/hooks/useRealtime";
+import type { HiveRole } from "@/types/client-prisma";
 
 interface HiveContextType {
     role: HiveRole;

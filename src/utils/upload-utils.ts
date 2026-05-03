@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { createMaterial } from "@/actions/materials";
-import { MaterialType } from "@prisma/client";
+import type { MaterialType } from "@/types/client-prisma";
 
 export async function uploadFiles(files: File[], hiveId: string | undefined): Promise<void> {
   const supabase = createClient();
@@ -26,12 +26,12 @@ export async function uploadFiles(files: File[], hiveId: string | undefined): Pr
         .from("hive-materials")
         .getPublicUrl(path);
 
-      let type: MaterialType = MaterialType.LINK;
-      if (file.type.includes("pdf")) type = MaterialType.PDF;
-      else if (file.type.startsWith("image/")) type = MaterialType.IMAGE;
-      else if (file.type.includes("video")) type = MaterialType.VIDEO;
+      let type: MaterialType = "LINK";
+      if (file.type.includes("pdf")) type = "PDF";
+      else if (file.type.startsWith("image/")) type = "IMAGE";
+      else if (file.type.includes("video")) type = "VIDEO";
       else if (file.type.includes("word") || file.type.includes("document"))
-        type = MaterialType.DOC;
+        type = "DOC";
 
       const result = await createMaterial(
         file.name.replace(/\.[^.]+$/, ""),

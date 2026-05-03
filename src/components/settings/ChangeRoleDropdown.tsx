@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { HiveRole } from "@prisma/client";
 import { updateMemberRole } from "@/actions/hive";
 import { toast } from "sonner";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 import { Dropdown, DropdownOption } from "@/components/shared/Dropdown";
+import type { HiveRole } from "@/types/client-prisma";
 
 interface ChangeRoleDropdownProps {
   hiveId: string;

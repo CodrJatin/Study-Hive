@@ -1,4 +1,4 @@
-import { HiveRole } from "@prisma/client";
+import type { HiveRole } from "@/types/client-prisma";
 
 // Hierarchy mapping for easy comparison
 const ROLE_WEIGHT: Record<HiveRole, number> = {

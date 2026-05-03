@@ -2,7 +2,6 @@
 
 import React, { useOptimistic, useTransition } from "react";
 import { toggleTopicStatus } from "@/actions/syllabus";
-import { TopicStatus } from "@prisma/client";
 
 interface MaterialTileItem {
   id: string;
@@ -17,7 +16,7 @@ export function MaterialTile({ material, hiveId }: { material: MaterialTileItem,
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, addOptimisticStatus] = useOptimistic(
     material.completed,
-    (state: boolean, newState: boolean) => newState
+    (_state: boolean, newState: boolean) => newState
   );
 
   const handleToggle = () => {
@@ -27,7 +26,7 @@ export function MaterialTile({ material, hiveId }: { material: MaterialTileItem,
       // Pass the current UI status so the action derives the correct target status
       await toggleTopicStatus(
         material.id,
-        optimisticStatus ? TopicStatus.COMPLETED : TopicStatus.NOT_STARTED,
+        optimisticStatus ? "COMPLETED" : "NOT_STARTED",
         hiveId
       );
     });

@@ -6,7 +6,7 @@ import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { toast } from "sonner";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
-import { HiveRole } from "@prisma/client";
+import type { HiveRole } from "@/types/client-prisma";
 
 export function RemoveMemberButton({
   hiveId,

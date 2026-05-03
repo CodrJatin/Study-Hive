@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useOptimistic, useTransition, useState } from "react";
-import { Topic, TopicStatus } from "@prisma/client";
 import { toggleTopicStatus, deleteTopic } from "@/actions/syllabus";
 import { useParams } from "next/navigation";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import type { ClientTopic, TopicStatus } from "@/types/client-prisma";
 
-export function TopicRow({ topic, userStatus }: { topic: Topic & { creatorId: string | null }, userStatus: TopicStatus }) {
+export function TopicRow({ topic, userStatus }: { topic: ClientTopic, userStatus: TopicStatus }) {
   const { hiveId } = useParams() as { hiveId: string };
   const { role, userId } = useHiveContext();
   const [, startTransition] = useTransition();
@@ -21,7 +21,7 @@ export function TopicRow({ topic, userStatus }: { topic: Topic & { creatorId: st
     (state, newStatus: TopicStatus) => newStatus
   );
 
-  const completed = optimisticStatus === TopicStatus.COMPLETED;
+  const completed = optimisticStatus === "COMPLETED";
 
   const handleDelete = () => {
     setShowConfirm(false);
@@ -47,7 +47,7 @@ export function TopicRow({ topic, userStatus }: { topic: Topic & { creatorId: st
   if (isOptimisticallyDeleted) return null;
 
   const handleToggle = () => {
-    const nextStatus = completed ? TopicStatus.NOT_STARTED : TopicStatus.COMPLETED;
+    const nextStatus: TopicStatus = completed ? "NOT_STARTED" : "COMPLETED";
     startTransition(async () => {
       // Optimistic update fires synchronously before the network request
       addOptimisticStatus(nextStatus);
@@ -79,7 +79,7 @@ export function TopicRow({ topic, userStatus }: { topic: Topic & { creatorId: st
               {topic.title}
             </span>
             <span className={`text-[10px] font-bold mt-0.5 uppercase tracking-wider ${completed ? 'text-primary' : 'text-on-surface-variant/60'}`}>
-              {optimisticStatus.replace('_', ' ')}
+              {optimisticStatus.replace("_", " ")}
             </span>
           </div>
         </div>
