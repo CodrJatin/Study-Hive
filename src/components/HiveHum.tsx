@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useRef, useEffect } from "react";
 import { Dropdown, DropdownOption } from "@/components/shared/Dropdown";
 
@@ -147,6 +147,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
     id: String(i),
     title: track.title,
     icon: currentTrackIndex === i && isPlaying ? "graphic_eq" : "music_note",
+    iconSize: 22,
     iconColor: currentTrackIndex === i ? "text-primary" : "text-on-surface-variant/60",
     textColor: currentTrackIndex === i ? "text-primary font-bold" : "text-on-surface",
   }));
@@ -162,9 +163,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
             isActive || isPlaying ? "bg-primary/10 text-primary" : "hover:bg-surface-container-high text-on-surface-variant"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          <span className={`material-symbols-outlined ${isLoading ? "animate-pulse" : ""}`}>
-            {isLoading ? "hourglass_empty" : isPlaying ? "graphic_eq" : "music_note"}
-          </span>
+          <Icon name={isLoading ? "sync" : isPlaying ? "audio_lines" : "music_note"} className={`${isLoading ? "animate-spin" : ""}`} />
         </button>
 
         {isActive && !isLoading && (
@@ -180,7 +179,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
                       <span className="text-xs font-bold text-primary tracking-wider uppercase">Now Playing</span>
                       <div className="flex items-center gap-1">
                         <span className="text-sm text-on-surface truncate font-medium">{currentTrack.title}</span>
-                        <span className="material-symbols-outlined text-sm text-on-surface-variant">expand_more</span>
+                        <Icon name="expand_more" className="text-sm text-on-surface-variant" />
                       </div>
                     </div>
                   }
@@ -190,7 +189,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
               
               <div className="flex items-center gap-3 shrink-0 ml-4 z-10">
                 <button onClick={togglePlay} disabled={!currentTrack.src} className="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-full shadow-md active:scale-95 transition-transform disabled:opacity-50">
-                  <span className="material-symbols-outlined">{isPlaying ? "pause" : "play_arrow"}</span>
+                  <Icon name={isPlaying ? "pause" : "play_arrow"} />
                 </button>
               </div>
             </div>
@@ -207,9 +206,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
             className={`w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             title={isLoading ? "Loading Hive Hum..." : "Hive Hum"}
           >
-            <span className={`material-symbols-outlined ${isLoading ? "animate-pulse" : ""}`}>
-              {isLoading ? "hourglass_empty" : "music_note"}
-            </span>
+            <Icon name={isLoading ? "sync" : "music_note"} className={`${isLoading ? "animate-spin" : ""}`} />
           </button>
         ) : (
           <div className="flex items-center bg-surface-container-high rounded-full pl-3 pr-1 py-1 ring-1 ring-outline-variant/20 shadow-sm relative z-100">
@@ -219,9 +216,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
               onChange={(val) => selectTrack(Number(val))}
               trigger={
                 <div className="flex items-center gap-2 mr-3 cursor-pointer group min-w-[120px] max-w-[150px]">
-                  <span className={`material-symbols-outlined text-lg ${isPlaying ? "text-primary animate-pulse" : "text-on-surface-variant"}`}>
-                    {isPlaying ? "graphic_eq" : "music_note"}
-                  </span>
+                  <Icon name={isPlaying ? "audio_lines" : "music_note"} className={`text-2xl ${isPlaying ? "text-primary" : "text-on-surface-variant/40"}`} />
                   <div className="flex flex-col overflow-hidden">
                     <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider leading-none mb-0.5">Hive Hum</span>
                     <span className="text-xs text-on-surface font-medium truncate group-hover:text-primary transition-colors leading-none">
@@ -238,9 +233,7 @@ export function HiveHum({ autoPlay = false }: { autoPlay?: boolean }) {
               disabled={!currentTrack.src}
               className="w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-full hover:bg-primary/90 shadow-sm transition-colors shrink-0 disabled:opacity-50 z-10"
             >
-              <span className="material-symbols-outlined text-[18px]">
-                {isPlaying ? "pause" : "play_arrow"}
-              </span>
+              <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-[18px]" />
             </button>
           </div>
         )}

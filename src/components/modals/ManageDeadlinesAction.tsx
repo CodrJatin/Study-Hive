@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState } from "react";
 import { ManageDeadlinesModal, type DeadlineItem } from "./ManageDeadlinesModal";
 import { useHiveContext } from "@/components/providers/HiveProviders";
@@ -25,9 +25,7 @@ export function ManageDeadlinesAction({ hiveId, deadlines }: ManageDeadlinesActi
         className="text-[12px] font-bold text-primary flex items-center gap-1 uppercase tracking-wider group hover:opacity-80 transition-opacity"
       >
         Edit
-        <span className="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">
-          edit
-        </span>
+        <Icon name="edit" className="text-[16px] group-hover:rotate-12 transition-transform" />
       </button>
 
       <ManageDeadlinesModal 

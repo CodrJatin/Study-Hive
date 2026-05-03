@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { createTopic } from "@/actions/syllabus";
@@ -65,9 +65,7 @@ export function AddTopicForm({ unitId, hiveId }: AddTopicFormProps) {
         disabled={isPending}
         className="shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-on-primary flex items-center justify-center transition-all disabled:opacity-50"
       >
-        <span className={`material-symbols-outlined text-[16px] ${isPending ? "animate-spin" : ""}`}>
-          {isPending ? "progress_activity" : "add"}
-        </span>
+        <Icon name={isPending ? "sync" : "add"} className={`text-[16px] ${isPending ? "animate-spin" : ""}`} />
       </button>
     </form>
   );

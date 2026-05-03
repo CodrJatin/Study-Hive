@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -141,9 +142,7 @@ export default async function MaterialPlayerPage({
           href={`/hive/${hiveId}/materials`}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors group"
         >
-          <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
+          <Icon name="arrow_back" className="text-[18px] group-hover:-translate-x-0.5 transition-transform" />
           Back to Materials
         </Link>
       </div>

@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useContext } from "react";
 import Link from "next/link";
 import { EditMaterialModal } from "./EditMaterialModal";
@@ -73,9 +73,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
         {/* Top row: icon + type tag + edit button */}
         <div className="flex items-start justify-between gap-3">
           <div className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center shrink-0`}>
-            <span className={`material-symbols-outlined ${s.iconColor}`}>
-              {s.icon}
-            </span>
+            <Icon name={s.icon} className={`${s.iconColor}`} />
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
@@ -101,13 +99,13 @@ export function MaterialCard({ material }: MaterialCardProps) {
           <div className="flex items-center flex-wrap gap-3 mt-2">
             {duration && (
               <span className="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/8 px-2.5 py-1 rounded-full">
-                <span className="material-symbols-outlined text-[13px]">schedule</span>
+                <Icon name="schedule" className="text-[13px]" />
                 {duration}
               </span>
             )}
             {material.videoRange && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-on-surface-variant bg-surface-container-high px-2.5 py-1 rounded-full">
-                <span className="material-symbols-outlined text-[13px]">filter_list</span>
+                <Icon name="filter_list" className="text-[13px]" />
                 Videos: {material.videoRange}
               </span>
             )}
@@ -130,7 +128,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
               className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all w-fit"
             >
               {playlist ? "View Playlist" : "Watch"}
-              <span className="material-symbols-outlined text-sm">play_arrow</span>
+              <Icon name="play_arrow" className="text-sm" />
             </Link>
           ) : material.url ? (
             <a
@@ -140,7 +138,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
               className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all w-fit"
             >
               Open
-              <span className="material-symbols-outlined text-sm">open_in_new</span>
+              <Icon name="open_in_new" className="text-sm" />
             </a>
           ) : null}
 
@@ -152,15 +150,13 @@ export function MaterialCard({ material }: MaterialCardProps) {
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant opacity-0 group-hover/card:opacity-100 hover:bg-surface-container-high hover:text-primary transition-all"
                 title="Edit material"
               >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
+                <Icon name="edit" className="text-[18px]" />
               </button>
             )}
 
             {/* Uploader details */}
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-on-surface-variant/40 hover:text-on-surface-variant/70 transition-colors">
-              <span className="material-symbols-outlined text-[14px]">
-                {material.channelName ? "account_circle" : "person"}
-              </span>
+              <Icon name={material.channelName ? "account_circle" : "person"} className="text-[14px]" />
               <span className="max-w-[80px] truncate" title={material.channelName || material.user?.name || "Unknown User"}>
                 {material.channelName || material.user?.name || "Unknown User"}
               </span>

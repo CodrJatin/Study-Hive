@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import Image from "next/image";
 import { toggleVideoProgress } from "@/actions/materials";
@@ -107,9 +107,7 @@ export function StudyPlayer({
   if (!activeVideo) {
     return (
       <div className="clay-inset rounded-3xl p-16 text-center">
-        <span className="material-symbols-outlined text-on-surface-variant/30 text-6xl block mb-3">
-          videocam_off
-        </span>
+        <Icon name="videocam_off" className="text-on-surface-variant/30 text-6xl mb-3" />
         <p className="text-on-surface-variant font-semibold">No video available</p>
       </div>
     );
@@ -135,7 +133,7 @@ export function StudyPlayer({
           {isPlaylist && (
             <div className="flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 bg-surface-container-high text-on-surface-variant text-xs font-bold px-3 py-1.5 rounded-full">
-                <span className="material-symbols-outlined text-[14px]">schedule</span>
+                <Icon name="schedule" className="text-[14px]" />
                 Total: {formatDurationLong(totalSeconds)}
               </span>
               <span
@@ -145,9 +143,7 @@ export function StudyPlayer({
                     : "bg-primary/10 text-primary"
                 }`}
               >
-                <span className="material-symbols-outlined text-[14px]">
-                  {remainingSeconds === 0 ? "task_alt" : "hourglass_empty"}
-                </span>
+                <Icon name={remainingSeconds === 0 ? "task_alt" : "hourglass_empty"} className="text-[14px]" />
                 {remainingSeconds === 0
                   ? "All done!"
                   : `Remaining: ${formatDurationLong(adjustedRemainingSeconds)}`}
@@ -164,7 +160,7 @@ export function StudyPlayer({
                   className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant hover:text-primary hover:bg-primary/10 text-xs font-bold px-3 py-1.5 rounded-full transition-all border border-outline-variant/10 active:scale-95"
                   title="Change playback speed estimate"
                 >
-                  <span className="material-symbols-outlined text-[14px]">speed</span>
+                  <Icon name="speed" className="text-[14px]" />
                   x{playbackRate}
                 </button>
               )}
@@ -175,7 +171,7 @@ export function StudyPlayer({
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
           {channelName && (
             <span className="text-sm font-semibold text-on-surface-variant flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">account_circle</span>
+              <Icon name="account_circle" className="text-[16px]" />
               {channelName}
             </span>
           )}
@@ -221,7 +217,7 @@ export function StudyPlayer({
                   {activeVideo.title}
                 </h2>
                 <p className="text-xs font-semibold text-on-surface-variant/60 mt-1 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+                  <Icon name="schedule" className="text-[14px]" />
                   {formatDuration(activeVideo.durationSeconds)}
                 </p>
               </div>
@@ -243,11 +239,9 @@ export function StudyPlayer({
                       : "bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[17px]">
-                    {completedPositions.includes(activeVideo.position)
+                  <Icon name={completedPositions.includes(activeVideo.position)
                       ? "task_alt"
-                      : "radio_button_unchecked"}
-                  </span>
+                      : "radio_button_unchecked"} className="text-[17px]" />
                   {completedPositions.includes(activeVideo.position) ? "Done" : "Mark done"}
                 </button>
               )}
@@ -261,7 +255,7 @@ export function StudyPlayer({
                   disabled={activeIdx === 0}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
-                  <span className="material-symbols-outlined text-[18px]">skip_previous</span>
+                  <Icon name="skip_previous" className="text-[18px]" />
                   Previous
                 </button>
                 <button
@@ -270,7 +264,7 @@ export function StudyPlayer({
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white cta-gradient hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-md shadow-primary/15"
                 >
                   Next
-                  <span className="material-symbols-outlined text-[18px]">skip_next</span>
+                  <Icon name="skip_next" className="text-[18px]" />
                 </button>
               </div>
             )}
@@ -331,9 +325,7 @@ export function StudyPlayer({
                         }`}
                         title={isDone ? "Mark as not done" : "Mark as done"}
                       >
-                        <span className="material-symbols-outlined text-[13px] leading-none">
-                          {isDone ? "check" : ""}
-                        </span>
+                        <Icon name={isDone ? "check" : ""} className="text-[13px] leading-none" />
                       </button>
 
                       {/* Thumbnail */}
@@ -348,27 +340,21 @@ export function StudyPlayer({
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <span className="material-symbols-outlined text-on-surface-variant/30 text-xl">
-                              image
-                            </span>
+                            <Icon name="image" className="text-on-surface-variant/30 text-xl" />
                           </div>
                         )}
 
                         {/* Active equalizer overlay */}
                         {isActive && (
                           <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white text-xl drop-shadow">
-                              equalizer
-                            </span>
+                            <Icon name="equalizer" className="text-white text-xl drop-shadow" />
                           </div>
                         )}
 
                         {/* Done checkmark overlay */}
                         {isDone && !isActive && (
                           <div className="absolute inset-0 bg-surface-container-high/40 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-primary text-xl drop-shadow">
-                              task_alt
-                            </span>
+                            <Icon name="task_alt" className="text-primary text-xl drop-shadow" />
                           </div>
                         )}
                       </div>
@@ -387,7 +373,7 @@ export function StudyPlayer({
                           {video.title}
                         </p>
                         <p className="text-[10px] font-semibold text-on-surface-variant/50 mt-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">schedule</span>
+                          <Icon name="schedule" className="text-[12px]" />
                           {formatDuration(video.durationSeconds)}
                         </p>
                       </div>

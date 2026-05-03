@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import * as React from "react";
 import { useTheme } from "next-themes";
 
@@ -15,7 +15,7 @@ export function ThemeToggle() {
   if (!mounted) {
     return (
       <div className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
-        <span className="material-symbols-outlined opacity-0">light_mode</span>
+        <Icon name="light_mode" className="opacity-0" />
       </div>
     );
   }
@@ -28,9 +28,7 @@ export function ThemeToggle() {
       className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant"
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      <span className="material-symbols-outlined">
-        {isDark ? "light_mode" : "dark_mode"}
-      </span>
+      <Icon name={isDark ? "light_mode" : "dark_mode"} />
     </button>
   );
 }

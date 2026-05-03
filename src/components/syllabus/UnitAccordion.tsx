@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import { TopicRow } from "./TopicRow";
 import { AddTopicForm } from "./AddTopicForm";
@@ -58,13 +58,12 @@ export function UnitAccordion({ unit, index, hiveId }: UnitAccordionProps) {
             isExpanded ? "clay-card" : "border-l-4 border-transparent hover:border-primary clay-inset"
           }`}
         >
-          <span
-            className={`material-symbols-outlined text-on-surface-variant text-2xl transition-transform duration-300 ${
+          <Icon 
+            name="expand_more" 
+            className={`text-on-surface-variant text-2xl transition-transform duration-300 ${
               isExpanded ? "rotate-180 text-primary" : ""
-            }`}
-          >
-            expand_more
-          </span>
+            }`} 
+          />
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <h3 className="text-lg font-bold text-on-background">{unit.title}</h3>
@@ -81,11 +80,11 @@ export function UnitAccordion({ unit, index, hiveId }: UnitAccordionProps) {
                 className="w-8 h-8 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
                 title="Delete Unit"
               >
-                <span className="material-symbols-outlined text-[20px]">delete</span>
+                <Icon name="delete" className="text-[20px]" />
               </button>
             )}
             <div className="text-on-surface-variant/40 hidden md:flex items-center gap-1 shrink-0">
-              <span className="material-symbols-outlined text-base">description</span>
+              <Icon name="description" className="text-base" />
               <span className="text-xs font-bold">{unit.topics.length} Topics</span>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 
 interface ActivityItem {
@@ -15,9 +16,7 @@ export function ActivityFeedItem({ activity }: { activity: ActivityItem }) {
   return (
     <div className="relative flex items-start gap-6">
       <div className={`w-10 h-10 rounded-full ${activity.bgColor} flex items-center justify-center z-10`}>
-        <span className={`material-symbols-outlined ${activity.iconColor} text-sm`} data-icon={activity.icon}>
-          {activity.icon}
-        </span>
+        <Icon name={activity.icon} className={`${activity.iconColor} text-sm`} />
       </div>
       <div>
         <p className="text-sm leading-relaxed">

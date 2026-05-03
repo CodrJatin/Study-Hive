@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { HiveContext } from "@/components/providers/HiveProviders";
@@ -104,9 +104,7 @@ export function DropzoneOverlay({ hiveId }: DropzoneOverlayProps) {
     <div className="fixed inset-0 pointer-events-none z-100 flex items-center justify-center">
       <div className="absolute inset-4 rounded-[2.5rem] border-4 border-dashed border-primary/60 bg-primary/5 backdrop-blur-sm transition-all animate-in fade-in duration-150" />
       <div className="relative z-10 clay-card bg-surface-container-lowest rounded-3xl px-12 py-10 flex flex-col items-center gap-4 shadow-2xl animate-in zoom-in-95 duration-150">
-        <span className="material-symbols-outlined text-primary text-6xl">
-          upload_file
-        </span>
+        <Icon name="upload_file" className="text-primary text-6xl" />
         <div className="text-center">
           <p className="text-xl font-headline font-bold text-on-surface">Drop to Upload</p>
           <p className="text-sm text-on-surface-variant mt-1 max-w-xs">

@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useRef, useEffect } from "react";
 
 export interface DropdownOption {
@@ -8,8 +8,10 @@ export interface DropdownOption {
   subtext?: string;
   icon?: string | React.ReactNode;
   iconColor?: string;
+  iconSize?: number;
   icon2?: string | React.ReactNode;
   icon2Color?: string;
+  icon2Size?: number;
   pill?: React.ReactNode;
   tags?: React.ReactNode[];
   textColor?: string;
@@ -104,13 +106,11 @@ export function Dropdown({
     setIsOpen(false);
   };
 
-  const renderIcon = (icon: string | React.ReactNode, colorClass?: string) => {
+  const renderIcon = (icon: string | React.ReactNode, colorClass?: string, size?: number) => {
     if (!icon) return null;
     if (typeof icon === "string") {
       return (
-        <span className={`material-symbols-outlined text-[20px] block leading-none ${colorClass || ""}`}>
-          {icon}
-        </span>
+        <Icon name={icon} size={size || 20} className={`leading-none ${colorClass || "text-on-surface-variant"}`} />
       );
     }
     return <div className={colorClass}>{icon}</div>;
@@ -127,9 +127,7 @@ export function Dropdown({
             <span className="truncate">
               {selectedOption ? selectedOption.title : placeholder}
             </span>
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              expand_more
-            </span>
+            <Icon name="expand_more" className="text-on-surface-variant text-[20px] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         )}
       </div>
@@ -161,7 +159,7 @@ export function Dropdown({
                   {/* Left Icon */}
                   {option.icon && (
                     <div className="shrink-0 flex items-center justify-center">
-                      {renderIcon(option.icon, option.iconColor)}
+                      {renderIcon(option.icon, option.iconColor, option.iconSize)}
                     </div>
                   )}
 
@@ -197,7 +195,7 @@ export function Dropdown({
                     {option.pill && (
                       <div className="shrink-0">{option.pill}</div>
                     )}
-                    {renderIcon(option.icon2, option.icon2Color)}
+                    {renderIcon(option.icon2, option.icon2Color, option.icon2Size)}
                   </div>
                 </div>
               ))

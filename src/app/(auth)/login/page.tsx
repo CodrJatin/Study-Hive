@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { login, signup } from "@/actions/auth";
@@ -97,9 +97,7 @@ export default function LoginPage() {
             <div className="relative z-10 max-w-sm">
               <div className="mb-8 flex justify-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full text-primary font-bold text-sm shadow-sm border border-outline-variant/30">
-                  <span className="material-symbols-outlined text-sm" data-icon="auto_awesome">
-                    auto_awesome
-                  </span>
+                  <Icon name="auto_awesome" className="text-sm" />
                   <span>Curating Knowledge Daily</span>
                 </div>
               </div>
@@ -125,7 +123,7 @@ export default function LoginPage() {
               {checkEmail ? (
                 <div className="text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <span className="material-symbols-outlined text-primary text-4xl">mark_email_unread</span>
+                    <Icon name="mark_email_unread" className="text-primary text-4xl" />
                   </div>
                   <div>
                     <h2 className="font-headline text-3xl font-bold text-on-surface mb-2">Check your inbox</h2>
@@ -136,15 +134,15 @@ export default function LoginPage() {
                   </div>
                   <div className="bg-surface-container-high rounded-2xl p-5 text-left space-y-3">
                     <div className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-primary text-[20px] mt-0.5 shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-[20px] mt-0.5 shrink-0" />
                       <p className="text-sm text-on-surface-variant">Open the email from <span className="font-semibold text-on-surface">StudyHive</span></p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-primary text-[20px] mt-0.5 shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-[20px] mt-0.5 shrink-0" />
                       <p className="text-sm text-on-surface-variant">Click the <span className="font-semibold text-on-surface">Confirm your email</span> link</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-primary text-[20px] mt-0.5 shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-[20px] mt-0.5 shrink-0" />
                       <p className="text-sm text-on-surface-variant">You&apos;ll be redirected to your dashboard automatically</p>
                     </div>
                   </div>

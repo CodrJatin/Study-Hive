@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import { removeMember } from "@/actions/hive";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
@@ -54,9 +54,7 @@ export function RemoveMemberButton({
         }`}
         title="Remove member"
       >
-        <span className={`material-symbols-outlined text-[20px] ${isPending ? "animate-spin" : ""}`}>
-          {isPending ? "progress_activity" : "person_remove"}
-        </span>
+        <Icon name={isPending ? "sync" : "user_minus"} className={`text-[20px] ${isPending ? "animate-spin" : ""}`} />
       </button>
 
       <ConfirmModal

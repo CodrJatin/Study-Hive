@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense } from "react";
 import { MaterialTile } from "@/components/track/MaterialTile";
 import { prisma } from "@/lib/prisma";
@@ -196,33 +197,6 @@ export default async function TrackDetailsPage({
         <TrackContent trackId={trackId} userId={user.id} hiveId={hiveId} />
       </Suspense>
 
-      {/* Bento Style Secondary Stats — Static for now, no fetch needed */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <div className="col-span-1 bg-tertiary-container/10 p-6 rounded-2xl border border-tertiary/10 flex flex-col justify-center">
-          <span className="material-symbols-outlined text-tertiary mb-4">timer</span>
-          <p className="text-xs font-bold text-tertiary uppercase tracking-widest">Est. Time Remaining</p>
-          <p className="text-2xl font-extrabold text-on-surface mt-1">4.5 Hours</p>
-        </div>
-        <div className="col-span-1 bg-primary-container/10 p-6 rounded-2xl border border-primary/10 flex flex-col justify-center">
-          <span className="material-symbols-outlined text-primary mb-4">groups</span>
-          <p className="text-xs font-bold text-primary uppercase tracking-widest">Peers Active</p>
-          <p className="text-2xl font-extrabold text-on-surface mt-1">12 Students</p>
-        </div>
-        <div className="col-span-1 bg-surface-container-low p-6 rounded-2xl clay-inset border-none">
-          <div className="flex -space-x-2 mb-4">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-surface bg-gray-300" />
-            ))}
-            <div className="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface flex items-center justify-center text-[10px] font-bold text-stone-500">
-              +9
-            </div>
-          </div>
-          <p className="text-xs font-bold text-stone-500 uppercase tracking-widest">Join Study Session</p>
-          <button className="mt-2 text-sm font-bold text-primary hover:underline transition-all">
-            Enter Room &rarr;
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

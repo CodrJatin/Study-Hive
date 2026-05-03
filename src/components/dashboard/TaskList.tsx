@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useOptimistic, useTransition } from "react";
 import { toggleTaskComplete } from "@/actions/tasks";
 import Link from "next/link";
@@ -31,7 +31,7 @@ export function TaskList({ initialTasks }: TaskListProps) {
   if (optimisticTasks.length === 0) {
     return (
       <div className="p-6 text-center text-on-surface-variant clay-inset rounded-2xl">
-        <span className="material-symbols-outlined text-4xl mb-2 opacity-50">all_match</span>
+        <Icon name="all_match" className="text-4xl mb-2 opacity-50" />
         <p className="font-bold">All caught up!</p>
         <p className="text-sm">No pending tasks for today.</p>
       </div>
@@ -69,7 +69,7 @@ export function TaskList({ initialTasks }: TaskListProps) {
                   : "border-primary text-transparent hover:bg-primary/10"
               }`}
             >
-              {task.isCompleted && <span className="material-symbols-outlined text-[14px] font-bold">check</span>}
+              {task.isCompleted && <Icon name="check" className="text-[14px] font-bold" />}
             </button>
             
             <div className="flex-1 min-w-0">
@@ -99,12 +99,12 @@ export function TaskList({ initialTasks }: TaskListProps) {
                 className="hidden sm:flex items-center gap-1.5 bg-surface-container-low text-on-surface-variant text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 shrink-0 hover:bg-surface-container-high transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
-                <span className="material-symbols-outlined text-[14px]">description</span>
+                <Icon name="description" className="text-[14px]" />
                 {task.material.title}
               </Link>
             ) : task.material ? (
               <div className="hidden sm:flex items-center gap-1.5 bg-[#F6F4F0] text-[#4A4A4A] text-[12px] font-bold px-3 py-1.5 rounded-lg border border-[#E5E5E5] shrink-0">
-                <span className="material-symbols-outlined text-[14px]">description</span>
+                <Icon name="description" className="text-[14px]" />
                 {task.material.title}
               </div>
             ) : null}

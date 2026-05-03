@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState } from "react";
 import { createTrack } from "@/actions/track";
 
@@ -43,9 +43,9 @@ export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
-      <form action={action} className="bg-surface-container-lowest w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <form action={action} className="relative z-10 bg-surface-container-lowest w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-6 md:p-8 flex items-center justify-between border-b border-outline-variant/10">
           <div>
@@ -57,7 +57,7 @@ export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: 
             onClick={onClose}
             className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -95,11 +95,11 @@ export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: 
                       : "border-outline-variant bg-surface-container-lowest"
                   }`}>
                     {selectedMaterials.includes(material.id) && (
-                      <span className="material-symbols-outlined text-[16px] font-bold">check</span>
+                      <Icon name="check" className="text-[16px] font-bold" />
                     )}
                   </div>
                   <div className={`w-10 h-10 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
-                    <span className={`material-symbols-outlined ${styling.iconColor}`}>{styling.icon}</span>
+                    <Icon name={styling.icon} className={`${styling.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-on-surface truncate">{material.title}</p>

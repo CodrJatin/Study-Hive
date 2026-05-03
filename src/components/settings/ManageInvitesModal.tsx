@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useOptimistic, useTransition } from "react";
 import { createInvite, deleteInvite } from "@/actions/invite";
 import { getJoinUrl } from "@/utils/get-url";
@@ -108,7 +108,7 @@ export function ManageInvitesModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-xs"
@@ -132,7 +132,7 @@ export function ManageInvitesModal({
             onClick={onClose}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface/60 shrink-0 ml-4"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -169,13 +169,7 @@ export function ManageInvitesModal({
                       : "hover:scale-[1.02] active:scale-[0.98]"
                   }`}
                 >
-                  <span
-                    className={`material-symbols-outlined text-lg ${
-                      isCreating ? "animate-spin" : ""
-                    }`}
-                  >
-                    {isCreating ? "progress_activity" : "add_link"}
-                  </span>
+                  <Icon name={isCreating ? "sync" : "link"} className={`text-lg ${isCreating ? "animate-spin" : ""}`} />
                   {isCreating ? "Creating..." : "Generate Link"}
                 </button>
               </div>
@@ -190,9 +184,7 @@ export function ManageInvitesModal({
         <div className="flex-1 overflow-y-auto px-8 py-6 space-y-3 custom-scrollbar">
           {optimisticInvites.length === 0 ? (
             <div className="py-16 text-center">
-              <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-3 block">
-                link_off
-              </span>
+              <Icon name="link_off" className="text-5xl text-on-surface-variant/20 mb-3" />
               <p className="text-sm font-medium text-on-surface-variant/50">
                 No active invite links
               </p>
@@ -219,13 +211,7 @@ export function ManageInvitesModal({
                       isExpired ? "bg-error/10" : "bg-primary/10"
                     }`}
                   >
-                    <span
-                      className={`material-symbols-outlined text-xl ${
-                        isExpired ? "text-error" : "text-primary"
-                      }`}
-                    >
-                      {isExpired ? "link_off" : "link"}
-                    </span>
+                    <Icon name={isExpired ? "link_off" : "link"} className={`text-xl ${isExpired ? "opacity-50" : ""}`} />
                   </div>
 
                   {/* URL + Expiry */}
@@ -249,9 +235,7 @@ export function ManageInvitesModal({
                     title="Copy link"
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 shrink-0"
                   >
-                    <span className="material-symbols-outlined text-xl">
-                      {copiedId === invite.id ? "check_circle" : "content_copy"}
-                    </span>
+                    <Icon name={copiedId === invite.id ? "check_circle" : "content_copy"} className="text-xl" />
                   </button>
 
                   {/* Delete Button */}
@@ -261,7 +245,7 @@ export function ManageInvitesModal({
                     title="Revoke link"
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-error/10 hover:text-error transition-all disabled:opacity-30 shrink-0"
                   >
-                    <span className="material-symbols-outlined text-xl">delete</span>
+                    <Icon name="delete" className="text-xl" />
                   </button>
                 </div>
               );

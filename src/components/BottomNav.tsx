@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -29,9 +29,7 @@ export default function BottomNav() {
               href={link.href}
               className={`flex flex-col items-center gap-0.5 min-w-[72px] transition-colors ${isActive ? "text-primary" : "text-on-surface-variant"}`}
             >
-              <span className={`material-symbols-outlined shrink-0 text-[24px] transition-transform ${isActive ? "scale-110" : "scale-100"}`} style={{ fontVariationSettings: isActive ? "'FILL' 1" : "" }}>
-                {link.icon}
-              </span>
+              <Icon name={link.icon} className={`shrink-0 text-[24px] transition-transform ${isActive ? "scale-110" : ""}`} />
               <span className={`text-[10px] font-bold ${isActive ? "opacity-100" : "opacity-70"}`}>{link.name}</span>
             </Link>
           );
@@ -51,9 +49,7 @@ export default function BottomNav() {
         href={hiveId ? `/hive/${hiveId}` : "/dashboard"} 
         className={`flex flex-col items-center gap-0.5 min-w-[64px] ${(!hiveId && pathname === "/dashboard") || (hiveId && pathname === `/hive/${hiveId}`) ? "text-primary" : "text-on-surface-variant"}`}
       >
-        <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: isActive("syllabus") || isActive("tracks") || isActive("materials") || isActive("settings") ? "" : "'FILL' 1" }}>
-          {hiveId ? "home" : "grid_view"}
-        </span>
+        <Icon name={hiveId ? "home" : "grid_view"} className="shrink-0" />
         <span className="text-[10px] font-bold">{hiveId ? "Home" : "General"}</span>
       </Link>
       
@@ -61,7 +57,7 @@ export default function BottomNav() {
         href={getLink("syllabus")} 
         className={`flex flex-col items-center gap-0.5 min-w-[64px] ${isActive("syllabus") ? "text-primary" : "text-on-surface-variant"}`}
       >
-        <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: isActive("syllabus") ? "'FILL' 1" : "" }}>account_tree</span>
+        <Icon name="account_tree" className="shrink-0" />
         <span className="text-[10px] font-bold">Syllabus</span>
       </Link>
 
@@ -69,7 +65,7 @@ export default function BottomNav() {
         href={getLink("materials")} 
         className={`flex flex-col items-center gap-0.5 min-w-[64px] ${isActive("materials") ? "text-primary" : "text-on-surface-variant"}`}
       >
-        <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: isActive("materials") ? "'FILL' 1" : "" }}>folder_open</span>
+        <Icon name="folder_open" className="shrink-0" />
         <span className="text-[10px] font-bold">Materials</span>
       </Link>
 
@@ -77,7 +73,7 @@ export default function BottomNav() {
         href={getLink("tracks")} 
         className={`flex flex-col items-center gap-0.5 min-w-[64px] ${isActive("tracks") ? "text-primary" : "text-on-surface-variant"}`}
       >
-        <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: isActive("tracks") ? "'FILL' 1" : "" }}>insights</span>
+        <Icon name="insights" className="shrink-0" />
         <span className="text-[10px] font-bold">Tracks</span>
       </Link>
 
@@ -85,7 +81,7 @@ export default function BottomNav() {
         href={getLink("settings")} 
         className={`flex flex-col items-center gap-0.5 min-w-[64px] ${isActive("settings") ? "text-primary" : "text-on-surface-variant"}`}
       >
-        <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: isActive("settings") ? "'FILL' 1" : "" }}>settings</span>
+        <Icon name="settings" className="shrink-0" />
         <span className="text-[10px] font-bold">Settings</span>
       </Link>
     </nav>

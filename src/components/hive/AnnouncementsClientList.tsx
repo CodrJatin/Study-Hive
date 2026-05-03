@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { AnnouncementRealtimeListener } from "./AnnouncementRealtimeListener";
 import type { ClientAnnouncement } from "@/types/client-prisma";
@@ -54,7 +55,7 @@ export function AnnouncementsClientList({
 
         {initialAnnouncements.length === 0 && (
           <div className="bg-surface-container-low rounded-3xl p-10 border border-outline-variant/10 flex flex-col items-center justify-center gap-4 clay-inset">
-            <span className="material-symbols-outlined text-on-surface-variant/10 text-6xl">campaign</span>
+            <Icon name="campaign" className="text-on-surface-variant/10 text-6xl" />
             <p className="text-on-surface-variant/40 font-bold uppercase tracking-widest text-xs">No announcements yet</p>
           </div>
         )}

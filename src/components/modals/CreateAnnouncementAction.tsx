@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState } from "react";
 import { NewAnnouncementModal } from "./NewAnnouncementModal";
 
@@ -12,9 +12,7 @@ export function CreateAnnouncementAction({ hiveId, userName }: { hiveId: string,
         onClick={() => setIsOpen(true)}
         className="px-5 py-2.5 bg-surface-container-lowest text-primary border border-primary/10 rounded-full text-sm font-bold hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2"
       >
-        <span className="material-symbols-outlined text-lg" data-icon="add">
-          add
-        </span>
+        <Icon name="add" className="text-lg" />
         Create
       </button>
       <NewAnnouncementModal 

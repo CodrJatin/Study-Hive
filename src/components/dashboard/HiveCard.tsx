@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import Link from "next/link";
 
 interface HiveCardProps {
@@ -18,9 +19,7 @@ export function HiveCard({ hive }: HiveCardProps) {
           {/* Top Header: Icon & Badge */}
           <div className="flex items-start justify-between mb-6">
             <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center shrink-0 border border-outline-variant/10">
-              <span className="material-symbols-outlined text-primary text-[24px]">
-                {hive.icon || "science"}
-              </span>
+              <Icon name={hive.icon || "science"} className="text-primary text-[24px]" />
             </div>
 
             {hive.daysLeft !== null && (
@@ -52,9 +51,7 @@ export function HiveCard({ hive }: HiveCardProps) {
         className="absolute bottom-6 right-6 w-10 h-10 text-primary/40 hover:text-primary flex items-center justify-center transition-all duration-200"
         title="View Materials"
       >
-        <span className="material-symbols-outlined text-[20px]">
-          folder_open
-        </span>
+        <Icon name="folder_open" className="text-[20px]" />
       </Link>
     </div>
   );

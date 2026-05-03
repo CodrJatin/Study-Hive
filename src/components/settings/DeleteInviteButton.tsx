@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import { deleteInvite } from "@/actions/invite";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
@@ -51,9 +51,7 @@ export function DeleteInviteButton({
         }`}
         title="Revoke invite link"
       >
-        <span className={`material-symbols-outlined text-[20px] ${isPending ? "animate-spin" : ""}`}>
-          {isPending ? "progress_activity" : "delete"}
-        </span>
+        <Icon name={isPending ? "sync" : "delete"} className={`text-[20px] ${isPending ? "animate-spin" : ""}`} />
       </button>
 
       <ConfirmModal

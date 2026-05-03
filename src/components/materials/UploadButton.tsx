@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useState, useContext } from "react";
 import { toast } from "sonner";
 import { HiveContext } from "@/components/providers/HiveProviders";
@@ -87,9 +87,7 @@ export function UploadButton({ hiveId, variant = "primary" }: UploadButtonProps)
         disabled={isUploading}
         className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-headline font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${getButtonStyle()}`}
       >
-        <span className={`material-symbols-outlined text-xl ${isUploading ? "animate-spin" : ""}`}>
-          {isUploading ? "progress_activity" : "upload_file"}
-        </span>
+        <Icon name={isUploading ? "sync" : "upload"} className={`text-xl ${isUploading ? "animate-spin" : ""}`} />
         {isUploading ? "Uploading..." : "Upload Files"}
       </button>
 

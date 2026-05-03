@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useState, useTransition, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -126,7 +126,7 @@ export function CreateTaskForm() {
     >
       <div className="flex items-center gap-3 mb-6 border-b border-outline-variant/10 pb-4">
         <div className="w-10 h-10 bg-surface-container-low text-primary rounded-xl flex items-center justify-center">
-          <span className="material-symbols-outlined font-bold text-[20px]">add_task</span>
+          <Icon name="add_task" className="font-bold text-[20px]" />
         </div>
         <h2 className="text-[20px] font-headline font-bold text-on-background">Create New Task</h2>
       </div>
@@ -172,7 +172,7 @@ export function CreateTaskForm() {
                   href={`/hive/${selectedHive.id}`}
                   className="flex items-center gap-1.5 bg-surface-container-low text-primary text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[14px]">science</span>
+                  <Icon name="science" className="text-[14px]" />
                   {selectedHive.title}
                 </Link>
               )}
@@ -182,7 +182,7 @@ export function CreateTaskForm() {
                   href={`/hive/${selectedHive?.id}/materials/${selectedMaterial.id}`}
                   className="flex items-center gap-1.5 bg-surface-container-low text-on-surface-variant text-[12px] font-bold px-3 py-1.5 rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[14px]">description</span>
+                  <Icon name="description" className="text-[14px]" />
                   {selectedMaterial.title}
                 </Link>
               )}
@@ -193,15 +193,13 @@ export function CreateTaskForm() {
                 className="ml-auto w-6 h-6 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors"
                 title="Remove attachment"
               >
-                <span className="material-symbols-outlined text-[14px]">close</span>
+                <Icon name="close" className="text-[14px]" />
               </button>
             </div>
           ) : (
             <div className="relative">
               <div className="flex items-center bg-surface-container-low rounded-xl px-4 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                <span className={`material-symbols-outlined text-[18px] mr-2 transition-colors ${isFetching ? "text-primary animate-pulse" : "text-on-surface-variant/60"}`}>
-                  search
-                </span>
+                <Icon name="search" className={`text-[18px] mr-2 transition-colors ${isFetching ? "text-primary" : "text-on-surface-variant/40"}`} />
                 <input
                   type="text"
                   placeholder="Search to attach a hive or material..."
@@ -218,7 +216,7 @@ export function CreateTaskForm() {
                   <div className="clay-card absolute top-full mt-2 left-0 right-0 bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/20 overflow-hidden z-70 animate-in fade-in slide-in-from-top-2 duration-150">
                     {isTypingOrSearching && (
                       <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-3">
-                        <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                        <Icon name="progress_activity" className="animate-spin text-primary" />
                         Searching for &quot;{searchQuery}&quot;...
                       </div>
                     )}
@@ -249,13 +247,13 @@ export function CreateTaskForm() {
                                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high/60 transition-colors text-left group"
                               >
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
-                                  <span className="material-symbols-outlined text-[18px]">{icon}</span>
+                                  <Icon name={icon} className="text-[18px]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-semibold text-on-surface truncate group-hover:text-primary transition-colors">{result.title}</p>
                                   {result.subtitle && <p className="text-xs text-on-surface-variant/60 truncate mt-0.5">{result.subtitle}</p>}
                                 </div>
-                                <span className="material-symbols-outlined text-base text-on-surface-variant/30 group-hover:text-primary transition-all">arrow_forward</span>
+                                <Icon name="arrow_forward" className="text-base text-on-surface-variant/30 group-hover:text-primary transition-all" />
                               </button>
                             </li>
                           );
@@ -279,9 +277,7 @@ export function CreateTaskForm() {
           }`}
         >
           {isPending && (
-            <span className="material-symbols-outlined text-[18px] animate-spin">
-              progress_activity
-            </span>
+            <Icon name="progress_activity" className="text-[18px] animate-spin" />
           )}
           {isPending ? "Adding..." : "Add Task"}
         </button>

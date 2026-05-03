@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 
 interface ConfirmModalProps {
@@ -28,7 +28,7 @@ export function ConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={() => !isPending && onCancel()}
@@ -61,9 +61,7 @@ export function ConfirmModal({
               }`}
             >
               {isPending && (
-                <span className="material-symbols-outlined text-[18px] animate-spin">
-                  progress_activity
-                </span>
+                <Icon name="progress_activity" className="text-[18px] animate-spin" />
               )}
               {isPending ? "Confirming..." : confirmText}
             </button>

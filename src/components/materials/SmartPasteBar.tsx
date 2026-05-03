@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition, useState, useContext } from "react";
 import { createSmartMaterial } from "@/actions/materials";
 import { HiveContext } from "@/components/providers/HiveProviders";
@@ -49,9 +49,7 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
       onSubmit={handleSubmit}
       className="flex items-center gap-3 p-4 rounded-2xl bg-surface-container-low clay-inset border border-outline-variant/10 w-full"
     >
-      <span className="material-symbols-outlined text-on-surface-variant text-xl shrink-0">
-        link
-      </span>
+      <Icon name="link" className="text-on-surface-variant text-xl shrink-0" />
       <div className="flex-1 min-w-0">
         <input
           name="url"
@@ -70,9 +68,7 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
         disabled={isPending}
         className="shrink-0 px-4 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-on-primary flex items-center gap-1.5 text-xs font-bold transition-all disabled:opacity-50 whitespace-nowrap"
       >
-        <span className={`material-symbols-outlined text-[16px] ${isPending ? "animate-spin" : ""}`}>
-          {isPending ? "progress_activity" : "add_link"}
-        </span>
+        <Icon name={isPending ? "sync" : "link"} className={`text-[16px] ${isPending ? "animate-spin" : ""}`} />
         {isPending ? "Saving..." : "Add Link"}
       </button>
     </form>

@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense } from "react";
 import { getCurrentSupabaseUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -105,9 +106,7 @@ async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string
   if (units.length === 0) {
     return (
       <div className="text-center py-20 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/20">
-        <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">
-          account_tree
-        </span>
+        <Icon name="account_tree" className="text-on-surface-variant/20 text-6xl mb-4 block" />
         <h3 className="text-xl font-headline font-bold text-on-surface mb-1">No Units Yet</h3>
         <p className="text-on-surface-variant text-sm">Add your first unit below to start building your syllabus.</p>
       </div>

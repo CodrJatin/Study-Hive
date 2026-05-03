@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 
@@ -40,9 +40,7 @@ export function NavLinks() {
                 : "text-on-surface/70 hover:bg-primary-container/20"
             }`}
           >
-            <span className="material-symbols-outlined" data-icon={item.icon}>
-              {item.icon}
-            </span>
+            <Icon name={item.icon} className="text-xl" />
             <span className="font-label">{item.label}</span>
           </Link>
         );

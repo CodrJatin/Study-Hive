@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import { MaterialCard } from "./MaterialCard";
 
@@ -56,7 +57,7 @@ export function MaterialClientGrid({
   if (sortedGroups.length === 0) {
     return (
       <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
-        <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">folder_open</span>
+        <Icon name="folder_open" className="text-on-surface-variant/20 text-6xl mb-4" />
         <h3 className="text-xl font-headline font-bold text-on-surface mb-1">No Materials Yet</h3>
         <p className="text-on-surface-variant text-sm">Paste a link above or drag and drop files anywhere on this page.</p>
       </div>
@@ -71,7 +72,7 @@ export function MaterialClientGrid({
           <section key={type}>
             <div className="flex items-center gap-4 mb-5">
               <div className={`w-8 h-8 rounded-lg ${styling.iconBg} flex items-center justify-center shrink-0`}>
-                <span className={`material-symbols-outlined text-base ${styling.iconColor}`}>{styling.icon}</span>
+                <Icon name={styling.icon} className={`text-base ${styling.iconColor}`} />
               </div>
               <h2 className="text-lg font-headline font-bold text-on-surface">{TYPE_LABELS[type] ?? type}</h2>
               <div className="h-px flex-1 bg-outline-variant/20" />

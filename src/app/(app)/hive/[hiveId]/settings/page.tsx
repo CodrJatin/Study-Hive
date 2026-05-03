@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense } from "react";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -138,9 +139,7 @@ async function InvitesSection({ hiveId }: { hiveId: string }) {
               return (
                 <div key={invite.id} className="flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors first:rounded-t-3xl last:rounded-b-3xl">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <span className={`material-symbols-outlined text-xl ${isExpired ? "text-error" : "text-primary"}`}>
-                      {isExpired ? "link_off" : "link"}
-                    </span>
+                    <Icon name={isExpired ? "link_off" : "link"} className={`text-xl ${isExpired ? "text-error" : "text-primary"}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-mono font-medium text-on-surface truncate">/join/{invite.code}</p>
                       <p className={`text-xs font-semibold mt-0.5 ${isExpired ? "text-error" : "text-on-surface-variant"}`}>

@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import { updateMaterial, deleteMaterial } from "@/actions/materials";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
@@ -80,7 +80,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-sm"
@@ -103,7 +103,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
             onClick={onClose}
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface/60"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -178,7 +178,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
               className="px-4 py-2.5 rounded-xl text-sm font-bold text-error hover:bg-error/10 transition-colors flex items-center gap-2"
               title="Delete material"
             >
-              <span className="material-symbols-outlined text-[20px]">delete</span>
+              <Icon name="delete" className="text-[20px]" />
               Delete
             </button>
             <div className="flex items-center gap-3">
@@ -198,9 +198,7 @@ export function EditMaterialModal({ material, isPlaylist, onClose }: EditMateria
                 }`}
               >
                 {isPending && (
-                  <span className="material-symbols-outlined text-[18px] animate-spin">
-                    progress_activity
-                  </span>
+                  <Icon name="progress_activity" className="text-[18px] animate-spin" />
                 )}
                 {isPending ? "Saving..." : "Save Changes"}
               </button>

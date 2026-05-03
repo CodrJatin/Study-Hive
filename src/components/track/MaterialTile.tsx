@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useOptimistic, useTransition } from "react";
 import { toggleTopicStatus } from "@/actions/syllabus";
 
@@ -41,7 +41,7 @@ export function MaterialTile({ material, hiveId }: { material: MaterialTileItem,
         >
           {optimisticStatus ? (
             <div className="relative flex items-center justify-center w-6 h-6 rounded border-2 border-primary bg-primary text-on-primary hover:bg-primary/80 transition-colors">
-              <span className="material-symbols-outlined text-lg leading-none">check</span>
+              <Icon name="check" className="text-lg leading-none" />
             </div>
           ) : (
             <div className="w-6 h-6 rounded border-2 border-outline-variant hover:border-primary transition-colors cursor-pointer"></div>
@@ -59,9 +59,7 @@ export function MaterialTile({ material, hiveId }: { material: MaterialTileItem,
               <span className="text-stone-400 text-xs">• {material.details}</span>
             </div>
           </div>
-          <span className="material-symbols-outlined text-stone-300 group-hover:text-primary transition-colors cursor-pointer">
-            description
-          </span>
+          <Icon name="description" className="text-stone-300 group-hover:text-primary transition-colors cursor-pointer" />
         </div>
         <p className="text-on-surface-variant text-sm leading-relaxed bg-surface-container-low p-4 rounded-xl italic border border-outline-variant/10">
           {material.instructions}

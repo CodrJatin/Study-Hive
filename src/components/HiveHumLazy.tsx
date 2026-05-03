@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -17,9 +17,7 @@ const HiveHum = dynamic(
         title="Loading Hive Hum…"
         aria-label="Loading music player"
       >
-        <span className="material-symbols-outlined animate-pulse text-[20px]">
-          hourglass_empty
-        </span>
+        <Icon name="hourglass_empty" className="animate-pulse text-[20px]" />
       </button>
     ),
   }
@@ -51,7 +49,7 @@ export function HiveHumLazy({ autoPlay = false }: HiveHumLazyProps) {
         title="Hive Hum – ambient music player"
         aria-label="Open music player"
       >
-        <span className="material-symbols-outlined text-[20px]">music_note</span>
+        <Icon name="music_note" className="text-[20px]" />
       </button>
     );
   }

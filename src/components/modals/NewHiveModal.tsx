@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useTransition } from "react";
 import { toast } from "sonner";
 import { createHive } from "@/actions/hive";
@@ -50,7 +50,7 @@ export function NewHiveModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         <div className="px-8 py-6 flex justify-between items-center border-b border-surface-container-low shrink-0">
           <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight">Create New Hive</h2>
           <button type="button" onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-on-surface-variant">close</span>
+            <Icon name="close" className="text-on-surface-variant" />
           </button>
         </div>
 
@@ -75,7 +75,7 @@ export function NewHiveModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                       : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-5xl">{icon}</span>
+                  <Icon name={icon} className="text-5xl" />
                 </button>
               ))}
             </div>

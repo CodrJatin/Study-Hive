@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useOptimistic, useState, useTransition } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -86,9 +86,7 @@ function PreferenceRow({
     >
       <div className="flex items-center gap-4 min-w-0">
         <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-[20px] text-on-primary-container">
-            {icon}
-          </span>
+          <Icon name={icon} className="text-[20px] text-on-primary-container" />
         </div>
         <div className="min-w-0">
           <p className="font-semibold text-on-surface text-sm">{label}</p>
@@ -214,7 +212,7 @@ export function SettingsClient({
               className="absolute bottom-6 right-6 z-10 text-on-surface-variant hover:text-primary transition-colors group"
               title="Edit Profile"
             >
-              <span className="material-symbols-outlined text-[20px] group-active:scale-90 transition-transform">edit</span>
+              <Icon name="edit" className="text-[20px] group-active:scale-90 transition-transform" />
             </button>
           )}
 
@@ -278,11 +276,11 @@ export function SettingsClient({
               <div className="space-y-1">
                 <p className="text-xl font-bold text-on-surface">{optimisticProfile.name}</p>
                 <p className="text-sm text-on-surface-variant flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px]">mail</span>
+                  <Icon name="mail" className="text-[14px]" />
                   {optimisticProfile.email}
                 </p>
                 <p className="text-xs text-on-surface-variant/60 flex items-center gap-1.5 pt-1">
-                  <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                  <Icon name="calendar_month" className="text-[13px]" />
                   Joined {optimisticProfile.joinedAt}
                 </p>
               </div>
@@ -352,7 +350,7 @@ export function SettingsClient({
                   className="w-9 h-9 rounded-xl text-primary flex items-center justify-center hover:bg-primary/10 active:scale-90 transition-all animate-in slide-in-from-right-4 fade-in duration-300 disabled:opacity-50"
                   title="Confirm color change"
                 >
-                  <span className="material-symbols-outlined text-[24px] font-bold">check</span>
+                  <Icon name="check" className="text-[24px] font-bold" />
                 </button>
               )}
 
@@ -394,9 +392,7 @@ export function SettingsClient({
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-error-container flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[20px] text-on-error-container">
-                    logout
-                  </span>
+                  <Icon name="logout" className="text-[20px] text-on-error-container" />
                 </div>
                 <div className="text-left">
                   <p className="font-semibold text-error text-sm transition-colors">
@@ -407,9 +403,7 @@ export function SettingsClient({
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[20px] text-error group-hover:translate-x-1 transition-transform">
-                chevron_right
-              </span>
+              <Icon name="chevron_right" className="text-[20px] text-error group-hover:translate-x-1 transition-transform" />
             </button>
           </form>
         </div>
@@ -430,7 +424,7 @@ export function SettingsClient({
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-2xl">person</span>
+                <Icon name="person" className="text-primary text-2xl" />
               </div>
               <div>
                 <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Creator</p>

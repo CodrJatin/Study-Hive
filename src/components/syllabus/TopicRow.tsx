@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useOptimistic, useTransition, useState } from "react";
 import { toggleTopicStatus, deleteTopic } from "@/actions/syllabus";
 import { useParams } from "next/navigation";
@@ -69,9 +69,7 @@ export function TopicRow({ topic, userStatus }: { topic: ClientTopic, userStatus
             }`}
           >
             {completed && (
-              <span className="material-symbols-outlined text-sm font-black text-primary">
-                check
-              </span>
+              <Icon name="check" className="text-sm font-black text-primary" />
             )}
           </div>
           <div className="flex flex-col">
@@ -92,10 +90,10 @@ export function TopicRow({ topic, userStatus }: { topic: ClientTopic, userStatus
               className="w-7 h-7 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error flex items-center justify-center transition-all opacity-0 group-hover/topic:opacity-100 disabled:opacity-50"
               title="Delete Topic"
             >
-              <span className="material-symbols-outlined text-[18px]">delete</span>
+              <Icon name="delete" className="text-[18px]" />
             </button>
           )}
-          <span className="material-symbols-outlined text-on-surface-variant/40 text-lg">description</span>
+          <Icon name="description" className="text-on-surface-variant/40 text-lg" />
         </div>
       </div>
 

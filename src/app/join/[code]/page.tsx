@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense } from "react";
 import { acceptInvite } from "@/actions/invite";
 import { redirect } from "next/navigation";
@@ -49,9 +50,7 @@ async function JoinContent({
     <div className="min-h-screen bg-surface-bright flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-surface-container-lowest rounded-4xl p-10 clay-card text-center space-y-6">
         <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto">
-          <span className="material-symbols-outlined text-error text-3xl">
-            link_off
-          </span>
+          <Icon name="link_off" className="text-error text-3xl" />
         </div>
         <div>
           <h1 className="text-2xl font-headline font-bold text-on-surface">
@@ -63,7 +62,7 @@ async function JoinContent({
           href="/dashboard"
           className="inline-flex items-center gap-2 px-8 py-3 cta-gradient text-white rounded-full font-headline font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
         >
-          <span className="material-symbols-outlined">home</span>
+          <Icon name="home" />
           Go to Dashboard
         </a>
       </div>

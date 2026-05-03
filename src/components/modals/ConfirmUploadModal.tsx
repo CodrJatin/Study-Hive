@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 
 interface ConfirmUploadModalProps {
@@ -43,7 +43,7 @@ export function ConfirmUploadModal({ files, onConfirm, onCancel }: ConfirmUpload
         
         {hasOversizedFiles && (
           <div className="bg-error/10 text-error text-sm font-bold p-3 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-lg">error</span>
+            <Icon name="error" className="text-lg" />
             Files larger than 10MB are not allowed.
           </div>
         )}

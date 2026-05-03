@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,9 +29,7 @@ export function DashboardNav() {
                 : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest clay-inset"
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">
-              {item.icon}
-            </span>
+            <Icon name={item.icon} className="text-[18px]" />
             {item.name}
           </Link>
         );

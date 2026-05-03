@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import { ProgressBar } from "@/components/hive/ProgressBar";
 
@@ -19,9 +20,7 @@ export function HiveOverviewCard({
                 {hive.title}
               </h1>
               <p className="text-on-surface/50 font-medium mt-3 uppercase tracking-widest text-xs flex items-center gap-2">
-                <span className="material-symbols-outlined text-base" data-icon="school">
-                  school
-                </span>
+                <Icon name="school" className="text-base" />
                 {hive.description || "Course Overview"}
               </p>
             </div>

@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense } from "react";
 import { requireUser } from "@/lib/session";
 import { getPersonalMaterialsCached } from "@/lib/data-access/materials";
@@ -58,7 +59,7 @@ async function PersonalMaterialsWidget({ userId }: { userId: string }) {
   if (materials.length === 0) {
     return (
       <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
-        <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">inbox</span>
+        <Icon name="inbox" className="text-on-surface-variant/20 text-6xl mb-4 block" />
         <h3 className="text-xl font-headline font-bold text-on-surface mb-1">Your Inbox is Empty</h3>
         <p className="text-on-surface-variant text-sm">Paste a YouTube link, PDF, or any URL above to save it here.</p>
         <p className="text-xs text-on-surface-variant/50 mt-2">

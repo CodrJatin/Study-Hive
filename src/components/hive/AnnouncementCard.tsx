@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useTransition } from "react";
 import Image from "next/image";
 import { useHiveContext } from "@/components/providers/HiveProviders";
@@ -65,7 +65,7 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementP
                 className="w-7 h-7 rounded bg-error/10 text-error hover:bg-error hover:text-on-error flex items-center justify-center transition-colors disabled:opacity-50"
                 title="Delete announcement"
               >
-                <span className="material-symbols-outlined text-[16px]">delete</span>
+                <Icon name="delete" className="text-[16px]" />
               </button>
             )}
             <span className="text-xs font-medium text-on-surface/40 bg-surface-container-high px-2 py-1 rounded">

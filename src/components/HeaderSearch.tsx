@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SearchResult } from "@/types/search";
@@ -147,7 +147,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
       subtext: result.subtitle || undefined,
       icon: (
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
-          <span className="material-symbols-outlined text-[18px]">{icon}</span>
+          <Icon name={icon} className="text-[18px]" />
         </div>
       ),
       icon2: "arrow_forward",
@@ -167,7 +167,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
 
   const loadingMessage = (
     <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-2">
-      <span className="material-symbols-outlined text-base animate-spin text-primary">progress_activity</span>
+      <Icon name="progress_activity" className="text-base animate-spin text-primary" />
       Searching for &quot;{query}&quot;...
     </div>
   );
@@ -188,7 +188,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
             isMobileSearchActive ? "bg-primary text-on-primary" : "hover:bg-surface-container-high text-on-surface-variant"
           }`}
         >
-          <span className="material-symbols-outlined">{isMobileSearchActive ? "close" : "search"}</span>
+          <Icon name={isMobileSearchActive ? "close" : "search"} />
         </button>
 
         {isMobileSearchActive && (
@@ -204,9 +204,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
               menuClassName="w-full left-0 right-0 max-h-[70vh] shadow-xl border-outline-variant/10 !mt-2"
               trigger={
                 <div className="flex items-center bg-surface-container-high px-4 py-2 rounded-2xl ring-2 ring-primary/20">
-                  <span className={`material-symbols-outlined mr-3 text-lg ${isFetching ? "animate-pulse text-primary" : "text-on-surface-variant"}`}>
-                    search
-                  </span>
+                  <Icon name="search" className={`mr-3 text-lg ${isFetching ? "text-primary animate-pulse" : "text-on-surface-variant/40"}`} />
                   <input
                     autoFocus
                     className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none"
@@ -217,7 +215,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
                   />
                   {query && (
                     <button onClick={() => { setQuery(""); setResults([]); setResultsFor(""); }}>
-                      <span className="material-symbols-outlined text-base">close</span>
+                      <Icon name="close" className="text-base" />
                     </button>
                   )}
                 </div>
@@ -243,19 +241,9 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
         menuClassName="w-full left-0 right-0 max-h-[60vh] shadow-2xl border-outline-variant/20 !mt-2 z-[999] clay-card"
         trigger={
           <div
-            className={`flex items-center px-4 py-2 rounded-full transition-all duration-200 ${
-              isOpen
-                ? "bg-surface-container-lowest ring-2 ring-primary/30 shadow-md"
-                : "bg-surface-container-high focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/20"
-            }`}
+            className={`flex items-center px-4 py-2 rounded-full transition-all duration-200 ${isOpen ? "bg-surface-container-lowest ring-2 ring-primary/30 shadow-md" : "bg-surface-container-high focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/20"}`}
           >
-            <span
-              className={`material-symbols-outlined mr-3 text-lg transition-colors ${
-                isFetching ? "text-primary animate-pulse" : "text-on-surface-variant"
-              }`}
-            >
-              search
-            </span>
+            <Icon name="search" className={`mr-3 text-lg transition-colors ${isFetching ? "text-primary animate-pulse" : "text-on-surface-variant/40"}`} />
             <input
               className="bg-transparent border-none focus:ring-0 w-full text-sm font-body outline-none placeholder:text-on-surface-variant/60"
               placeholder="Search hives, materials, topics…"
@@ -268,7 +256,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
                 onClick={() => { setQuery(""); setResults([]); setResultsFor(""); }}
                 className="ml-2 text-on-surface-variant/60 hover:text-on-surface transition-colors"
               >
-                <span className="material-symbols-outlined text-base">close</span>
+                <Icon name="close" className="text-base" />
               </button>
             )}
           </div>

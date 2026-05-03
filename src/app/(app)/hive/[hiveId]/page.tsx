@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense, cache } from "react";
 import { HiveOverviewCard } from "@/components/hive/HiveOverviewCard";
 import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncementAction";
@@ -112,7 +113,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
     <>
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-3xl">campaign</span>
+          <Icon name="campaign" className="text-primary text-3xl" />
           Announcements
         </h3>
         <CreateAnnouncementAction hiveId={hiveId} userName={userName} />
@@ -143,7 +144,7 @@ async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: numbe
     <>
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
-          <span className="material-symbols-outlined text-error text-3xl">event_busy</span>
+          <Icon name="event_busy" className="text-error text-3xl" />
           Deadlines
         </h3>
         <ManageDeadlinesAction hiveId={hiveId} deadlines={rawDeadlines} />
@@ -153,8 +154,8 @@ async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: numbe
           <DeadlineItem key={deadline.id} deadline={deadline} />
         ))}
         {mappedDeadlines.length === 0 && (
-          <div className="py-12 text-center">
-            <span className="material-symbols-outlined text-on-surface-variant/10 text-5xl mb-2">event_available</span>
+          <div className="py-12 flex flex-col items-center justify-center text-center">
+            <Icon name="event_available" className="text-on-surface-variant/10 text-5xl mb-4" />
             <p className="text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">All clear for now</p>
           </div>
         )}

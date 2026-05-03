@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { createAnnouncement } from "@/actions/announcement";
@@ -56,7 +56,7 @@ export function NewAnnouncementModal({ isOpen, onClose, hiveId, userName }: NewA
             </p>
           </div>
           <button type="button" onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface/60">
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -74,7 +74,7 @@ export function NewAnnouncementModal({ isOpen, onClose, hiveId, userName }: NewA
           </button>
           <button type="submit" disabled={isPending}
             className={`px-10 py-3 cta-gradient text-white rounded-full font-headline font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2 ${isPending ? "opacity-70 scale-95 cursor-not-allowed" : "hover:scale-[1.02] active:scale-[0.98]"}`}>
-            {isPending && <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>}
+            {isPending && <Icon name="progress_activity" className="animate-spin text-lg" />}
             {isPending ? "Posting…" : "Post Announcement"}
           </button>
         </div>

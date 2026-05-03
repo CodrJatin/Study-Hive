@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { updateHive } from "@/actions/hive";
@@ -106,7 +106,7 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
                 } ${!canManage || isPending ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <span className="material-symbols-outlined text-5xl">{icon}</span>
+                <Icon name={icon} className="text-5xl" />
                 </button>
             ))}
           </div>
@@ -140,7 +140,7 @@ export function GeneralSettingsForm({ hive }: GeneralSettingsFormProps) {
             }`}
           >
             {isPending && (
-              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <Icon name="progress_activity" className="text-lg animate-spin" />
             )}
             {isPending ? "Saving…" : "Save Changes"}
           </button>

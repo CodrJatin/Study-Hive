@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
@@ -154,9 +154,7 @@ export function UserMenu({
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-container-high hover:text-primary transition-colors group"
               >
-                <span className="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">
-                  {icon}
-                </span>
+                <Icon name={icon} className="text-[20px] text-on-surface-variant group-hover:text-primary transition-colors" />
                 {label}
               </Link>
             ))}
@@ -171,9 +169,7 @@ export function UserMenu({
               disabled={isPending}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-error hover:bg-error/8 transition-colors group disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-[20px] group-hover:scale-105 transition-transform">
-                {isPending ? "progress_activity" : "logout"}
-              </span>
+              <Icon name={isPending ? "progress_activity" : "logout"} className="text-[20px] group-hover:scale-105 transition-transform" />
               {isPending ? "Signing out…" : "Log Out"}
             </button>
           </div>

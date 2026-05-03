@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,7 +35,7 @@ export function DashboardSidebar() {
           onClick={() => setIsModalOpen(true)}
           className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-xl font-bold hover:opacity-90 transition-colors mb-8 shadow-md"
         >
-          <span className="material-symbols-outlined text-[18px]">add</span>
+          <Icon name="add" className="text-[18px]" />
           New Hive
         </button>
 
@@ -53,9 +53,7 @@ export function DashboardSidebar() {
                     : "text-on-surface-variant hover:bg-surface-container-high"
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px] opacity-80">
-                  {link.icon}
-                </span>
+                <Icon name={link.icon} className="text-[20px] opacity-80" />
                 {link.name}
               </Link>
             );

@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 import Link from "next/link";
 import { getCurrentSupabaseUser, getCurrentPrismaUser } from "@/lib/session";
@@ -28,7 +29,7 @@ export default async function Header() {
             href="/dashboard"
             className="md:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant"
           >
-            <span className="material-symbols-outlined text-xl">arrow_back</span>
+            <Icon name="arrow_back" className="text-xl" />
           </Link>
           <span className="text-xl font-bold text-primary tracking-tighter font-headline">
             StudyHive

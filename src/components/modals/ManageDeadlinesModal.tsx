@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition, useOptimistic } from "react";
 import { toast } from "sonner";
 import { addDeadline, deleteDeadline } from "@/actions/hive";
@@ -95,7 +95,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
     <>
       <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative bg-surface-container-lowest rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden border border-outline-variant/20 flex flex-col max-h-[90vh]">
+        <div className="relative z-10 bg-surface-container-lowest rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden border border-outline-variant/20 flex flex-col max-h-[90vh]">
           {/* Header */}
           <div className="p-8 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low">
             <div>
@@ -103,7 +103,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
               <p className="text-sm text-on-surface-variant">Add or remove hive checkpoints</p>
             </div>
             <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-surface-container-high flex items-center justify-center transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              <Icon name="close" className="text-on-surface-variant" />
             </button>
           </div>
 
@@ -122,9 +122,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
               </div>
               <button type="submit" disabled={isAdding}
                 className={`bg-primary text-on-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 transition-all ${isAdding ? "opacity-70 scale-95" : "hover:scale-110 active:scale-95"}`}>
-                <span className={`material-symbols-outlined ${isAdding ? "animate-spin" : ""}`}>
-                  {isAdding ? "progress_activity" : "add"}
-                </span>
+                <Icon name={isAdding ? "sync" : "add"} className={`${isAdding ? "animate-spin" : ""}`} />
               </button>
             </form>
           </div>
@@ -133,7 +131,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
           <div className="grow overflow-y-auto p-6 space-y-3">
             {optimisticDeadlines.length === 0 ? (
               <div className="py-20 text-center">
-                <span className="material-symbols-outlined text-4xl text-on-surface-variant/20 mb-2">event_available</span>
+                <Icon name="event_available" className="text-4xl text-on-surface-variant/20 mb-2" />
                 <p className="text-sm text-on-surface-variant/40 font-medium">No deadlines active</p>
               </div>
             ) : (
@@ -150,7 +148,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
                   <div className="grow min-w-0">
                     <h4 className="text-[16px] font-bold text-on-surface truncate pr-2">{deadline.title}</h4>
                     <p className="text-sm text-on-surface-variant flex items-center gap-1.5 mt-0.5">
-                      <span className="material-symbols-outlined text-base">calendar_today</span>
+                      <Icon name="calendar_today" className="text-base" />
                       {new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(deadline.dueDate))}
                     </p>
                   </div>
@@ -159,7 +157,7 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
                       onClick={() => confirmDelete(deadline.id, deadline.title)}
                       className="w-8 h-8 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
+                      <Icon name="delete" className="text-[20px]" />
                     </button>
                   )}
                 </div>

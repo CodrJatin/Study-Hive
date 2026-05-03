@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React, { Suspense, cache } from "react";
 import Link from "next/link";
 import { requireUser } from "@/lib/session";
@@ -89,7 +90,7 @@ async function RecentHivesWidget({ userId, nowMs }: { userId: string; nowMs: num
   if (recentHives.length === 0) {
     return (
       <div className="p-8 text-center text-on-surface-variant clay-inset rounded-3xl">
-        <span className="material-symbols-outlined text-4xl mb-2 opacity-50">science</span>
+        <Icon name="science" className="text-4xl mb-2 opacity-50" />
         <p className="font-bold">No hives yet.</p>
         <Link href="/dashboard/hives" className="text-primary hover:underline text-sm font-bold">
           Create your first hive
@@ -170,7 +171,7 @@ export default async function DashboardOverview() {
               href="/dashboard/hives"
               className="text-sm font-bold text-primary hover:underline flex items-center gap-1"
             >
-              View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              View All <Icon name="arrow_forward" className="text-[16px]" />
             </Link>
           </div>
           <Suspense fallback={<RecentHivesSkeleton />}>
@@ -181,7 +182,7 @@ export default async function DashboardOverview() {
         {/* Upcoming Tasks */}
         <section className="bg-surface-container-low rounded-[24px] p-8">
           <div className="flex items-center gap-3 mb-6">
-            <span className="material-symbols-outlined text-[24px] text-primary">check_circle</span>
+            <Icon name="check_circle" className="text-[24px] text-primary" />
             <h2 className="text-[22px] font-headline font-bold text-on-background">Upcoming Tasks</h2>
           </div>
           <Suspense fallback={<TasksSkeleton />}>
@@ -196,7 +197,7 @@ export default async function DashboardOverview() {
         <div className="md:col-span-4">
           <section className="bg-surface-container-low rounded-[24px] p-8 h-full sticky top-24">
             <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-[24px] text-error">event_busy</span>
+              <Icon name="event_busy" className="text-[24px] text-error" />
               <h2 className="text-[20px] font-headline font-bold text-on-background">Deadline Central</h2>
             </div>
             <DeadlineCentralWidget upcomingDeadlines={upcomingDeadlines} nowMs={nowMs} />

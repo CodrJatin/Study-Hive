@@ -1,15 +1,11 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 
 export function ProgressBar({ progress, label, labelSecondary }: { progress: number, label: string, labelSecondary?: string }) {
   return (
     <div className="mt-auto">
       <div className="flex items-end justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-2xl" data-icon="auto_graph">
-              auto_graph
-            </span>
-          </div>
+        <div className="flex items-center">
           <div>
             <h3 className="text-xs font-headline font-bold text-on-background uppercase tracking-widest">
               {label}

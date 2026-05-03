@@ -1,5 +1,5 @@
 "use client";
-
+import { Icon } from "@/components/ui/Icon";
 import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { createUnit } from "@/actions/syllabus";
@@ -47,9 +47,7 @@ export function AddUnitForm({ hiveId }: { hiveId: string }) {
       onSubmit={handleSubmit}
       className="flex items-center gap-3 p-4 rounded-xl bg-surface-container-low border border-dashed border-outline-variant/30 hover:border-primary/30 transition-colors clay-inset mt-4"
     >
-      <span className="material-symbols-outlined text-on-surface-variant text-xl shrink-0">
-        add_circle
-      </span>
+      <Icon name="add_circle" className="text-on-surface-variant text-xl shrink-0" />
       <input
         name="title"
         type="text"
@@ -62,9 +60,7 @@ export function AddUnitForm({ hiveId }: { hiveId: string }) {
         disabled={isPending}
         className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-on-primary flex items-center justify-center transition-all disabled:opacity-50"
       >
-        <span className={`material-symbols-outlined text-[18px] ${isPending ? "animate-spin" : ""}`}>
-          {isPending ? "progress_activity" : "arrow_upward"}
-        </span>
+        <Icon name={isPending ? "sync" : "arrow_upward"} className={`text-[18px] ${isPending ? "animate-spin" : ""}`} />
       </button>
     </form>
   );

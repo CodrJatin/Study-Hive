@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/Icon";
 import React from "react";
 
 interface ActionCardProps {
@@ -37,15 +38,7 @@ export function ActionCard({
             : "w-16 h-16 rounded-full bg-surface-container-high mb-4 group-hover:bg-primary-container"
         } flex items-center justify-center transition-colors`}
       >
-        <span
-          className={`material-symbols-outlined ${
-            isLarge
-              ? "text-primary text-4xl"
-              : "text-3xl text-outline group-hover:text-primary"
-          }`}
-        >
-          {icon}
-        </span>
+        <Icon name={icon} className={`${isLarge ? "text-3xl text-primary" : "text-2xl text-on-surface-variant group-hover:text-primary"} transition-colors`} />
       </div>
       
       {isLarge ? (
@@ -68,7 +61,7 @@ export function ActionCard({
 
       {actionText && isLarge && (
         <button className="px-8 py-3 bg-primary text-on-primary rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
-          {icon === 'add_circle' || icon === 'add' ? <span className="material-symbols-outlined text-xl">add</span> : null}
+          {icon === 'add_circle' || icon === 'add' ? <Icon name="add" className="text-xl" /> : null}
           {actionText}
         </button>
       )}
