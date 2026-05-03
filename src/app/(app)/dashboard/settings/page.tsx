@@ -1,6 +1,5 @@
 import React from "react";
-import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { getCurrentPrismaUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { SettingsClient } from "@/components/settings/SettingsClient";
 
@@ -8,31 +7,12 @@ import { SettingsClient } from "@/components/settings/SettingsClient";
 // Page — server component
 // ─────────────────────────────────────────
 export default async function AppSettingsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  if (!authUser) redirect("/login");
-
-  const user = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    select: {
-      name: true,
-      email: true,
-      image: true,
-      avatarColor: true,
-      createdAt: true,
-      theme: true,
-      autoPlayHum: true,
-      avatarType: true,
-    },
-  });
+  const user = await getCurrentPrismaUser();
 
   if (!user) redirect("/login");
 
   const name = user.name ?? "Scholar";
-  const email = user.email ?? authUser.email ?? "";
+  const email = user.email ?? "";
   const image = user.image ?? null;
   const avatarColor = user.avatarColor ?? "#fdc003";
   const avatarType = user.avatarType ?? "image";
@@ -58,7 +38,7 @@ export default async function AppSettingsPage() {
  
   // Initial prefs from User table
   const initialPrefs = {
-    theme: user.theme,
+    theme: user.theme ?? "",
     autoPlayHum: user.autoPlayHum,
     avatarColor: avatarColor,
     avatarType: avatarType,

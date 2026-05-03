@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentSupabaseUser, getHiveMembership } from "@/lib/session";
 import { StudyPlayer } from "@/components/materials/StudyPlayer";
 import type { YouTubePlaylistItem } from "@/utils/youtube";
 
@@ -101,16 +101,12 @@ export default async function MaterialPlayerPage({
 }) {
   const { hiveId, materialId } = await params;
 
-  // Auth check — user must belong to this hive
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
-
-  const membership = await prisma.hiveMember.findFirst({
-    where: { hiveId, userId: user.id },
-  });
+  // Auth check — memoized: layout already called these within this render tree
+  const [user, membership] = await Promise.all([
+    getCurrentSupabaseUser(),
+    getHiveMembership(hiveId),
+  ]);
+  if (!user) notFound();
   if (!membership) return notFound();
 
   // Fetch material

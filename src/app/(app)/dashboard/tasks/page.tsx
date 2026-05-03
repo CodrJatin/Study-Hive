@@ -1,19 +1,11 @@
 import React from "react";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/session";
 import { getUserTasks } from "@/actions/tasks";
 import { CreateTaskForm } from "@/components/dashboard/CreateTaskForm";
 import { TaskList } from "@/components/dashboard/TaskList";
 
 export default async function TaskStudioPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  await requireUser();
 
   const tasks = await getUserTasks();
   

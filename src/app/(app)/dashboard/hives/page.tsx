@@ -2,18 +2,10 @@ import React from "react";
 import { HiveCard } from "@/components/dashboard/HiveCard";
 import { AddHiveCard } from "@/components/dashboard/AddHiveCard";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/session";
 
 export default async function HivesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const user = await requireUser();
 
   const hiveMemberships = await prisma.hiveMember.findMany({
     where: { userId: user.id },

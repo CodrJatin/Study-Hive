@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { MaterialTile } from "@/components/track/MaterialTile";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentSupabaseUser } from "@/lib/session";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -158,12 +158,12 @@ async function CurriculumList({ trackId, userId, hiveId }: { trackId: string, us
 
 export default async function TrackDetailsPage({ params }: { params: Promise<{ hiveId: string, trackId: string }> }) {
   const { hiveId, trackId } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [user, exists] = await Promise.all([
+    getCurrentSupabaseUser(),
+    prisma.track.findUnique({ where: { id: trackId }, select: { id: true, hiveId: true } }),
+  ]);
 
-  if (!user) return null; // Should be handled by layout/middleware
-
-  const exists = await prisma.track.findUnique({ where: { id: trackId }, select: { id: true, hiveId: true } });
+  if (!user) return null;
   if (!exists || exists.hiveId !== hiveId) notFound();
 
   return (

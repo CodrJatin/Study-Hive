@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/utils/supabase/server";
+import { requireUser } from "@/lib/session";
 import { StudyPlayer } from "@/components/materials/StudyPlayer";
 import type { YouTubePlaylistItem } from "@/utils/youtube";
 
@@ -92,9 +92,7 @@ export default async function PersonalMaterialPlayerPage({
 }) {
   const { materialId } = await params;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   // Fetch material — must belong to the user and have NO hive
   const material = await prisma.material.findFirst({

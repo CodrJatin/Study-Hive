@@ -1,7 +1,6 @@
 import React, { Suspense, cache } from "react";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/session";
 import {
   getRecentHives,
   getUpcomingDeadlines,
@@ -150,14 +149,7 @@ async function UpcomingTasksWidget({ nowMs }: { nowMs: number }) {
 // ─────────────────────────────────────────
 
 export default async function DashboardOverview() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const user = await requireUser();
 
   // cache()-wrapped: same value returned within one render tree — satisfies purity rule
   const nowMs = getRequestNow();

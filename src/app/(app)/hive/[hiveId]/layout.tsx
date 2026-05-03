@@ -1,9 +1,8 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/utils/supabase/server";
+import { requireUser, requireHiveMembership } from "@/lib/session";
 import { HiveProvider } from "@/components/providers/HiveProviders";
-import { redirect } from "next/navigation";
 
 export default async function HiveLayout({
   children,
@@ -13,26 +12,19 @@ export default async function HiveLayout({
   params: Promise<{ hiveId: string }>;
 }) {
   const { hiveId } = await params;
-  
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  // Both helpers are cache()-memoized — single Supabase call covers both,
+  // and the membership query is shared with any page that calls requireHiveMembership
+  // or getHiveMembership within the same request render tree.
+  const [user, membership] = await Promise.all([
+    requireUser(),
+    requireHiveMembership(hiveId),
+  ]);
 
   const hive = await prisma.hive.findUnique({
     where: { id: hiveId },
-    select: { title: true }
+    select: { title: true },
   });
-
-  const membership = await prisma.hiveMember.findUnique({
-    where: { userId_hiveId: { userId: user.id, hiveId } },
-  });
-
-  if (!membership) {
-    redirect("/dashboard");
-  }
 
   return (
     <HiveProvider role={membership.role} userId={user.id} hiveId={hiveId}>

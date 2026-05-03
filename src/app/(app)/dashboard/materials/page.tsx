@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/session";
 import { getPersonalMaterials } from "@/actions/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
@@ -76,9 +75,7 @@ async function PersonalMaterialsWidget({ userId }: { userId: string }) {
 // ─────────────────────────────────────────
 
 export default async function PersonalMaterialsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   return (
     <div className="max-w-6xl mx-auto">

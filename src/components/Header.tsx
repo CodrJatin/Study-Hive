@@ -1,19 +1,16 @@
 import React from "react";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentSupabaseUser, getCurrentPrismaUser } from "@/lib/session";
 import { HeaderSearch } from "@/components/HeaderSearch";
 import { UserMenu } from "@/components/UserMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HiveHumLazy } from "@/components/HiveHumLazy";
 
 export default async function Header() {
-  const supabase = await createClient();
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-
-  const user = authUser ? await prisma.user.findUnique({
-    where: { id: authUser.id },
-  }) : null;
+  const [authUser, user] = await Promise.all([
+    getCurrentSupabaseUser(),
+    getCurrentPrismaUser(),
+  ]);
 
   const username = user?.name || "Scholar";
   const email = user?.email || authUser?.email || "";

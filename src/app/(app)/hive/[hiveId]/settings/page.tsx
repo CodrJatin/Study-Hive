@@ -8,7 +8,7 @@ import { CopyInviteButton } from "@/components/settings/CopyInviteButton";
 import { RemoveMemberButton } from "@/components/settings/RemoveMemberButton";
 import { DeleteInviteButton } from "@/components/settings/DeleteInviteButton";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
-import { createClient } from "@/utils/supabase/server";
+import { getHiveMembership } from "@/lib/session";
 import { DangerZoneSettings } from "@/components/settings/DangerZoneSettings";
 import { ChangeRoleDropdown } from "@/components/settings/ChangeRoleDropdown";
 import { LeaveHiveSection } from "@/components/settings/LeaveHiveSection";
@@ -176,17 +176,9 @@ export default async function SettingsPage({
   params: Promise<{ hiveId: string }>;
 }) {
   const { hiveId } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
   const [exists, membership] = await Promise.all([
     prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
-    user
-      ? prisma.hiveMember.findUnique({
-          where: { userId_hiveId: { userId: user.id, hiveId } },
-          select: { role: true },
-        })
-      : null,
+    getHiveMembership(hiveId),
   ]);
   if (!exists) return notFound();
 

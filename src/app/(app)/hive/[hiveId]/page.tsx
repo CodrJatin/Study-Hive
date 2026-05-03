@@ -6,7 +6,7 @@ import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentSupabaseUser, getCurrentPrismaUser } from "@/lib/session";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // Per-request timestamp memoized by React cache()
@@ -184,13 +184,11 @@ async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: numbe
 export default async function HiveGeneralPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
 
-  const supabase = await createClient();
-  const { data: { user: authUser } } = await supabase.auth.getUser();
-
-  // Minimal existence check + user name in one fast parallel pair
-  const [exists, dbUser] = await Promise.all([
+  // Both memoized — layout already called these helpers in this request render tree
+  const [authUser, exists, dbUser] = await Promise.all([
+    getCurrentSupabaseUser(),
     prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
-    authUser ? prisma.user.findUnique({ where: { id: authUser.id }, select: { name: true } }) : null,
+    getCurrentPrismaUser(),
   ]);
 
   if (!exists) return notFound();

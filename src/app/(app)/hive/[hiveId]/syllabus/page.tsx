@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentSupabaseUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { UnitAccordion } from "@/components/syllabus/UnitAccordion";
@@ -159,11 +159,10 @@ async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string
 
 export default async function SyllabusPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Verify the hive exists with a minimal query before rendering shell
-  const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
+  const [user, exists] = await Promise.all([
+    getCurrentSupabaseUser(),
+    prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
+  ]);
   if (!exists) return notFound();
 
   const userId = user?.id ?? "";
