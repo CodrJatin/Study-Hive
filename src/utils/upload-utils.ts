@@ -1,3 +1,4 @@
+import "client-only";
 import { createClient } from "@/utils/supabase/client";
 import { createMaterial } from "@/actions/materials";
 import type { MaterialType } from "@/types/client-prisma";

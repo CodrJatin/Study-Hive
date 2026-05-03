@@ -1,3 +1,4 @@
+import "server-only";
 import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
 

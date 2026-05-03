@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Server-side YouTube Data API v3 utilities.
  * NEVER import this file in client components — it exposes YOUTUBE_API_KEY.
