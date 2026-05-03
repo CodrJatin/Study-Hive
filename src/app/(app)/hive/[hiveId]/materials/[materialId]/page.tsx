@@ -46,7 +46,6 @@ function resolvePlayerVideos(
 ): YouTubePlaylistItem[] {
   // ── Single VIDEO ─────────────────────────────────────────────
   if (material.type === "VIDEO" && material.url) {
-    // Extract video ID from URL
     let videoId = "";
     try {
       const u = new URL(material.url);
@@ -101,40 +100,38 @@ export default async function MaterialPlayerPage({
 }) {
   const { hiveId, materialId } = await params;
 
-  // Auth check — memoized: layout already called these within this render tree
-  const [user, membership] = await Promise.all([
+  // Round trip 1: auth + membership (cache()-memoized) + material — all independent.
+  const [user, membership, material] = await Promise.all([
     getCurrentSupabaseUser(),
     getHiveMembership(hiveId),
+    prisma.material.findFirst({
+      where: { id: materialId, hiveId },
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        url: true,
+        duration: true,
+        videoRange: true,
+        playlistData: true,
+        channelName: true,
+      },
+    }),
   ]);
-  if (!user) notFound();
+
+  if (!user) return notFound();
   if (!membership) return notFound();
-
-  // Fetch material
-  const material = await prisma.material.findFirst({
-    where: { id: materialId, hiveId },
-    select: {
-      id: true,
-      title: true,
-      type: true,
-      url: true,
-      duration: true,
-      videoRange: true,
-      playlistData: true,
-      channelName: true,
-    },
-  });
-
   if (!material) return notFound();
   if (material.type !== "VIDEO" && material.type !== "PLAYLIST") return notFound();
 
-  const videos = resolvePlayerVideos(material);
-
-  // Fetch the current user's progress for this material
+  // Round trip 2: progress — requires user.id from round trip 1.
   const progressRecord = await prisma.userMaterialProgress.findUnique({
     where: { userId_materialId: { userId: user.id, materialId } },
     select: { completedPositions: true },
   });
   const initialCompletedPositions: number[] = progressRecord?.completedPositions ?? [];
+
+  const videos = resolvePlayerVideos(material);
 
   return (
     <div className="max-w-7xl mx-auto">

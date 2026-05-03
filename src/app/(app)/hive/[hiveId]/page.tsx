@@ -5,7 +5,6 @@ import { AnnouncementsClientList } from "@/components/hive/AnnouncementsClientLi
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
 import { getCurrentSupabaseUser, getCurrentPrismaUser } from "@/lib/session";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
@@ -184,14 +183,12 @@ async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: numbe
 export default async function HiveGeneralPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
 
-  // Both memoized — layout already called these helpers in this request render tree
-  const [authUser, exists, dbUser] = await Promise.all([
+  // Layout's requireHiveMembership() guarantees the hive exists — no existence
+  // check needed here. Both helpers are cache()-memoized from the layout call.
+  const [authUser, dbUser] = await Promise.all([
     getCurrentSupabaseUser(),
-    prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
     getCurrentPrismaUser(),
   ]);
-
-  if (!exists) return notFound();
 
   // cache()-wrapped: same value within one render tree — satisfies purity rule
   const nowMs = getRequestNow();

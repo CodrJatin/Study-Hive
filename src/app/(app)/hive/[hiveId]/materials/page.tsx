@@ -7,12 +7,6 @@ import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
 import { UploadButton } from "@/components/materials/UploadButton";
 
 // ─────────────────────────────────────────
-// Helpers (pure fns, no I/O)
-// ─────────────────────────────────────────
-
-// ─────────────────────────────────────────
-
-// ─────────────────────────────────────────
 // Skeletons
 // ─────────────────────────────────────────
 
@@ -53,18 +47,21 @@ function MaterialGridSkeleton() {
 // Async Widgets
 // ─────────────────────────────────────────
 
-async function MaterialsHeader({ hiveId }: { hiveId: string }) {
-  const [hive, count] = await Promise.all([
-    prisma.hive.findUnique({ where: { id: hiveId }, select: { title: true } }),
-    prisma.material.count({ where: { hiveId } }),
-  ]);
-  if (!hive) return null;
-
+// Receives hive title + count already fetched by the shell — zero additional queries.
+function MaterialsHeader({
+  hiveTitle,
+  count,
+  hiveId,
+}: {
+  hiveTitle: string;
+  count: number;
+  hiveId: string;
+}) {
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-4xl font-headline font-extrabold text-on-background tracking-tight mb-1">
-          {hive.title}
+          {hiveTitle}
         </h1>
         <p className="text-on-surface-variant text-sm">
           {count} resource{count !== 1 ? "s" : ""} · Drag files anywhere to upload
@@ -94,11 +91,21 @@ async function MaterialGrid({ hiveId }: { hiveId: string }) {
 // Page Shell
 // ─────────────────────────────────────────
 
-export default async function MaterialsPage({ params }: { params: Promise<{ hiveId: string }> }) {
+export default async function MaterialsPage({
+  params,
+}: {
+  params: Promise<{ hiveId: string }>;
+}) {
   const { hiveId } = await params;
 
-  const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
-  if (!exists) return notFound();
+  // One query covers both the existence check and the header data.
+  // MaterialGrid runs concurrently via Suspense streaming.
+  const [hive, count] = await Promise.all([
+    prisma.hive.findUnique({ where: { id: hiveId }, select: { title: true } }),
+    prisma.material.count({ where: { hiveId } }),
+  ]);
+
+  if (!hive) return notFound();
 
   return (
     <>
@@ -106,17 +113,11 @@ export default async function MaterialsPage({ params }: { params: Promise<{ hive
 
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">
-          <span className="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">Materials</span>
-          <Suspense
-            fallback={
-              <div className="animate-pulse space-y-1 mb-6">
-                <div className="h-10 w-64 bg-surface-container-high rounded-xl" />
-                <div className="h-4 w-40 bg-surface-container-high rounded" />
-              </div>
-            }
-          >
-            <MaterialsHeader hiveId={hiveId} />
-          </Suspense>
+          <span className="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">
+            Materials
+          </span>
+          {/* Synchronous — data already in scope, no extra fetch */}
+          <MaterialsHeader hiveTitle={hive.title} count={count} hiveId={hiveId} />
           <SmartPasteBar hiveId={hiveId} />
         </header>
 

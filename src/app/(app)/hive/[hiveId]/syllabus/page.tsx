@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import { getCurrentSupabaseUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
 import { UnitAccordion } from "@/components/syllabus/UnitAccordion";
 import { AddUnitForm } from "@/components/syllabus/AddUnitForm";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
@@ -159,12 +158,8 @@ async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string
 
 export default async function SyllabusPage({ params }: { params: Promise<{ hiveId: string }> }) {
   const { hiveId } = await params;
-  const [user, exists] = await Promise.all([
-    getCurrentSupabaseUser(),
-    prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } }),
-  ]);
-  if (!exists) return notFound();
-
+  // Layout requireHiveMembership() guarantees hive validity - no extra query needed.
+  const user = await getCurrentSupabaseUser();
   const userId = user?.id ?? "";
 
   return (

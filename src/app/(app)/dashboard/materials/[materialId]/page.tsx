@@ -94,30 +94,31 @@ export default async function PersonalMaterialPlayerPage({
 
   const user = await requireUser();
 
-  // Fetch material — must belong to the user and have NO hive
-  const material = await prisma.material.findFirst({
-    where: { id: materialId, userId: user.id, hiveId: null },
-    select: {
-      id: true,
-      title: true,
-      type: true,
-      url: true,
-      duration: true,
-      videoRange: true,
-      playlistData: true,
-      channelName: true,
-    },
-  });
+  // Round trip 2: material + progress in parallel — both only need user.id.
+  const [material, progressRecord] = await Promise.all([
+    prisma.material.findFirst({
+      where: { id: materialId, userId: user.id, hiveId: null },
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        url: true,
+        duration: true,
+        videoRange: true,
+        playlistData: true,
+        channelName: true,
+      },
+    }),
+    prisma.userMaterialProgress.findUnique({
+      where: { userId_materialId: { userId: user.id, materialId } },
+      select: { completedPositions: true },
+    }),
+  ]);
 
   if (!material) return notFound();
   if (material.type !== "VIDEO" && material.type !== "PLAYLIST") return notFound();
 
   const videos = resolvePlayerVideos(material);
-
-  const progressRecord = await prisma.userMaterialProgress.findUnique({
-    where: { userId_materialId: { userId: user.id, materialId } },
-    select: { completedPositions: true },
-  });
   const initialCompletedPositions: number[] = progressRecord?.completedPositions ?? [];
 
   return (
