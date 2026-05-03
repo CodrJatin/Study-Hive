@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { getHiveMaterialsCached } from "@/lib/data-access/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
@@ -74,16 +75,7 @@ function MaterialsHeader({
 }
 
 async function MaterialGrid({ hiveId }: { hiveId: string }) {
-  const materials = await prisma.material.findMany({
-    where: { hiveId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true, title: true, type: true, url: true,
-      sizeBytes: true, channelName: true, duration: true,
-      videoRange: true, playlistData: true, userId: true,
-      user: { select: { name: true } },
-    },
-  });
+  const materials = await getHiveMaterialsCached(hiveId);
 
   return <MaterialClientGrid hiveId={hiveId} initialMaterials={materials} />;
 }

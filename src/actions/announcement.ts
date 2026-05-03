@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { createClient } from "@/utils/supabase/server";
 
 export type AnnouncementActionError = { error: string };
@@ -46,7 +47,7 @@ export async function createAnnouncement(
       },
     });
 
-    revalidatePath(`/hive/${hiveId}`);
+    updateTag(CacheTags.hiveOverview(hiveId));
     return null;
   } catch (error) {
     console.error("Announcement Error:", error);
@@ -91,7 +92,7 @@ export async function deleteAnnouncement(
       where: { id: announcementId },
     });
 
-    revalidatePath(`/hive/${hiveId}`);
+    updateTag(CacheTags.hiveOverview(hiveId));
     return null;
   } catch (error) {
     console.error("Delete Announcement Error:", error);

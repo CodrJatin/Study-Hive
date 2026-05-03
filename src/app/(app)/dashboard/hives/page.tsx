@@ -1,36 +1,23 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { HiveCard } from "@/components/dashboard/HiveCard";
 import { AddHiveCard } from "@/components/dashboard/AddHiveCard";
-import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { getAllHivesCached } from "@/lib/data-access/dashboard";
 
-export default async function HivesPage() {
+export default function HivesPage() {
+  return (
+    <Suspense fallback={<div>Loading hives...</div>}>
+      <HivesContent />
+    </Suspense>
+  );
+}
+
+async function HivesContent() {
   const user = await requireUser();
 
-  const hiveMemberships = await prisma.hiveMember.findMany({
-    where: { userId: user.id },
-    include: {
-      hive: {
-        include: {
-          deadlines: {
-            where: {
-              dueDate: { gte: new Date() }
-            },
-            orderBy: {
-              dueDate: 'asc'
-            },
-            take: 1
-          }
-        }
-      }
-    },
-    orderBy: {
-      lastAccessedAt: 'desc'
-    }
-  });
+  const hiveMemberships = await getAllHivesCached(user.id);
 
-  const hives = hiveMemberships.map(hm => {
-    const hive = hm.hive;
+  const hives = hiveMemberships.map(hive => {
     const nearestDeadline = hive.deadlines?.[0];
 
     // Calculate days left

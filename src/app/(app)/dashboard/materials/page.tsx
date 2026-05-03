@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { requireUser } from "@/lib/session";
-import { getPersonalMaterials } from "@/actions/materials";
+import { getPersonalMaterialsCached } from "@/lib/data-access/materials";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
@@ -53,7 +53,7 @@ function MaterialGridSkeleton() {
 // ─────────────────────────────────────────
 
 async function PersonalMaterialsWidget({ userId }: { userId: string }) {
-  const materials = await getPersonalMaterials();
+  const materials = await getPersonalMaterialsCached(userId);
 
   if (materials.length === 0) {
     return (

@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { getCurrentSupabaseUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { getSyllabusCached } from "@/lib/data-access/syllabus";
 import { UnitAccordion } from "@/components/syllabus/UnitAccordion";
 import { AddUnitForm } from "@/components/syllabus/AddUnitForm";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
@@ -99,37 +100,7 @@ async function SyllabusHeader({ hiveId, userId }: { hiveId: string; userId: stri
 }
 
 async function SyllabusList({ hiveId, userId }: { hiveId: string; userId: string }) {
-  const units = await prisma.unit.findMany({
-    where: { hiveId },
-    orderBy: { position: "asc" },
-    select: {
-      id: true,
-      title: true,
-      position: true,
-      createdAt: true,
-      updatedAt: true,
-      hiveId: true,
-      creatorId: true,
-      topics: {
-        orderBy: { position: "asc" },
-        select: {
-          id: true,
-          title: true,
-          position: true,
-          duration: true,
-          resourceCount: true,
-          createdAt: true,
-          updatedAt: true,
-          unitId: true,
-          creatorId: true,
-          topicProgress: {
-            where: { userId },
-            select: { status: true },
-          },
-        },
-      },
-    },
-  });
+  const { units } = await getSyllabusCached(hiveId, userId);
 
   if (units.length === 0) {
     return (

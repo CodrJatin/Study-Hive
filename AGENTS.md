@@ -28,27 +28,28 @@ You are working in a performance-sensitive full-stack Next.js App Router applica
 - Dynamic route `params` and `searchParams` are async request APIs. Await them.
 - `cookies()`, `headers()`, and other request-time APIs are async. Await them.
 - Do not rely on outdated Next.js behavior from older versions.
+- Do not use `export const dynamic = "force-dynamic"` to force dynamic rendering.
+- When `cacheComponents: true` is enabled (PPR), any dynamic data access (like `cookies()`, `connection()`, or reading async `params` via `requireUser()`) MUST be isolated inside a `<Suspense>` boundary. Accessing uncached data at the top level without Suspense will break the production build.
 
 ## Data Fetching Rules
 
-- Fetch database data in Server Components, Server Actions, Route Handlers, or server-only data-access modules.
+- Emphasize the use of the Data Access Layer (DAL) in `src/lib/data-access/`. Heavy database reads should live here rather than in inline Server Components or Route Handlers.
+- Use the Next.js 16 `"use cache"` directive inside DAL functions, paired with explicit `cacheTag` and `cacheLife`. Use React `cache()` only for per-request deduplication when `"use cache"` is inappropriate.
 - Use Prisma only on the server.
 - Add `import "server-only";` to modules that use Prisma, secrets, filesystem access, `next/headers`, or server Supabase clients.
 - Add `import "client-only";` to modules that require browser APIs.
-- Use React `cache()` for repeated per-request reads such as current user, Prisma user, hive membership, and shared route data.
-- Avoid duplicate existence queries. If the real data query can prove existence, use that query.
-- Start independent async work before awaiting it. Use `Promise.all` for independent requests.
+- Avoid duplicate existence queries (Prisma Query Waterfalls). If the real data query can prove existence, remove the dedicated existence query.
+- Start independent async work before awaiting it. Use `Promise.all` to batch sequential queries.
 - Keep Prisma `select` narrow. Do not use broad `include` unless the full relation is required.
 - Add pagination or limits for lists that can grow: materials, announcements, members, tasks, syllabus units/topics, search results.
 
 ## Caching And Invalidation
 
-- Do not scatter `revalidatePath()` everywhere by default.
+- Cache tags must be typed and centrally defined in `src/lib/cache-tags.ts`.
 - Prefer explicit cache tags for shared data.
-- Use `updateTag()` in Server Actions when the user must see their own write immediately.
+- Use `updateTag()` in Server Actions when the user must see their own write immediately. This allows surgical eviction and "read-your-writes" consistency without wiping the entire route cache.
 - Use `revalidateTag(tag, "max")` for stale-while-revalidate content.
-- Keep `revalidatePath()` only for cases where route-level invalidation is clearly required.
-- Do not use route group names such as `/(app)` in public path invalidation.
+- Retain `revalidatePath()` only as a last resort for cases where granular cache tags are impossible and route-level invalidation is genuinely required. Do not use route group names such as `/(app)` in public path invalidation.
 
 ## Server Actions
 
@@ -61,10 +62,10 @@ You are working in a performance-sensitive full-stack Next.js App Router applica
 
 ## Search And Client Reads
 
-- Do not use Server Actions for every keystroke.
-- Use Route Handlers for autocomplete/search reads.
-- Client search must debounce and cancel stale requests with `AbortController`.
-- Search must enforce a minimum query length and return only the fields required by the UI.
+- Do not use Server Actions for keystroke-heavy autocomplete or searches.
+- Use Route Handlers (e.g., `GET /api/search`) for autocomplete/search reads.
+- Client search components must use `fetch` with an `AbortController` to debounce and cancel stale requests on query change.
+- Search must enforce a minimum query length (e.g., 3 characters) unless explicitly required by the UI, and return only the fields required by the UI.
 - All search queries must be scoped to the authenticated user’s accessible hives/materials.
 
 ## Client Bundle Guardrails
@@ -80,9 +81,8 @@ You are working in a performance-sensitive full-stack Next.js App Router applica
 
 - Realtime listeners must be tiny client islands.
 - Do not make whole lists/grids Client Components just to call `router.refresh()`.
-- Every realtime subscription must be filtered as narrowly as the schema allows.
-- Avoid unfiltered table subscriptions.
-- Do not use unstable objects in hook dependency arrays.
+- Every realtime subscription must be filtered as narrowly as the schema allows (e.g., filtered by hive or user ID). Avoid unfiltered table subscriptions.
+- `useRealtime` must be called with a stable channel key and a stable filter object. Do not use unstable objects in hook dependency arrays.
 - Avoid random channel names unless there is a proven collision issue.
 
 ## Styling And UI Performance

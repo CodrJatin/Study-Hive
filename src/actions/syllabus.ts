@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { TopicStatus } from "@prisma/client";
 import { createClient } from "@/utils/supabase/server";
 
@@ -34,10 +35,9 @@ export async function toggleTopicStatus(topicId: string, currentStatus: TopicSta
     },
   });
 
-  revalidatePath(`/hive/${hiveId}/syllabus`);
-  revalidatePath(`/hive/${hiveId}`); // updates HiveOverviewCard mastery progress
-  revalidatePath(`/dashboard`); // update dashboard overview
-  revalidatePath(`/dashboard/hives`); // update dashboard hives
+  updateTag(CacheTags.hiveSyllabus(hiveId));
+  updateTag(CacheTags.hiveOverview(hiveId));
+  updateTag(CacheTags.userHives(user.id));
   return nextStatus;
 }
 
@@ -71,7 +71,7 @@ export async function createUnit(
     data: { hiveId, title: title.trim(), position: count, creatorId: user.id },
   });
 
-  revalidatePath(`/hive/${hiveId}/syllabus`);
+  updateTag(CacheTags.hiveSyllabus(hiveId));
   return null;
 }
 
@@ -115,7 +115,7 @@ export async function createTopic(
     data: { unitId, title: title.trim(), position: count, creatorId: user.id },
   });
 
-  revalidatePath(`/hive/${derivedHiveId}/syllabus`);
+  updateTag(CacheTags.hiveSyllabus(derivedHiveId));
   return null;
 }
 
@@ -157,7 +157,7 @@ export async function deleteUnit(
       where: { id: unitId },
     });
 
-    revalidatePath(`/hive/${hiveId}/syllabus`);
+    updateTag(CacheTags.hiveSyllabus(hiveId));
     return null;
   } catch (error) {
     console.error("Delete Unit Error:", error);
@@ -206,7 +206,7 @@ export async function deleteTopic(
       where: { id: topicId },
     });
 
-    revalidatePath(`/hive/${hiveId}/syllabus`);
+    updateTag(CacheTags.hiveSyllabus(hiveId));
     return null;
   } catch (error) {
     console.error("Delete Topic Error:", error);

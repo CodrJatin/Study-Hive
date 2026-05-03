@@ -2,10 +2,10 @@ import React, { Suspense, cache } from "react";
 import Link from "next/link";
 import { requireUser } from "@/lib/session";
 import {
-  getRecentHives,
-  getUpcomingDeadlines,
-} from "@/actions/dashboard";
-import { getUserTasks } from "@/actions/tasks";
+  getRecentHivesCached,
+  getUpcomingDeadlinesCached,
+} from "@/lib/data-access/dashboard";
+import { getUserTasksCached } from "@/lib/data-access/tasks";
 import { HiveCard } from "@/components/dashboard/HiveCard";
 import { TaskList } from "@/components/dashboard/TaskList";
 
@@ -84,7 +84,7 @@ function TasksSkeleton() {
 // ─────────────────────────────────────────
 
 async function RecentHivesWidget({ userId, nowMs }: { userId: string; nowMs: number }) {
-  const recentHives = await getRecentHives(userId);
+  const recentHives = await getRecentHivesCached(userId);
 
   if (recentHives.length === 0) {
     return (
@@ -127,8 +127,8 @@ async function RecentHivesWidget({ userId, nowMs }: { userId: string; nowMs: num
   );
 }
 
-async function UpcomingTasksWidget({ nowMs }: { nowMs: number }) {
-  const allTasks = await getUserTasks();
+async function UpcomingTasksWidget({ userId, nowMs }: { userId: string; nowMs: number }) {
+  const allTasks = await getUserTasksCached(userId);
   const todayStr = new Date(nowMs).toDateString();
 
   const quickTasks = allTasks
@@ -154,7 +154,7 @@ export default async function DashboardOverview() {
   // cache()-wrapped: same value returned within one render tree — satisfies purity rule
   const nowMs = getRequestNow();
 
-  const upcomingDeadlines = await getUpcomingDeadlines(user.id);
+  const upcomingDeadlines = await getUpcomingDeadlinesCached(user.id);
   const hasDeadlines = upcomingDeadlines.length > 0;
 
   return (
@@ -185,7 +185,7 @@ export default async function DashboardOverview() {
             <h2 className="text-[22px] font-headline font-bold text-on-background">Upcoming Tasks</h2>
           </div>
           <Suspense fallback={<TasksSkeleton />}>
-            <UpcomingTasksWidget nowMs={nowMs} />
+            <UpcomingTasksWidget userId={user.id} nowMs={nowMs} />
           </Suspense>
         </section>
 

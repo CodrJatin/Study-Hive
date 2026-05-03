@@ -1,9 +1,28 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { acceptInvite } from "@/actions/invite";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
-export default async function JoinPage({
+export default function JoinPage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-surface-bright flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-surface-container-lowest rounded-4xl p-10 clay-card text-center space-y-6 animate-pulse">
+          <div className="h-8 w-3/4 bg-surface-container-high rounded mx-auto" />
+          <div className="h-4 w-1/2 bg-surface-container-high rounded mx-auto" />
+        </div>
+      </div>
+    }>
+      <JoinContent params={params} />
+    </Suspense>
+  );
+}
+
+async function JoinContent({
   params,
 }: {
   params: Promise<{ code: string }>;

@@ -9,6 +9,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  // Enables `use cache`, `cacheTag`, `cacheLife`, and `updateTag` APIs.
+  // Also enables React Activity-based route preservation during navigation.
+  cacheComponents: true,
   // Silence the turbopack/webpack mismatch warning introduced in Next 16.
   // @ducanh2912/next-pwa adds a webpack config; we explicitly opt into webpack
   // for production builds by leaving turbopack unconfigured here.

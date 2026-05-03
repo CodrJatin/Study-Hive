@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { MaterialType } from "@prisma/client";
 import { createClient } from "@/utils/supabase/server";
 import { ensurePrismaUser } from "@/utils/auth-utils";
@@ -72,8 +73,8 @@ export async function createMaterial(
       },
     });
 
-    if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
-    revalidatePath(`/dashboard/materials`);
+    if (hiveId) updateTag(CacheTags.hiveMaterials(hiveId));
+    updateTag(CacheTags.userMaterials(user.id));
     return null;
   } catch (err: unknown) {
     console.error("createMaterial failed:", err);
@@ -117,8 +118,8 @@ export async function createSmartMaterial(
       },
     });
 
-    if (hiveId) revalidatePath(`/hive/${hiveId}/materials`);
-    revalidatePath(`/dashboard/materials`);
+    if (hiveId) updateTag(CacheTags.hiveMaterials(hiveId));
+    updateTag(CacheTags.userMaterials(user.id));
     return { materialId: material.id };
   } catch (err: unknown) {
     console.error("createSmartMaterial failed:", err);
@@ -204,8 +205,8 @@ export async function updateMaterial(
       },
     });
 
-    if (existing.hiveId) revalidatePath(`/hive/${existing.hiveId}/materials`);
-    revalidatePath(`/dashboard/materials`);
+    if (existing.hiveId) updateTag(CacheTags.hiveMaterials(existing.hiveId));
+    updateTag(CacheTags.userMaterials(user.id));
     return null;
   } catch (err: unknown) {
     console.error("updateMaterial failed:", err);
@@ -297,8 +298,8 @@ export async function deleteMaterial(
     await prisma.material.delete({ where: { id: materialId } });
 
     // 4. Revalidate cache
-    if (hiveId && hiveId !== "") revalidatePath(`/hive/${hiveId}/materials`);
-    revalidatePath(`/dashboard/materials`);
+    if (hiveId && hiveId !== "") updateTag(CacheTags.hiveMaterials(hiveId));
+    updateTag(CacheTags.userMaterials(user.id));
 
     return null;
   } catch (err: unknown) {

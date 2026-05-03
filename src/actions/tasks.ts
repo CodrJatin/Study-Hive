@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { createClient } from "@/utils/supabase/server";
 import { ensurePrismaUser } from "@/utils/auth-utils";
 
@@ -50,8 +51,7 @@ export async function createTask(data: {
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/tasks");
+    updateTag(CacheTags.userTasks(user.id));
 
     return { task };
   } catch (error) {
@@ -83,8 +83,7 @@ export async function toggleTaskComplete(taskId: string, isCompleted: boolean) {
       data: { isCompleted },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/tasks");
+    updateTag(CacheTags.userTasks(user.id));
 
     return { success: true };
   } catch (error) {

@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { createClient } from "@/utils/supabase/server";
 
 type SettingsError = { error: string };
@@ -31,8 +32,7 @@ export async function updatePreferences(
       data: { theme, autoPlayHum, avatarColor, avatarType },
     });
 
-    revalidatePath("/dashboard/settings");
-    revalidatePath("/(app)/hive/[hiveId]");
+    updateTag(CacheTags.userSettings(user.id));
     return null;
   } catch (err) {
     console.error("Update Preferences Error:", err);
@@ -65,7 +65,7 @@ export async function updateProfile(
       data: { name: name.trim() },
     });
 
-    revalidatePath("/dashboard/settings");
+    updateTag(CacheTags.userSettings(user.id));
     return null;
   } catch (err) {
     console.error("Update Profile Error:", err);

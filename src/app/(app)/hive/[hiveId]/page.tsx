@@ -4,8 +4,9 @@ import { CreateAnnouncementAction } from "@/components/modals/CreateAnnouncement
 import { AnnouncementsClientList } from "@/components/hive/AnnouncementsClientList";
 import { DeadlineItem } from "@/components/hive/DeadlineItem";
 import { ManageDeadlinesAction } from "@/components/modals/ManageDeadlinesAction";
-import { prisma } from "@/lib/prisma";
 import { getCurrentSupabaseUser, getCurrentPrismaUser } from "@/lib/session";
+import { getHiveOverviewCached } from "@/lib/data-access/hive";
+import { prisma } from "@/lib/prisma";
 import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // Per-request timestamp memoized by React cache()
@@ -87,11 +88,8 @@ function DeadlineSkeleton() {
 // ─────────────────────────────────────────
 
 async function HiveOverviewWidget({ hiveId, userId }: { hiveId: string; userId: string | null }) {
-  const [hive, totalTopics, completedTopics] = await Promise.all([
-    prisma.hive.findUnique({
-      where: { id: hiveId },
-      select: { title: true, description: true },
-    }),
+  const { hive } = await getHiveOverviewCached(hiveId);
+  const [totalTopics, completedTopics] = await Promise.all([
     prisma.topic.count({ where: { unit: { hiveId } } }),
     userId
       ? prisma.userTopicProgress.count({
@@ -108,13 +106,7 @@ async function HiveOverviewWidget({ hiveId, userId }: { hiveId: string; userId: 
 }
 
 async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userName: string }) {
-  const announcements = await prisma.announcement.findMany({
-    where: { hiveId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      author: { select: { name: true, image: true, avatarColor: true, avatarType: true } },
-    },
-  });
+  const { announcements } = await getHiveOverviewCached(hiveId);
 
   return (
     <>
@@ -131,11 +123,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
 }
 
 async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: number }) {
-  const rawDeadlines = await prisma.deadline.findMany({
-    where: { hiveId },
-    orderBy: { dueDate: "asc" },
-    select: { id: true, title: true, dueDate: true, creatorId: true },
-  });
+  const { deadlines: rawDeadlines } = await getHiveOverviewCached(hiveId);
 
   const mappedDeadlines = rawDeadlines.map((d) => {
     const days = diffDays(new Date(d.dueDate).getTime(), nowMs);

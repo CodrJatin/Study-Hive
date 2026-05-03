@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { redirect } from "next/navigation";
 import { HiveRole } from "@prisma/client";
 import { createClient } from "@/utils/supabase/server";
@@ -51,7 +52,7 @@ export async function createHive(
     });
 
     // Revalidate the dashboard so the new HiveCard appears instantly.
-    revalidatePath("/dashboard");
+    updateTag(CacheTags.userHives(user.id));
     return null;
   } catch (error) {
     console.error("Database Error:", error);
@@ -86,7 +87,7 @@ export async function deleteHive(hiveId: string): Promise<HiveActionError | null
       where: { id: hiveId },
     });
 
-    revalidatePath("/dashboard");
+    updateTag(CacheTags.userHives(user.id));
   } catch (error) {
     console.error("Delete Error:", error);
     return { error: "Failed to delete hive" };
@@ -142,8 +143,8 @@ export async function updateHive(
       },
     });
 
-    revalidatePath(`/hive/${hiveId}/settings`);
-    revalidatePath("/dashboard");
+    updateTag(CacheTags.hiveSettings(hiveId));
+    updateTag(CacheTags.userHives(user.id));
     
     // Success - return null to indicate no error
     return null;
@@ -180,7 +181,8 @@ export async function addDeadline(
       },
     });
 
-    revalidatePath(`/hive/${hiveId}`);
+    updateTag(CacheTags.hiveOverview(hiveId));
+    updateTag(CacheTags.userDeadlines(user.id));
     return null;
   } catch (error) {
     console.error("Add Deadline Error:", error);
@@ -226,7 +228,8 @@ export async function deleteDeadline(
       where: { id: deadlineId },
     });
 
-    revalidatePath(`/hive/${hiveId}`);
+    updateTag(CacheTags.hiveOverview(hiveId));
+    updateTag(CacheTags.userDeadlines(user.id));
     return null;
   } catch (error) {
     console.error("Delete Deadline Error:", error);
@@ -275,7 +278,7 @@ export async function removeMember(
       where: { id: memberId },
     });
 
-    revalidatePath(`/hive/${hiveId}/settings`);
+    updateTag(CacheTags.hiveSettings(hiveId));
     return null;
   } catch (error) {
     console.error("Remove Member Error:", error);
@@ -314,7 +317,7 @@ export async function leaveHive(hiveId: string): Promise<HiveActionError | null>
       },
     });
 
-    revalidatePath("/dashboard");
+    updateTag(CacheTags.userHives(user.id));
   } catch (error) {
     console.error("Leave Hive Error:", error);
     return { error: "Failed to leave hive" };
@@ -387,7 +390,7 @@ export async function updateMemberRole(
       data: { role: newRole },
     });
 
-    revalidatePath(`/hive/${hiveId}/settings`);
+    updateTag(CacheTags.hiveSettings(hiveId));
     return null;
   } catch (error) {
     console.error("Update Member Role Error:", error);

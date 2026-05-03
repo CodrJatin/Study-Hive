@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { TrackType } from "@prisma/client";
 
 export async function createTrack(hiveId: string, formData: FormData) {
@@ -40,5 +41,6 @@ export async function createTrack(hiveId: string, formData: FormData) {
     },
   });
 
-  revalidatePath(`/hive/${hiveId}/tracks`);
+  updateTag(CacheTags.hiveTracks(hiveId));
+  updateTag(CacheTags.hiveSyllabus(hiveId));
 }

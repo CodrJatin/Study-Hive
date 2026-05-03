@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { CacheTags } from "@/lib/cache-tags";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Permissions } from "@/lib/permissions";
@@ -43,7 +44,7 @@ export async function createInvite(
       },
     });
 
-    revalidatePath(`/hive/${hiveId}/settings`);
+    updateTag(CacheTags.hiveSettings(hiveId));
     return null;
   } catch (error) {
     console.error("createInvite error:", error);
@@ -86,7 +87,7 @@ export async function deleteInvite(
   try {
     await prisma.hiveInvite.delete({ where: { id: inviteId } });
 
-    revalidatePath(`/hive/${hiveId}/settings`);
+    updateTag(CacheTags.hiveSettings(hiveId));
     return null;
   } catch (error) {
     console.error("deleteInvite error:", error);
