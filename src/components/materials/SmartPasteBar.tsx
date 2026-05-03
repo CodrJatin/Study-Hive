@@ -2,7 +2,6 @@
 
 import React, { useRef, useTransition, useState, useContext } from "react";
 import { createSmartMaterial } from "@/actions/materials";
-import { MaterialType } from "@prisma/client";
 import { HiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 
@@ -10,12 +9,6 @@ interface SmartPasteBarProps {
   hiveId?: string;
 }
 
-function detectLabel(url: string): string {
-  if (/youtube\.com|youtu\.be/i.test(url)) return "YouTube Video";
-  if (/\.pdf$/i.test(url)) return "PDF Document";
-  if (/\.docx?$|docs\.google/i.test(url)) return "Google Doc";
-  return "Web Link";
-}
 
 export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -36,12 +29,11 @@ export function SmartPasteBar({ hiveId }: SmartPasteBarProps) {
     setPreview("Fetching title...");
     startTransition(async () => {
       // Attempt to scrape title via our proxy route
-      let title = detectLabel(url);
       try {
         const res = await fetch(`/api/fetch-title?url=${encodeURIComponent(url)}`);
         if (res.ok) {
-          const data = await res.json();
-          if (data.title) title = data.title;
+          await res.json();
+          // We could use the result here if createSmartMaterial supported it
         }
       } catch {}
 

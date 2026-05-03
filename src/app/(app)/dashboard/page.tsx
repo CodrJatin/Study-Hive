@@ -70,20 +70,6 @@ function TasksSkeleton() {
   );
 }
 
-function DeadlinesSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10">
-          <div className="border-l-4 border-surface-container-high pl-4 space-y-2">
-            <div className="h-4 bg-surface-container-high rounded w-5/6" />
-            <div className="h-3 bg-surface-container-high rounded w-1/2" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────
 // Async Widget Components
@@ -91,6 +77,7 @@ function DeadlinesSkeleton() {
 
 async function RecentHivesWidget({ userId }: { userId: string }) {
   const recentHives = await getRecentHives(userId);
+  const now = Date.now();
 
   if (recentHives.length === 0) {
     return (
@@ -110,10 +97,10 @@ async function RecentHivesWidget({ userId }: { userId: string }) {
         const nearestDeadline = hive.deadlines?.[0];
         let daysLeft: number | null = null;
         if (nearestDeadline) {
-          const diff = nearestDeadline.dueDate.getTime() - Date.now();
+          const diff = nearestDeadline.dueDate.getTime() - now;
           daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
         } else if (hive.targetDate) {
-          const diff = hive.targetDate.getTime() - Date.now();
+          const diff = hive.targetDate.getTime() - now;
           daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
         }
 
@@ -219,9 +206,19 @@ export default async function DashboardOverview() {
   );
 }
 
-async function DeadlineCentralWidget({ upcomingDeadlines }: { upcomingDeadlines: any[] }) {
+interface UpcomingDeadline {
+  id: string;
+  title: string;
+  dueDate: string | Date;
+  hive: {
+    title: string;
+  };
+}
+
+async function DeadlineCentralWidget({ upcomingDeadlines }: { upcomingDeadlines: UpcomingDeadline[] }) {
+  const now = Date.now();
   const mappedDeadlines = upcomingDeadlines.map((d) => {
-    const diff = new Date(d.dueDate).getTime() - Date.now();
+    const diff = new Date(d.dueDate).getTime() - now;
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
     const isOverdue = days < 0;
 

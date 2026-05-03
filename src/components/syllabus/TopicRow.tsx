@@ -12,7 +12,7 @@ import { ConfirmModal } from "@/components/modals/ConfirmModal";
 export function TopicRow({ topic, userStatus }: { topic: Topic & { creatorId: string | null }, userStatus: TopicStatus }) {
   const { hiveId } = useParams() as { hiveId: string };
   const { role, userId } = useHiveContext();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isOptimisticallyDeleted, setIsOptimisticallyDeleted] = useState(false);

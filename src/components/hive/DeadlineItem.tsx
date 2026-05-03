@@ -1,6 +1,16 @@
 import React from "react";
 
-export function DeadlineItem({ deadline }: { deadline: any }) {
+interface DeadlineData {
+  id: string;
+  title: string;
+  dateBadge: string;
+  dueDate: string;
+  indicatorColor: string;
+  hiveTitle?: string;
+  isUrgent?: boolean;
+}
+
+export function DeadlineItem({ deadline }: { deadline: DeadlineData }) {
   return (
     <div className="bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant/10 hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer flex items-center gap-4 group">
       {/* Date Square */}

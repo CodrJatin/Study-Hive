@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 import { deleteAnnouncement } from "@/actions/announcement";
@@ -81,9 +82,11 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementP
             style={{ backgroundColor: announcement.authorAvatarColor || "#fdc003" }}
           >
             {announcement.authorImage && announcement.authorAvatarType === "image" ? (
-              <img 
+              <Image 
                 src={announcement.authorImage} 
                 alt={announcement.authorName} 
+                width={32}
+                height={32}
                 className="w-full h-full object-cover" 
               />
             ) : (

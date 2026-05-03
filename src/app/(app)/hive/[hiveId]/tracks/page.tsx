@@ -57,6 +57,7 @@ async function TracksGrid({ hiveId }: { hiveId: string }) {
     }),
   ]);
 
+  const now = Date.now();
   const mappedTracks = tracks.map((track) => ({
     id: track.id,
     title: track.name,
@@ -69,7 +70,7 @@ async function TracksGrid({ hiveId }: { hiveId: string }) {
     statusColor: track.type === "QUICK_ADD" ? "primary" : "secondary",
     materialsCount: track._count.trackTopics * 2,
     daysLeft: track.targetDate
-      ? Math.max(0, Math.ceil((new Date(track.targetDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+      ? Math.max(0, Math.ceil((new Date(track.targetDate).getTime() - now) / (1000 * 60 * 60 * 24)))
       : 0,
   }));
 

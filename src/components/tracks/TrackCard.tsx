@@ -1,7 +1,20 @@
 import React from "react";
 import Link from "next/link";
 
-export function TrackCard({ track, hiveId }: { track: any, hiveId: string }) {
+interface Track {
+  id: string;
+  title: string;
+  icon: string;
+  colorScheme: string;
+  statusBadge: string;
+  statusColor: string;
+  creator: string;
+  progress: number;
+  materialsCount: number;
+  daysLeft: number;
+}
+
+export function TrackCard({ track, hiveId }: { track: Track, hiveId: string }) {
   return (
     <div className="group bg-surface-container-low rounded-xl p-6 hover:bg-surface-container-lowest transition-all duration-300 relative overflow-hidden clay-card">
       <div className={`absolute top-0 right-0 w-24 h-24 bg-${track.colorScheme}/5 rounded-bl-full transition-all group-hover:w-32 group-hover:h-32`}></div>

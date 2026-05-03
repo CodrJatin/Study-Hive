@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useOptimistic, useState, useTransition, useEffect } from "react";
+import React, { useOptimistic, useState, useTransition } from "react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { updatePreferences, updateProfile } from "@/actions/settings";
 import { logout } from "@/actions/auth";
 import { Dropdown } from "@/components/shared/Dropdown";
@@ -224,9 +225,11 @@ export function SettingsClient({
                 style={{ backgroundColor: optimisticProfile.avatarColor }}
               >
                 {optimisticProfile.image ? (
-                  <img
+                  <Image
                     src={optimisticProfile.image}
                     alt={optimisticProfile.name}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
                   />
                 ) : (

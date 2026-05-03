@@ -4,7 +4,16 @@ import React, { useOptimistic, useTransition } from "react";
 import { toggleTopicStatus } from "@/actions/syllabus";
 import { TopicStatus } from "@prisma/client";
 
-export function MaterialTile({ material, hiveId }: { material: any, hiveId: string }) {
+interface MaterialTileItem {
+  id: string;
+  completed: boolean;
+  title: string;
+  type: string;
+  details: string | null;
+  instructions: string | null;
+}
+
+export function MaterialTile({ material, hiveId }: { material: MaterialTileItem, hiveId: string }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, addOptimisticStatus] = useOptimistic(
     material.completed,

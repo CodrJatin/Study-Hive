@@ -61,14 +61,14 @@ export function Dropdown({
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
 
-  const setIsOpen = (newIsOpen: boolean) => {
+  const setIsOpen = React.useCallback((newIsOpen: boolean) => {
     if (!isControlled) {
       setInternalIsOpen(newIsOpen);
     }
     if (onOpenChange) {
       onOpenChange(newIsOpen);
     }
-  };
+  }, [isControlled, onOpenChange]);
 
   const selectedOption = options.find((opt) => opt.id === value);
 
@@ -86,7 +86,7 @@ export function Dropdown({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]);
 
   const handleToggle = () => {
     if (!disabled && !disableTriggerClick) {

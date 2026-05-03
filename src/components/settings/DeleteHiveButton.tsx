@@ -23,9 +23,9 @@ export function DeleteHiveButton({ hiveId }: DeleteHiveButtonProps) {
           try {
             const result = await deleteHive(hiveId);
             if (result && "error" in result && result.error) throw new Error(result.error);
-          } catch (err: any) {
+          } catch (err: unknown) {
             // Next.js redirect() throws a special error that we should ignore here
-            if (err.message?.includes("NEXT_REDIRECT")) return;
+            if (err instanceof Error && err.message?.includes("NEXT_REDIRECT")) return;
             throw err;
           }
         })(),

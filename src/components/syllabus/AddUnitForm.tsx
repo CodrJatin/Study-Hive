@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useTransition } from "react";
+import React, { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { createUnit } from "@/actions/syllabus";
 import { useHiveContext } from "@/components/providers/HiveProviders";

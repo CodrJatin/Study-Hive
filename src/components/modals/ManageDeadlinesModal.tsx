@@ -4,7 +4,7 @@ import React, { useRef, useTransition, useOptimistic } from "react";
 import { toast } from "sonner";
 import { addDeadline, deleteDeadline } from "@/actions/hive";
 
-interface DeadlineItem {
+export interface DeadlineItem {
   id: string;
   title: string;
   dueDate: Date | string;
@@ -72,23 +72,20 @@ export function ManageDeadlinesModal({ isOpen, onClose, hiveId, deadlines }: Man
     setShowConfirm(false);
     
     startDeleteTransition(async () => {
-      removeOptimisticDeadline(selectedDeadline.id);
-      
-      const promise = deleteDeadline(hiveId, selectedDeadline.id).then((result) => {
-        if (result && "error" in result && result.error) throw new Error(result.error);
-        return result;
-      });
-
-      toast.promise(promise, {
-        loading: `Removing "${selectedDeadline.title}"…`,
-        success: `"${selectedDeadline.title}" removed.`,
-        error: (err: Error) => err.message || "Failed to remove deadline",
-      });
-
       try {
-        await promise;
-        setSelectedDeadline(null);
-      } catch (err) {
+        removeOptimisticDeadline(selectedDeadline.id);
+        
+        const promise = deleteDeadline(hiveId, selectedDeadline.id).then((result) => {
+          if (result && "error" in result && result.error) throw new Error(result.error);
+          return result;
+        });
+
+        toast.promise(promise, {
+          loading: `Removing "${selectedDeadline.title}"…`,
+          success: `"${selectedDeadline.title}" removed.`,
+          error: (err: Error) => err.message || "Failed to remove deadline",
+        });
+      } catch {
         // handled by toast
       }
     });

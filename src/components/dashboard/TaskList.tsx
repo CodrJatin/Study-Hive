@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useOptimistic, useTransition, useState } from "react";
+import React, { useOptimistic, useTransition } from "react";
 import { toggleTaskComplete } from "@/actions/tasks";
 import { Task } from "@prisma/client";
 import Link from "next/link";
@@ -10,7 +10,7 @@ interface TaskListProps {
 }
 
 export function TaskList({ initialTasks }: TaskListProps) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   // Adjusted Task type for relations
   type ExtendedTask = Task & { hive?: { title: string } | null; material?: { title: string } | null; };
 

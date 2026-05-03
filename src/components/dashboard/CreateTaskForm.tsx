@@ -16,12 +16,11 @@ export function CreateTaskForm({ userId }: { userId: string }) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSearchedQuery = useRef("");
-
+  const [lastSearchedQuery, setLastSearchedQuery] = useState("");
   const [selectedHive, setSelectedHive] = useState<{ id: string; title: string } | null>(null);
   const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; title: string; type?: string } | null>(null);
 
-  const isTypingOrSearching = searchQuery.trim().length >= 2 && (isSearching || searchQuery.trim() !== lastSearchedQuery.current);
+  const isTypingOrSearching = searchQuery.trim().length >= 2 && (isSearching || searchQuery.trim() !== lastSearchedQuery);
   const showDropdown = showSearchDropdown && searchQuery.trim().length >= 2;
 
   // ── Debounced search ──────────────────────────────────────────────────────
@@ -29,13 +28,13 @@ export function CreateTaskForm({ userId }: { userId: string }) {
     const trimmed = q.trim();
     if (trimmed.length < 2) {
       setSearchResults([]);
-      lastSearchedQuery.current = "";
+      setLastSearchedQuery("");
       return;
     }
     startSearchTransition(async () => {
       const data = await globalSearch(trimmed);
       setSearchResults(data);
-      lastSearchedQuery.current = trimmed;
+      setLastSearchedQuery(trimmed);
     });
   }, []);
 
@@ -215,7 +214,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
                       <div className="py-8 text-center text-on-surface-variant/40 text-sm">No results found.</div>
                     )}
                     {!isTypingOrSearching && searchResults.length > 0 && (
-                      <ul className="divide-y divide-outline-variant/5">
+                      <ul className="divide-y divide-outline-variant/5" role="listbox">
                         {searchResults.filter(r => r.type === "hive" || r.type === "material").map((result) => {
                           const icon = result.type === "hive" ? "hive" :
                             result.materialType === "PLAYLIST" ? "playlist_play" :
@@ -231,7 +230,7 @@ export function CreateTaskForm({ userId }: { userId: string }) {
                             "text-tertiary bg-tertiary/10";
 
                           return (
-                            <li key={result.id} role="option">
+                            <li key={result.id} role="option" aria-selected={false}>
                               <button
                                 type="button"
                                 onClick={() => handleSelectResult(result)}

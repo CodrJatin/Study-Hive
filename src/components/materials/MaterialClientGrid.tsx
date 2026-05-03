@@ -13,7 +13,7 @@ type MaterialType = {
   channelName: string | null;
   duration: number | null;
   videoRange: string | null;
-  playlistData: any | null;
+  playlistData: unknown | null;
   userId: string;
 };
 

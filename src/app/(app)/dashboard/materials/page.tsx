@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { getPersonalMaterials } from "@/actions/materials";
@@ -11,22 +10,6 @@ import { UploadButton } from "@/components/materials/UploadButton";
 // ─────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────
-
-function getMaterialStyling(type: string) {
-  switch (type) {
-    case "PDF":      return { icon: "picture_as_pdf", iconBg: "bg-error/10",            iconColor: "text-error" };
-    case "VIDEO":    return { icon: "play_circle",    iconBg: "bg-primary-container",   iconColor: "text-primary" };
-    case "PLAYLIST": return { icon: "playlist_play",  iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
-    case "DOC":      return { icon: "description",    iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
-    case "LINK":     return { icon: "link",           iconBg: "bg-secondary-container", iconColor: "text-secondary" };
-    default:         return { icon: "article",        iconBg: "bg-surface-container-high", iconColor: "text-on-surface" };
-  }
-}
-
-const TYPE_ORDER = ["VIDEO", "PLAYLIST", "PDF", "DOC", "LINK"];
-const TYPE_LABELS: Record<string, string> = {
-  VIDEO: "Videos", PLAYLIST: "Playlists", PDF: "PDFs", DOC: "Documents", LINK: "Links",
-};
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -72,17 +55,7 @@ function MaterialGridSkeleton() {
 async function PersonalMaterialsWidget({ userId }: { userId: string }) {
   const materials = await getPersonalMaterials(userId);
 
-  const grouped = materials.reduce((acc, m) => {
-    if (!acc[m.type]) acc[m.type] = [];
-    acc[m.type].push(m);
-    return acc;
-  }, {} as Record<string, typeof materials>);
-
-  const sortedGroups = Object.entries(grouped).sort(
-    ([a], [b]) => TYPE_ORDER.indexOf(a) - TYPE_ORDER.indexOf(b)
-  );
-
-  if (sortedGroups.length === 0) {
+  if (materials.length === 0) {
     return (
       <div className="text-center py-24 bg-surface-container-low rounded-3xl clay-inset border border-dashed border-outline-variant/30">
         <span className="material-symbols-outlined text-on-surface-variant/20 text-6xl mb-4 block">inbox</span>

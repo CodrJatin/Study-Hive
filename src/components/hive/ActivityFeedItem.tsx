@@ -1,6 +1,17 @@
 import React from "react";
 
-export function ActivityFeedItem({ activity }: { activity: any }) {
+interface ActivityItem {
+  bgColor: string;
+  iconColor: string;
+  icon: string;
+  author: string;
+  actionStart: string;
+  targetDesc?: string;
+  targetColor?: string;
+  timeAgo: string;
+}
+
+export function ActivityFeedItem({ activity }: { activity: ActivityItem }) {
   return (
     <div className="relative flex items-start gap-6">
       <div className={`w-10 h-10 rounded-full ${activity.bgColor} flex items-center justify-center z-10`}>

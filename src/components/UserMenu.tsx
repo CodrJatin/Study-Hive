@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
 import { useTransition } from "react";
+import Image from "next/image";
 
 interface UserMenuProps {
   name: string;
@@ -79,9 +80,11 @@ export function UserMenu({
           style={{ backgroundColor: avatarColor }}
         >
           {image && avatarType === "image" ? (
-            <img
+            <Image
               src={image}
               alt={name}
+              width={32}
+              height={32}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -99,9 +102,11 @@ export function UserMenu({
         aria-haspopup="menu"
       >
         {image && avatarType === "image" ? (
-          <img
+          <Image
             src={image}
             alt={name}
+            width={40}
+            height={40}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -122,9 +127,11 @@ export function UserMenu({
               style={{ backgroundColor: avatarColor }}
             >
               {image && avatarType === "image" ? (
-                <img
+                <Image
                   src={image}
                   alt={name}
+                  width={44}
+                  height={44}
                   className="w-full h-full object-cover"
                 />
               ) : (

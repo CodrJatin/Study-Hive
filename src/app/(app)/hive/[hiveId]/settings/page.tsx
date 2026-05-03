@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { DeleteHiveButton } from "@/components/settings/DeleteHiveButton";
 import { GeneralSettingsForm } from "@/components/settings/GeneralSettingsForm";
 import { ManageInvitesAction } from "@/components/settings/ManageInvitesAction";
 import { CopyInviteButton } from "@/components/settings/CopyInviteButton";
@@ -79,9 +79,11 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
                 style={{ backgroundColor: member.user.avatarColor }}
               >
                 {member.user.image && member.user.avatarType === "image" ? (
-                  <img 
+                  <Image 
                     src={member.user.image} 
-                    alt={member.user.name} 
+                    alt={member.user.name || "User"} 
+                    width={40}
+                    height={40}
                     className="w-full h-full object-cover" 
                   />
                 ) : (
@@ -174,7 +176,7 @@ export default async function SettingsPage({
 }) {
   const { hiveId } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.auth.getUser();
 
   const exists = await prisma.hive.findUnique({ where: { id: hiveId }, select: { id: true } });
   if (!exists) return notFound();

@@ -19,11 +19,13 @@ export function InstallPWA() {
     const dismissed = sessionStorage.getItem(DISMISSED_KEY);
     if (dismissed) return;
 
-    // Don't show if already running as standalone (installed)
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true);
-      return;
-    }
+    // Check standalone status
+    const checkStandalone = () => {
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        setIsInstalled(true);
+      }
+    };
+    checkStandalone();
 
     const handler = (e: Event) => {
       e.preventDefault();

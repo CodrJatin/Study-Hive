@@ -121,6 +121,7 @@ async function AnnouncementsWidget({ hiveId, userName }: { hiveId: string; userN
 }
 
 async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
+  const now = Date.now();
   const rawDeadlines = await prisma.deadline.findMany({
     where: { hiveId },
     orderBy: { dueDate: "asc" },
@@ -128,7 +129,7 @@ async function DeadlinesWidget({ hiveId }: { hiveId: string }) {
   });
 
   const mappedDeadlines = rawDeadlines.map((d) => {
-    const diff = new Date(d.dueDate).getTime() - Date.now();
+    const diff = new Date(d.dueDate).getTime() - now;
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
     const isOverdue = days < 0;
 

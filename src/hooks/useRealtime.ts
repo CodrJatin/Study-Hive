@@ -26,7 +26,7 @@ export function useRealtime(tableName: string, filter?: { column: string; value:
           event: "*", 
           schema: "public", 
           table: tableName,
-          filter: filter ? `${filter.column}=eq.${filter.value}` : undefined,
+          filter: (filter?.column && filter?.value) ? `${filter.column}=eq.${filter.value}` : undefined,
         },
         (payload) => {
           console.log("CHANGE DETECTED!", payload);

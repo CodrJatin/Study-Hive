@@ -4,7 +4,13 @@ import React, { useState } from "react";
 import { NewTrackModal } from "@/components/modals/NewTrackModal";
 import { ActionCard } from "@/components/shared/ActionCard";
 
-export function AddTrackCard({ materials, hiveId }: { materials: any[], hiveId: string }) {
+interface MaterialListItem {
+  id: string;
+  title: string;
+  type: string;
+}
+
+export function AddTrackCard({ materials, hiveId }: { materials: MaterialListItem[], hiveId: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

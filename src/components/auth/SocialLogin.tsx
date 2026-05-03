@@ -13,9 +13,9 @@ export function SocialLogin() {
         (async () => {
           try {
             await signInWithGoogle();
-          } catch (err: any) {
+          } catch (err: unknown) {
             // Next.js redirect() throws a special NEXT_REDIRECT error — ignore it
-            if (err?.message?.includes("NEXT_REDIRECT")) return;
+            if (err instanceof Error && err.message?.includes("NEXT_REDIRECT")) return;
             throw err;
           }
         })(),

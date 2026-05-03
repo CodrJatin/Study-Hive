@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
@@ -11,21 +10,7 @@ import { UploadButton } from "@/components/materials/UploadButton";
 // Helpers (pure fns, no I/O)
 // ─────────────────────────────────────────
 
-function getMaterialStyling(type: string) {
-  switch (type) {
-    case "PDF":      return { icon: "picture_as_pdf", iconBg: "bg-error/10",            iconColor: "text-error" };
-    case "VIDEO":    return { icon: "play_circle",    iconBg: "bg-primary-container",   iconColor: "text-primary" };
-    case "PLAYLIST": return { icon: "playlist_play",  iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
-    case "DOC":      return { icon: "description",    iconBg: "bg-tertiary-container",  iconColor: "text-tertiary" };
-    case "LINK":     return { icon: "link",           iconBg: "bg-secondary-container", iconColor: "text-secondary" };
-    default:         return { icon: "article",        iconBg: "bg-surface-container-high", iconColor: "text-on-surface" };
-  }
-}
-
-const TYPE_ORDER = ["VIDEO", "PLAYLIST", "PDF", "DOC", "LINK"];
-const TYPE_LABELS: Record<string, string> = {
-  VIDEO: "Videos", PLAYLIST: "Playlists", PDF: "PDFs", DOC: "Documents", LINK: "Links",
-};
+// ─────────────────────────────────────────
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -102,7 +87,7 @@ async function MaterialGrid({ hiveId }: { hiveId: string }) {
     },
   });
 
-  return <MaterialClientGrid hiveId={hiveId} initialMaterials={materials as any} />;
+  return <MaterialClientGrid hiveId={hiveId} initialMaterials={materials} />;
 }
 
 // ─────────────────────────────────────────

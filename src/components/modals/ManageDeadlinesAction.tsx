@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { ManageDeadlinesModal } from "./ManageDeadlinesModal";
+import { ManageDeadlinesModal, type DeadlineItem } from "./ManageDeadlinesModal";
 import { useHiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 
 interface ManageDeadlinesActionProps {
   hiveId: string;
-  deadlines: any[];
+  deadlines: DeadlineItem[];
 }
 
 export function ManageDeadlinesAction({ hiveId, deadlines }: ManageDeadlinesActionProps) {

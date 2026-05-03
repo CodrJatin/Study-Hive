@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { createHive } from "@/actions/hive";
 
 export function NewHiveModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [selectedIcon, setSelectedIcon] = React.useState("science");
 

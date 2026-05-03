@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useContext } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { createMaterial } from "@/actions/materials";
-import { MaterialType } from "@prisma/client";
 import { toast } from "sonner";
 import { HiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";

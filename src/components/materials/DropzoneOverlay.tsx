@@ -2,9 +2,6 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { createClient } from "@/utils/supabase/client";
-import { createMaterial } from "@/actions/materials";
-import { MaterialType } from "@prisma/client";
 import { HiveContext } from "@/components/providers/HiveProviders";
 import { Permissions } from "@/lib/permissions";
 import { useContext } from "react";

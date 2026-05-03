@@ -13,7 +13,13 @@ function getIconStyling(type: string) {
   }
 }
 
-export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: boolean; onClose: () => void, materials: any[], hiveId: string }) {
+interface MaterialItem {
+  id: string;
+  title: string;
+  type: string;
+}
+
+export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: boolean; onClose: () => void, materials: MaterialItem[], hiveId: string }) {
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   
   if (!isOpen) return null;
@@ -25,9 +31,15 @@ export function NewTrackModal({ isOpen, onClose, materials, hiveId }: { isOpen: 
   };
 
   const action = async (formData: FormData) => {
-    selectedMaterials.forEach(m => formData.append("materialIds", m));
-    await createTrack(hiveId, formData);
-    onClose();
+    try {
+      selectedMaterials.forEach(m => formData.append("materialIds", m));
+      await createTrack(hiveId, formData);
+      onClose();
+    } catch (err: unknown) {
+      // Next.js redirect() throws a special error that we should ignore here
+      if (err instanceof Error && err.message?.includes("NEXT_REDIRECT")) return;
+      throw err;
+    }
   };
 
   return (

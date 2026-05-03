@@ -54,7 +54,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastSearchedQuery = useRef("");
+  const [lastSearchedQuery, setLastSearchedQuery] = useState("");
 
   // ── Debounced search ─────────────────────────────────────────────────────
   const runSearch = useCallback((q: string) => {
@@ -62,14 +62,14 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     if (trimmed.length < 2) {
       setResults([]);
       setIsOpen(false);
-      lastSearchedQuery.current = "";
+      setLastSearchedQuery("");
       return;
     }
     
     startTransition(async () => {
       const data = await globalSearch(trimmed);
       setResults(data);
-      lastSearchedQuery.current = trimmed;
+      setLastSearchedQuery(trimmed);
       setIsOpen(true);
     });
   }, []);
@@ -119,12 +119,11 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
     setIsOpen(false);
     setIsMobileSearchActive(false);
     setQuery("");
-    lastSearchedQuery.current = "";
+    setLastSearchedQuery("");
     router.push(buildHref(result));
   }
 
-  const hasResults = results.length > 0;
-  const isTypingOrSearching = query.trim().length >= 2 && (isPending || query.trim() !== lastSearchedQuery.current);
+  const isTypingOrSearching = query !== lastSearchedQuery || isPending;
   const showDropdown = isOpen && query.trim().length >= 2;
 
   const options: DropdownOption[] = results.map((result) => {
@@ -169,13 +168,13 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
   const loadingMessage = (
     <div className="px-4 py-4 text-sm text-on-surface-variant animate-pulse flex items-center gap-2">
       <span className="material-symbols-outlined text-base animate-spin text-primary">progress_activity</span>
-      Searching for "{query}"...
+      Searching for &quot;{query}&quot;...
     </div>
   );
 
   const emptyMessage = (
     <div className="px-4 py-8 text-center text-on-surface-variant/60 text-sm italic">
-      No results found for "{query}"
+      No results found for &quot;{query}&quot;
     </div>
   );
 
@@ -219,7 +218,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
                     onChange={(e) => setQuery(e.target.value)}
                   />
                   {query && (
-                    <button onClick={() => { setQuery(""); setResults([]); lastSearchedQuery.current = ""; }}>
+                    <button onClick={() => { setQuery(""); setResults([]); setLastSearchedQuery(""); }}>
                       <span className="material-symbols-outlined text-base">close</span>
                     </button>
                   )}
@@ -269,7 +268,7 @@ export function HeaderSearch({ isMobile }: { isMobile?: boolean }) {
             />
             {query && (
               <button
-                onClick={() => { setQuery(""); setResults([]); setIsOpen(false); lastSearchedQuery.current = ""; }}
+                onClick={() => { setQuery(""); setResults([]); setIsOpen(false); setLastSearchedQuery(""); }}
                 className="ml-2 text-on-surface-variant/60 hover:text-on-surface transition-colors"
               >
                 <span className="material-symbols-outlined text-base">close</span>
