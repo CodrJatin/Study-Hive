@@ -23,15 +23,19 @@ export function InstallPWA() {
   const [isInstalled, setIsInstalled] = useState<boolean>(getInitialIsInstalled);
 
   useEffect(() => {
-    // Don't show if already dismissed in this session or recently
-    const dismissed = sessionStorage.getItem(DISMISSED_KEY);
-    if (dismissed) return;
+    // Don't show if recently dismissed (within last hour)
+    const dismissedUntil = localStorage.getItem(DISMISSED_KEY);
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) return;
 
     // If already standalone, nothing to show
     if (isInstalled) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
+      
+      const dismissedUntil = localStorage.getItem(DISMISSED_KEY);
+      if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) return;
+
       setPromptEvent(e as BeforeInstallPromptEvent);
       setIsVisible(true);
     };
@@ -63,7 +67,9 @@ export function InstallPWA() {
   };
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISSED_KEY, "1");
+    // Hide for 1 hour
+    const nextShowTime = Date.now() + 60 * 60 * 1000;
+    localStorage.setItem(DISMISSED_KEY, nextShowTime.toString());
     setIsVisible(false);
   };
 
