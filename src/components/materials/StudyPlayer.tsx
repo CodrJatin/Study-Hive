@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import { toggleVideoProgress } from "@/actions/materials";
 
 // ─────────────────────────────────────────────────────────────────
@@ -338,10 +339,11 @@ export function StudyPlayer({
                       {/* Thumbnail */}
                       <div className="relative w-20 shrink-0 aspect-video rounded-lg overflow-hidden bg-surface-container-high">
                         {video.thumbnail ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={video.thumbnail}
                             alt={video.title}
+                            width={80}
+                            height={45}
                             className={`w-full h-full object-cover transition-opacity ${isDone ? "opacity-50" : ""}`}
                           />
                         ) : (

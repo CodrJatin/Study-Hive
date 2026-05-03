@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -80,11 +81,12 @@ export function InstallPWA() {
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
           style={{ background: "linear-gradient(135deg, #785900, #ffc107)" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/icons/icon-192.png"
             alt="StudyHive"
-            className="w-10 h-10 rounded-lg object-cover"
+            width={40}
+            height={40}
+            className="rounded-lg object-cover"
           />
         </div>
 
