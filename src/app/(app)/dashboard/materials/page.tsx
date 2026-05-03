@@ -5,6 +5,7 @@ import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { UploadButton } from "@/components/materials/UploadButton";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // ─────────────────────────────────────────
 // Helpers
@@ -67,7 +68,13 @@ async function PersonalMaterialsWidget({ userId }: { userId: string }) {
     );
   }
 
-  return <MaterialClientGrid userId={userId} initialMaterials={materials} />;
+  return (
+    <>
+      {/* Scoped to this user’s personal materials — no cross-user refreshes */}
+      <RealtimeListener tableName="Material" filterColumn="userId" filterValue={userId} />
+      <MaterialClientGrid initialMaterials={materials} />
+    </>
+  );
 }
 
 // ─────────────────────────────────────────

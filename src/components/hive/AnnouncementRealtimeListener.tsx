@@ -3,6 +3,6 @@
 import { useRealtime } from "@/hooks/useRealtime";
 
 export function AnnouncementRealtimeListener({ hiveId }: { hiveId: string }) {
-  useRealtime("Announcement", { column: "hiveId", value: hiveId });
+  useRealtime("Announcement", "hiveId", hiveId);
   return null;
 }

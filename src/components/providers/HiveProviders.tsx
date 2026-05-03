@@ -1,6 +1,6 @@
 "use client";
+
 import { createContext, useContext } from "react";
-import { useRealtime } from "@/hooks/useRealtime";
 import type { HiveRole } from "@/types/client-prisma";
 
 interface HiveContextType {
@@ -28,8 +28,11 @@ export const HiveProvider = ({
     userId: string;
     hiveId: string;
 }) => {
-    useRealtime("HiveMember", { column: "userId", value: userId });
-
+    // NOTE: Realtime subscriptions are NOT embedded here.
+    // Membership changes should be listened to only on routes that display
+    // membership data (e.g. settings page has its own <RealtimeListener>).
+    // Embedding useRealtime here would cause router.refresh() across the
+    // entire hive subtree on every membership change.
     return (
         <HiveContext.Provider value={{ role, userId, hiveId }}>
             {children}

@@ -5,6 +5,7 @@ import { SmartPasteBar } from "@/components/materials/SmartPasteBar";
 import { DropzoneOverlay } from "@/components/materials/DropzoneOverlay";
 import { MaterialClientGrid } from "@/components/materials/MaterialClientGrid";
 import { UploadButton } from "@/components/materials/UploadButton";
+import { RealtimeListener } from "@/components/shared/RealtimeListener";
 
 // ─────────────────────────────────────────
 // Skeletons
@@ -110,6 +111,8 @@ export default async function MaterialsPage({
   return (
     <>
       <DropzoneOverlay hiveId={hiveId} />
+      {/* Scoped to this hive — no cross-hive refreshes */}
+      <RealtimeListener tableName="Material" filterColumn="hiveId" filterValue={hiveId} />
 
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">

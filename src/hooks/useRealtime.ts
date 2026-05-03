@@ -4,42 +4,40 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-export function useRealtime(tableName: string, filter?: { column: string; value: string | number }) {
+export function useRealtime(
+  tableName: string,
+  filterColumn?: string,
+  filterValue?: string,
+  /** Explicit channel key — must be stable across renders (no random values). */
+  channelKey?: string,
+) {
   const router = useRouter();
   const isEnabled = process.env.NEXT_PUBLIC_ENABLE_REALTIME === "true";
 
+  // Derive a deterministic channel name from primitives so the effect dependency
+  // array is stable and never triggers an extra subscribe/unsubscribe cycle.
+  const key = channelKey ?? `rt-${tableName}-${filterColumn ?? "all"}-${filterValue ?? "all"}`;
+  const filter =
+    filterColumn && filterValue ? `${filterColumn}=eq.${filterValue}` : undefined;
+
   useEffect(() => {
-    if (!isEnabled) {
-      console.log("Realtime is disabled via ENV");
-      return;
-    }
+    if (!isEnabled) return;
 
     const supabase = createClient();
-    console.log(`Subscribing to ${tableName}...`);
-
-    const channelName = `realtime-${tableName}-${Math.random().toString(36).substring(2, 9)}`;
     const channel = supabase
-      .channel(channelName)
+      .channel(key)
       .on(
         "postgres_changes",
-        { 
-          event: "*", 
-          schema: "public", 
-          table: tableName,
-          filter: (filter?.column && filter?.value) ? `${filter.column}=eq.${filter.value}` : undefined,
-        },
-        (payload) => {
-          console.log("CHANGE DETECTED!", payload);
+        { event: "*", schema: "public", table: tableName, filter },
+        () => {
           router.refresh();
-        }
+        },
       )
-      .subscribe((status) => {
-        console.log(`Subscription status for ${tableName}:`, status);
-      });
+      .subscribe();
 
     return () => {
-      console.log(`Unsubscribing from ${tableName}`);
       supabase.removeChannel(channel);
     };
-  }, [tableName, isEnabled, filter?.value, filter?.column, router]);
+  // All deps are primitives — stable across renders.
+  }, [key, tableName, filter, isEnabled, router]);
 }

@@ -164,9 +164,10 @@ export default async function SyllabusPage({ params }: { params: Promise<{ hiveI
 
   return (
     <div className="max-w-5xl mx-auto w-full">
-      <RealtimeListener tableName="Track" filter={{ column: "hiveId", value: hiveId }} />
-      <RealtimeListener tableName="Unit" />
-      <RealtimeListener tableName="Topic" />
+      {/* Unit changes cover syllabus mutations; Topic is always paired with a Unit write.
+          Both are filtered to this hive — no cross-hive refreshes. */}
+      <RealtimeListener tableName="Track" filterColumn="hiveId" filterValue={hiveId} />
+      <RealtimeListener tableName="Unit" filterColumn="hiveId" filterValue={hiveId} />
       {/* Header */}
       <div className="mb-10">
         <span className="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">

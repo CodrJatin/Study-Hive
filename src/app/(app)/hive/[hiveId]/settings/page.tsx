@@ -66,7 +66,7 @@ async function MembersSection({ hiveId }: { hiveId: string }) {
 
   return (
     <>
-      <RealtimeListener tableName="HiveMember" filter={{ column: "hiveId", value: hiveId }} />
+      <RealtimeListener tableName="HiveMember" filterColumn="hiveId" filterValue={hiveId} />
       <div className="bg-surface-container-lowest rounded-3xl clay-card">
         <div className="divide-y divide-surface-container">
         {members.map((member) => (

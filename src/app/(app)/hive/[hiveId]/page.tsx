@@ -153,7 +153,6 @@ async function DeadlinesWidget({ hiveId, nowMs }: { hiveId: string; nowMs: numbe
 
   return (
     <>
-      <RealtimeListener tableName="Deadline" filter={{ column: "hiveId", value: hiveId }} />
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-2xl font-headline font-bold text-on-background flex items-center gap-2">
           <span className="material-symbols-outlined text-error text-3xl">event_busy</span>
@@ -195,6 +194,8 @@ export default async function HiveGeneralPage({ params }: { params: Promise<{ hi
 
   return (
     <div className="max-w-6xl mx-auto space-y-12">
+      {/* Scoped realtime listeners — filtered to this hive only */}
+      <RealtimeListener tableName="Deadline" filterColumn="hiveId" filterValue={hiveId} />
       {/* Hive Overview Card */}
       <div className="bg-surface-container-lowest rounded-[3rem] border border-outline-variant/10 shadow-sm overflow-hidden clay-card">
         <Suspense fallback={<OverviewCardSkeleton />}>
