@@ -1,6 +1,6 @@
 "use client";
 import { Icon } from "@/components/ui/Icon";
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect, useRef } from "react";
 import Image from "next/image";
 import { toggleVideoProgress } from "@/actions/materials";
 
@@ -67,8 +67,29 @@ export function StudyPlayer({
   const [playbackRate, setPlaybackRate] = useState(1);
   const rates = [1, 1.25, 1.5, 2];
 
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
   const activeVideo = videos[activeIdx];
   const isPlaylist = videos.length > 1;
+  const embedUrl = `https://www.youtube.com/embed/${activeVideo?.id}?autoplay=1&rel=0`;
+
+  // ── Route Preservation Fix ────────────────────────────────────
+  // When Next.js preserves this route (hides it), useEffect cleanup runs.
+  // We clear the iframe src to stop audio, and restore it when unhidden.
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (iframe && activeVideo) {
+      // If src is empty (from cleanup) or doesn't match current video, restore it
+      if (!iframe.src.includes(activeVideo.id)) {
+        iframe.src = embedUrl;
+      }
+    }
+    return () => {
+      if (iframe) {
+        iframe.src = ""; // Stop audio/video
+      }
+    };
+  }, [embedUrl, activeVideo]);
 
   // ── Derived stats ─────────────────────────────────────────────
   const totalSeconds = videos.reduce((sum, v) => sum + v.durationSeconds, 0);
@@ -112,8 +133,6 @@ export function StudyPlayer({
       </div>
     );
   }
-
-  const embedUrl = `https://www.youtube.com/embed/${activeVideo.id}?autoplay=1&rel=0`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -202,6 +221,7 @@ export function StudyPlayer({
             <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
               <iframe
                 key={activeVideo.id}
+                ref={iframeRef}
                 src={embedUrl}
                 title={activeVideo.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
